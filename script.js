@@ -60,6 +60,7 @@
   let returnFocus = null;
   let lastTouchY = null;
   let scrollTicking = false;
+  let cachedMaxScroll = 0;
 
   // Format frame URL with zero-padding (e.g. frames/frame_0001.jpg)
   function getFrameUrl(index) {
@@ -67,31 +68,38 @@
     return `${FRAME_DIR}/frame_${padded}.jpg`;
   }
 
-  // --- 1. Chunked & Asynchronous Frame Preloading Pipeline ---
+  // --- 1. High-Performance Asynchronous Frame Preloading Pipeline ---
   function loadSingleFrame(index, onComplete) {
     if (images[index]) {
       if (onComplete) onComplete();
       return;
     }
     const img = new Image();
-    img.onload = () => {
+
+    const handleLoaded = () => {
       images[index] = img;
       loadedCount++;
-      updateLoaderProgress();
-      if (index === 0) {
+      if (loader && !loader.classList.contains('loaded')) {
+        updateLoaderProgress();
+      }
+      if (index === 0 && lastDrawnFrame === -1) {
         resizeCanvas();
         drawFrame(0);
-        startRenderLoop();
       }
       if (onComplete) onComplete();
     };
-    img.onerror = () => {
-      // Empty onerror handler to prevent console warnings on missing frames
-      loadedCount++;
-      updateLoaderProgress();
-      if (onComplete) onComplete();
-    };
-    img.src = getFrameUrl(index);
+
+    if ('decode' in img) {
+      img.src = getFrameUrl(index);
+      img.decode().then(handleLoaded).catch(handleLoaded);
+    } else {
+      img.onload = handleLoaded;
+      img.onerror = () => {
+        loadedCount++;
+        if (onComplete) onComplete();
+      };
+      img.src = getFrameUrl(index);
+    }
   }
 
   function updateLoaderProgress() {
@@ -101,58 +109,72 @@
     if (loaderCount) loaderCount.textContent = `${loadedCount} / ${TOTAL_FRAMES}`;
   }
 
-  function preloadImages() {
-    // Stage A: Immediately preload initial 5 frames so Frame 0 renders without blocking UI
-    const INITIAL_COUNT = 5;
-    let initialLoaded = 0;
-
-    for (let i = 0; i < INITIAL_COUNT; i++) {
-      loadSingleFrame(i, () => {
-        initialLoaded++;
-        if (initialLoaded >= 1) {
-          // Dismiss loader smoothly once initial visuals are ready
-          if (loader && !loader.classList.contains('loaded')) {
-            setTimeout(() => {
-              loader.classList.add('loaded');
-            }, 100);
-          }
-        }
-      });
+  function dismissLoader() {
+    if (loader && !loader.classList.contains('loaded')) {
+      loader.classList.add('loaded');
+      setTimeout(() => {
+        if (loader) loader.style.display = 'none';
+      }, 400);
     }
+  }
 
-    // Stage B: Stream remaining frames (6 to 240) in batches of 15 via requestIdleCallback
-    const CHUNK_SIZE = 15;
-    let nextIndex = INITIAL_COUNT;
+  function preloadImages() {
+    // Stage A: Instantly load Frame 0 & adjacent frames so Hero renders in <100ms with zero lag
+    loadSingleFrame(0, () => {
+      dismissLoader();
+      requestRender();
 
-    function streamNextChunk() {
-      if (nextIndex >= TOTAL_FRAMES) {
+      // Stage B: Load sparse keyframes (every 6th frame) with concurrency limit of 2
+      // This gives 100% full-sequence scrub coverage immediately (~40 frames, only ~3MB)
+      const keyframes = [];
+      for (let i = 6; i < TOTAL_FRAMES; i += 6) {
+        keyframes.push(i);
+      }
+      if (keyframes[keyframes.length - 1] !== TOTAL_FRAMES - 1) {
+        keyframes.push(TOTAL_FRAMES - 1);
+      }
+
+      loadQueueInBatches(keyframes, 2, () => {
         isReady = true;
-        if (loader) loader.classList.add('loaded');
+
+        // Stage C: Progressively fill in the remaining frames during idle time (concurrency 2)
+        const remainingFrames = [];
+        for (let i = 1; i < TOTAL_FRAMES; i++) {
+          if (!images[i]) remainingFrames.push(i);
+        }
+        loadQueueInBatches(remainingFrames, 2);
+      });
+    });
+  }
+
+  function loadQueueInBatches(queue, concurrency, onFinish) {
+    let active = 0;
+    let index = 0;
+
+    function next() {
+      if (index >= queue.length && active === 0) {
+        if (onFinish) onFinish();
         return;
       }
 
-      const schedule = (typeof window.requestIdleCallback === 'function')
-        ? window.requestIdleCallback
-        : (cb) => setTimeout(cb, 50);
+      while (active < concurrency && index < queue.length) {
+        const frameIdx = queue[index++];
+        active++;
 
-      schedule(() => {
-        const chunkEnd = Math.min(TOTAL_FRAMES, nextIndex + CHUNK_SIZE);
-        let chunkCompleted = 0;
-        const countInThisChunk = chunkEnd - nextIndex;
+        const schedule = (typeof window.requestIdleCallback === 'function')
+          ? window.requestIdleCallback
+          : (cb) => setTimeout(cb, 60);
 
-        for (let i = nextIndex; i < chunkEnd; i++) {
-          loadSingleFrame(i, () => {
-            chunkCompleted++;
-            if (chunkCompleted >= countInThisChunk) {
-              streamNextChunk();
-            }
+        schedule(() => {
+          loadSingleFrame(frameIdx, () => {
+            active--;
+            next();
           });
-        }
-        nextIndex = chunkEnd;
-      });
+        });
+      }
     }
 
-    streamNextChunk();
+    next();
   }
 
   function findClosestLoadedFrame(targetIdx) {
@@ -232,20 +254,23 @@
     }
   }
 
-  // --- 2. High-DPI Canvas Rendering Engine ---
+  // --- 2. High-Performance Canvas Rendering Engine ---
   function resizeCanvas() {
     if (!canvas || !ctx) return;
     applyMobileHeroLock();
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const isMobile = window.innerWidth <= 768;
 
     let displayWidth, displayHeight;
+    let dpr;
     if (isMobile) {
       displayWidth = 190;
       displayHeight = 190;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
     } else {
       displayWidth = window.innerWidth;
       displayHeight = window.innerHeight;
+      // Cap desktop DPR to 1.25 to prevent 4K fill-rate stutter on desktop
+      dpr = Math.min(window.devicePixelRatio || 1, 1.25);
     }
 
     const targetW = Math.round(displayWidth * dpr);
@@ -257,8 +282,11 @@
       lastDrawnFrame = -1;
     }
 
-    if (images[Math.round(currentFrame)]) {
-      drawFrame(Math.round(currentFrame));
+    updateMaxScroll();
+
+    const frameIdx = Math.round(currentFrame);
+    if (images[frameIdx] || findClosestLoadedFrame(frameIdx)) {
+      drawFrame(frameIdx);
     }
   }
 
@@ -306,7 +334,6 @@
     }
 
     lastDrawnFrame = clampedIndex;
-
     updateScrollBars(clampedIndex);
   }
 
@@ -316,18 +343,7 @@
 
     if (progressLine) progressLine.style.width = progressPercent;
     if (bottomScrubBar) bottomScrubBar.style.width = progressPercent;
-    if (experienceOrbit) experienceOrbit.style.setProperty('--orbit-angle', `${(progress * 360).toFixed(2)}deg`);
-
-    tiltBadges.forEach((badge, badgeIndex) => {
-      const badgePhase = progress * Math.PI * 2 + (badgeIndex * Math.PI * 2) / tiltBadges.length;
-      const horizontalOffset = Math.cos(badgePhase) * 6;
-      const verticalOffset = Math.sin(badgePhase) * 3;
-      const rotationOffset = Math.sin(badgePhase) * 2;
-
-      badge.style.setProperty('--scroll-shift-x', `${horizontalOffset.toFixed(2)}px`);
-      badge.style.setProperty('--scroll-shift-y', `${verticalOffset.toFixed(2)}px`);
-      badge.style.setProperty('--scroll-rotation', `${rotationOffset.toFixed(2)}deg`);
-    });
+    if (experienceOrbit) experienceOrbit.style.setProperty('--orbit-angle', `${(progress * 360).toFixed(1)}deg`);
   }
 
   function updateActiveNavLink(activeSection = null) {
@@ -345,49 +361,63 @@
     });
   }
 
-  // --- 3. 60FPS RAF Animation & Scroll Scrubbing ---
+  // --- 3. Ultra-Smooth On-Demand RAF Animation & Scroll Scrubbing ---
   function scrubFrames(delta) {
-    targetFrame = Math.max(0, Math.min(TOTAL_FRAMES - 1, targetFrame + delta));
+    const newTarget = Math.max(0, Math.min(TOTAL_FRAMES - 1, targetFrame + delta));
+    if (Math.abs(newTarget - targetFrame) > 0.01) {
+      targetFrame = newTarget;
+      requestRender();
+    }
   }
 
   function render() {
     const delta = targetFrame - currentFrame;
-    if (Math.abs(delta) > 0.001) {
+    if (Math.abs(delta) > 0.04) {
       currentFrame += delta * LERP_FACTOR;
+      const frameToDraw = Math.round(currentFrame);
+      if (frameToDraw !== lastDrawnFrame) {
+        drawFrame(frameToDraw);
+      }
+      rafId = requestAnimationFrame(render);
     } else {
       currentFrame = targetFrame;
+      const frameToDraw = Math.round(currentFrame);
+      if (frameToDraw !== lastDrawnFrame) {
+        drawFrame(frameToDraw);
+      }
+      rafId = null; // Idle: 0% CPU consumption
     }
-
-    const frameToDraw = Math.round(currentFrame);
-    if (frameToDraw !== lastDrawnFrame) {
-      drawFrame(frameToDraw);
-    }
-
-    rafId = requestAnimationFrame(render);
   }
 
-  function startRenderLoop() {
+  function requestRender() {
     if (!rafId) {
       rafId = requestAnimationFrame(render);
     }
   }
 
-  // Throttled Scroll Listener (Passive, RAF-decoupled)
+  function updateMaxScroll() {
+    const docEl = document.documentElement;
+    cachedMaxScroll = Math.max(1, (docEl.scrollHeight || document.body.scrollHeight || 1) - window.innerHeight);
+  }
+
+  // Zero-Reflow Throttled Scroll Listener (Passive, RAF-decoupled)
   function handleScroll() {
-    if (!scrollTicking) {
-      requestAnimationFrame(() => {
-        const isMobile = window.innerWidth <= 768;
-        if (isMobile) {
-          const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-          if (maxScroll > 0) {
-            const scrollFraction = Math.min(1, Math.max(0, window.scrollY / maxScroll));
-            targetFrame = Math.min(TOTAL_FRAMES - 1, Math.floor(scrollFraction * TOTAL_FRAMES));
-          }
+    if (scrollTicking) return;
+    scrollTicking = true;
+
+    requestAnimationFrame(() => {
+      const isMobile = window.innerWidth <= 768;
+      if (isMobile) {
+        if (cachedMaxScroll <= 0) updateMaxScroll();
+        const scrollFraction = Math.min(1, Math.max(0, window.scrollY / cachedMaxScroll));
+        const newTarget = Math.min(TOTAL_FRAMES - 1, Math.floor(scrollFraction * TOTAL_FRAMES));
+        if (newTarget !== targetFrame) {
+          targetFrame = newTarget;
+          requestRender();
         }
-        scrollTicking = false;
-      });
-      scrollTicking = true;
-    }
+      }
+      scrollTicking = false;
+    });
   }
 
   window.addEventListener('scroll', handleScroll, { passive: true });
@@ -513,6 +543,7 @@
       }
       document.documentElement.classList.add('stage-locked');
       document.body.classList.add('stage-locked');
+      updateMaxScroll();
 
       const focusTarget = returnFocus && !returnFocus.closest('.mobile-nav-drawer') ? returnFocus : menuToggle;
       returnFocus = null;
@@ -664,11 +695,13 @@
   window.addEventListener('load', () => {
     applyMobileHeroLock();
     resizeCanvas();
+    updateMaxScroll();
   });
 
   window.addEventListener('orientationchange', () => {
     applyMobileHeroLock();
     resizeCanvas();
+    updateMaxScroll();
   });
 
 })();

@@ -85,8 +85,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s ease;
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s ease;
   will-change: opacity, visibility;
+  transform: translateZ(0);
 }
 
 .loader-overlay.loaded {
@@ -236,6 +237,8 @@ body {
   width: 100%;
   height: 100%;
   display: block;
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 /* Left-Side Dark Contrast Vignette to ensure text readability */
