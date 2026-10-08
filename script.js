@@ -16,7 +16,7 @@
   // --- Configuration ---
   const TOTAL_FRAMES = 240;
   const FRAME_DIR = './frames';
-  const LERP_FACTOR = 0.085; // Smooth physics glide factor
+  const LERP_FACTOR = 0.20; // Silky smooth 60/120fps responsive physics glide
 
   // --- DOM Elements ---
   const canvas = document.getElementById('animation-canvas');
@@ -50,6 +50,11 @@
 
   // --- State Variables ---
   const images = new Array(TOTAL_FRAMES);
+  const frameStatus = new Int8Array(TOTAL_FRAMES); // 0 = unrequested, 1 = in-flight, 2 = loaded, -1 = error
+  const MAX_CONCURRENT = 6;
+  let activeDownloads = 0;
+  const loadQueue = [];
+
   let loadedCount = 0;
   let isReady = false;
   let currentFrame = 0;
@@ -58,7 +63,6 @@
   let rafId = null;
   let activeView = null;
   let returnFocus = null;
-  let lastTouchY = null;
   let scrollTicking = false;
   let cachedMaxScroll = 0;
 
@@ -68,42 +72,82 @@
     return `${FRAME_DIR}/frame_${padded}.jpg`;
   }
 
-  // --- 1. High-Performance Asynchronous Frame Preloading Pipeline ---
-  function loadSingleFrame(index, onComplete) {
-    if (images[index]) {
-      if (onComplete) onComplete();
-      return;
-    }
-    const img = new Image();
+  // --- 1. JIT Continuous Frame Streaming Pipeline (Zero Stalls on Scroll) ---
+  function requestFrameLoad(index, highPriority = false) {
+    if (index < 0 || index >= TOTAL_FRAMES) return;
+    if (frameStatus[index] !== 0) return;
 
-    const handleLoaded = () => {
-      images[index] = img;
-      loadedCount++;
-      if (loader && !loader.classList.contains('loaded')) {
-        updateLoaderProgress();
-      }
-      if (index === 0 && lastDrawnFrame === -1) {
-        resizeCanvas();
-        drawFrame(0);
-      }
-      if (onComplete) onComplete();
-    };
-
-    if ('decode' in img) {
-      img.src = getFrameUrl(index);
-      img.decode().then(handleLoaded).catch(handleLoaded);
+    if (highPriority) {
+      loadQueue.unshift(index);
     } else {
-      img.onload = handleLoaded;
-      img.onerror = () => {
+      loadQueue.push(index);
+    }
+    processQueue();
+  }
+
+  function prioritizeAround(targetIdx) {
+    const radius = 12;
+    for (let r = 0; r <= radius; r++) {
+      const forward = targetIdx + r;
+      const backward = targetIdx - r;
+      if (forward < TOTAL_FRAMES && frameStatus[forward] === 0) {
+        requestFrameLoad(forward, true);
+      }
+      if (backward >= 0 && frameStatus[backward] === 0) {
+        requestFrameLoad(backward, true);
+      }
+    }
+  }
+
+  function processQueue() {
+    while (activeDownloads < MAX_CONCURRENT && loadQueue.length > 0) {
+      const idx = loadQueue.shift();
+      if (frameStatus[idx] !== 0) continue;
+
+      frameStatus[idx] = 1;
+      activeDownloads++;
+
+      const img = new Image();
+      img.src = getFrameUrl(idx);
+
+      const onDone = () => {
+        images[idx] = img;
+        frameStatus[idx] = 2;
         loadedCount++;
-        if (onComplete) onComplete();
+        activeDownloads--;
+
+        if (loader && !loader.classList.contains('loaded')) {
+          updateLoaderProgress();
+        }
+
+        if (idx === 0 && lastDrawnFrame === -1) {
+          resizeCanvas();
+          drawFrame(0);
+        }
+
+        const currentRound = Math.round(currentFrame);
+        if (Math.abs(currentRound - idx) <= 2) {
+          requestRender();
+        }
+
+        setTimeout(processQueue, 0);
       };
-      img.src = getFrameUrl(index);
+
+      if ('decode' in img) {
+        img.decode().then(onDone).catch(onDone);
+      } else {
+        img.onload = onDone;
+        img.onerror = () => {
+          frameStatus[idx] = -1;
+          activeDownloads--;
+          setTimeout(processQueue, 0);
+        };
+      }
     }
   }
 
   function updateLoaderProgress() {
-    const percent = Math.floor((loadedCount / TOTAL_FRAMES) * 100);
+    const percent = Math.min(100, Math.floor((loadedCount / 16) * 100));
     if (loaderBar) loaderBar.style.width = `${percent}%`;
     if (loaderPercent) loaderPercent.textContent = `${percent}%`;
     if (loaderCount) loaderCount.textContent = `${loadedCount} / ${TOTAL_FRAMES}`;
@@ -114,80 +158,56 @@
       loader.classList.add('loaded');
       setTimeout(() => {
         if (loader) loader.style.display = 'none';
-      }, 400);
+      }, 350);
     }
   }
 
   function preloadImages() {
-    // Stage A: Instantly load Frame 0 & adjacent frames so Hero renders in <100ms with zero lag
-    loadSingleFrame(0, () => {
-      dismissLoader();
-      requestRender();
+    // Stage 1: Load initial fast buffer (frames 0 to 15) with high priority
+    for (let i = 0; i < 16; i++) {
+      requestFrameLoad(i, true);
+    }
 
-      // Stage B: Load sparse keyframes (every 6th frame) with concurrency limit of 2
-      // This gives 100% full-sequence scrub coverage immediately (~40 frames, only ~3MB)
-      const keyframes = [];
-      for (let i = 6; i < TOTAL_FRAMES; i += 6) {
-        keyframes.push(i);
-      }
-      if (keyframes[keyframes.length - 1] !== TOTAL_FRAMES - 1) {
-        keyframes.push(TOTAL_FRAMES - 1);
-      }
+    // Stage 2: Queue keyframes across entire sequence (every 4th frame)
+    for (let i = 16; i < TOTAL_FRAMES; i += 4) {
+      requestFrameLoad(i, false);
+    }
 
-      loadQueueInBatches(keyframes, 2, () => {
-        isReady = true;
-
-        // Stage C: Progressively fill in the remaining frames during idle time (concurrency 2)
-        const remainingFrames = [];
-        for (let i = 1; i < TOTAL_FRAMES; i++) {
-          if (!images[i]) remainingFrames.push(i);
-        }
-        loadQueueInBatches(remainingFrames, 2);
-      });
-    });
-  }
-
-  function loadQueueInBatches(queue, concurrency, onFinish) {
-    let active = 0;
-    let index = 0;
-
-    function next() {
-      if (index >= queue.length && active === 0) {
-        if (onFinish) onFinish();
-        return;
-      }
-
-      while (active < concurrency && index < queue.length) {
-        const frameIdx = queue[index++];
-        active++;
-
-        const schedule = (typeof window.requestIdleCallback === 'function')
-          ? window.requestIdleCallback
-          : (cb) => setTimeout(cb, 60);
-
-        schedule(() => {
-          loadSingleFrame(frameIdx, () => {
-            active--;
-            next();
-          });
-        });
+    // Stage 3: Queue all remaining intermediate frames
+    for (let i = 16; i < TOTAL_FRAMES; i++) {
+      if (i % 4 !== 0) {
+        requestFrameLoad(i, false);
       }
     }
 
-    next();
+    // Reveal stage quickly once initial buffer is ready
+    const checkInitialBuffer = () => {
+      if (images[0] && loadedCount >= 4) {
+        dismissLoader();
+        requestRender();
+      } else {
+        setTimeout(checkInitialBuffer, 30);
+      }
+    };
+    checkInitialBuffer();
   }
 
+  // Radiate outward from targetIdx: ±1, ±2, ±3... to find the closest loaded frame instantly
   function findClosestLoadedFrame(targetIdx) {
     if (images[targetIdx] && images[targetIdx].complete && images[targetIdx].naturalWidth > 0) {
       return images[targetIdx];
     }
-    for (let i = targetIdx - 1; i >= 0; i--) {
-      if (images[i] && images[i].complete && images[i].naturalWidth > 0) return images[i];
+    for (let offset = 1; offset < TOTAL_FRAMES; offset++) {
+      const forward = targetIdx + offset;
+      const backward = targetIdx - offset;
+      if (forward < TOTAL_FRAMES && images[forward] && images[forward].complete && images[forward].naturalWidth > 0) {
+        return images[forward];
+      }
+      if (backward >= 0 && images[backward] && images[backward].complete && images[backward].naturalWidth > 0) {
+        return images[backward];
+      }
     }
-    for (let i = targetIdx + 1; i < TOTAL_FRAMES; i++) {
-      if (images[i] && images[i].complete && images[i].naturalWidth > 0) return images[i];
-    }
-    return null;
+    return images[0] || null;
   }
 
   // --- 2. Mobile Hero Layout Lock Engine ---
@@ -226,6 +246,8 @@
         visualEl.style.setProperty('display', 'block', 'important');
         visualEl.style.setProperty('overflow', 'visible', 'important');
         visualEl.style.setProperty('z-index', '2', 'important');
+        visualEl.style.setProperty('pointer-events', 'auto', 'important');
+        visualEl.style.setProperty('touch-action', 'none', 'important');
       }
       if (haloEl) {
         haloEl.style.setProperty('position', 'absolute', 'important');
@@ -261,16 +283,14 @@
     const isMobile = window.innerWidth <= 768;
 
     let displayWidth, displayHeight;
-    let dpr;
+    // Deliver crisp high-DPI (up to 2x / 4K) clarity
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     if (isMobile) {
       displayWidth = 190;
       displayHeight = 190;
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
     } else {
       displayWidth = window.innerWidth;
       displayHeight = window.innerHeight;
-      // Cap desktop DPR to 1.25 to prevent 4K fill-rate stutter on desktop
-      dpr = Math.min(window.devicePixelRatio || 1, 1.25);
     }
 
     const targetW = Math.round(displayWidth * dpr);
@@ -281,6 +301,9 @@
       canvas.height = targetH;
       lastDrawnFrame = -1;
     }
+
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
 
     updateMaxScroll();
 
@@ -296,6 +319,9 @@
     const img = findClosestLoadedFrame(clampedIndex);
 
     if (!img) return;
+
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
 
     const cw = canvas.width;
     const ch = canvas.height;
@@ -366,13 +392,14 @@
     const newTarget = Math.max(0, Math.min(TOTAL_FRAMES - 1, targetFrame + delta));
     if (Math.abs(newTarget - targetFrame) > 0.01) {
       targetFrame = newTarget;
+      prioritizeAround(Math.round(targetFrame));
       requestRender();
     }
   }
 
   function render() {
     const delta = targetFrame - currentFrame;
-    if (Math.abs(delta) > 0.04) {
+    if (Math.abs(delta) > 0.01) {
       currentFrame += delta * LERP_FACTOR;
       const frameToDraw = Math.round(currentFrame);
       if (frameToDraw !== lastDrawnFrame) {
@@ -400,7 +427,7 @@
     cachedMaxScroll = Math.max(1, (docEl.scrollHeight || document.body.scrollHeight || 1) - window.innerHeight);
   }
 
-  // Zero-Reflow Throttled Scroll Listener (Passive, RAF-decoupled)
+  // Zero-Reflow Throttled Scroll Listener
   function handleScroll() {
     if (scrollTicking) return;
     scrollTicking = true;
@@ -411,8 +438,9 @@
         if (cachedMaxScroll <= 0) updateMaxScroll();
         const scrollFraction = Math.min(1, Math.max(0, window.scrollY / cachedMaxScroll));
         const newTarget = Math.min(TOTAL_FRAMES - 1, Math.floor(scrollFraction * TOTAL_FRAMES));
-        if (newTarget !== targetFrame) {
+        if (Math.abs(newTarget - targetFrame) > 0.01) {
           targetFrame = newTarget;
+          prioritizeAround(Math.round(targetFrame));
           requestRender();
         }
       }
@@ -422,37 +450,81 @@
 
   window.addEventListener('scroll', handleScroll, { passive: true });
 
-  // Wheel listener for desktop stage
+  // Desktop Mouse Wheel Listener: Normalized for trackpads & stepped mouse wheels
   window.addEventListener('wheel', event => {
     if (activeView) return;
     const isMobile = window.innerWidth <= 768;
     if (!isMobile) {
       event.preventDefault();
       const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? window.innerHeight : 1;
-      scrubFrames(event.deltaY * unit * 0.14);
+      const rawDelta = event.deltaY * unit;
+      // Precision normalization: stepped notched mice jump ~100px, trackpads produce ~2-15px
+      const scaledDelta = Math.abs(rawDelta) >= 50 ? rawDelta * 0.045 : rawDelta * 0.07;
+      scrubFrames(scaledDelta);
     }
   }, { passive: false });
 
-  // Passive touch gestures on mobile to allow normal fluid scrolling
+  // Touch Interactions: Direct 120Hz/60Hz Tactile Scrubbing on Mobile
+  let lastTouchX = null;
+  let lastTouchY = null;
+  let isCanvasTouch = false;
+
   window.addEventListener('touchstart', event => {
-    if (!activeView && event.touches.length) {
-      lastTouchY = event.touches[0].clientY;
-    }
+    if (activeView || !event.touches.length) return;
+    lastTouchX = event.touches[0].clientX;
+    lastTouchY = event.touches[0].clientY;
+
+    const target = event.target;
+    const canvasEl = document.getElementById('animation-canvas');
+    const visualEl = document.querySelector('.hero-right-visual');
+    isCanvasTouch = Boolean(
+      (canvasEl && canvasEl.contains(target)) ||
+      (visualEl && visualEl.contains(target)) ||
+      target.closest('.hero-right-visual') ||
+      target.closest('#animation-canvas')
+    );
   }, { passive: true });
 
   window.addEventListener('touchmove', event => {
     if (activeView || lastTouchY === null || !event.touches.length) return;
+    const currentX = event.touches[0].clientX;
+    const currentY = event.touches[0].clientY;
+    const deltaY = lastTouchY - currentY;
+    const deltaX = lastTouchX - currentX;
+
+    if (isCanvasTouch) {
+      // Direct thumb interaction on the portrait: fluid 3D spin with zero scroll collision
+      if (event.cancelable) event.preventDefault();
+      scrubFrames(deltaY * 0.42 + deltaX * 0.3);
+      lastTouchX = currentX;
+      lastTouchY = currentY;
+      return;
+    }
+
     const isMobile = window.innerWidth <= 768;
     if (!isMobile) {
-      event.preventDefault();
-      const currentY = event.touches[0].clientY;
-      scrubFrames((lastTouchY - currentY) * 0.24);
-      lastTouchY = currentY;
+      if (event.cancelable) event.preventDefault();
+      scrubFrames(deltaY * 0.25);
+    } else {
+      // On mobile background: smooth scrubbing with natural vertical glide
+      scrubFrames(deltaY * 0.24);
     }
+
+    lastTouchX = currentX;
+    lastTouchY = currentY;
+  }, { passive: false });
+
+  window.addEventListener('touchend', () => {
+    lastTouchX = null;
+    lastTouchY = null;
+    isCanvasTouch = false;
   }, { passive: true });
 
-  window.addEventListener('touchend', () => { lastTouchY = null; }, { passive: true });
-  window.addEventListener('touchcancel', () => { lastTouchY = null; }, { passive: true });
+  window.addEventListener('touchcancel', () => {
+    lastTouchX = null;
+    lastTouchY = null;
+    isCanvasTouch = false;
+  }, { passive: true });
 
   window.addEventListener('resize', () => {
     resizeCanvas();

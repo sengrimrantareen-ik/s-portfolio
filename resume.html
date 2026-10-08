@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Resume — Imran Khan | IoT Engineer & Instructor</title>
+  <title>Resume — Imran Khan | IT Professional &amp; Instructor</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -32,7 +32,40 @@
       color: var(--text-body);
       font-family: var(--font-main);
       line-height: 1.6;
-      padding: 40px 20px;
+      padding: 0 0 40px 0;
+    }
+
+    /* Top Sticky Navigation Bar: Always visible while scrolling */
+    .top-sticky-bar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      width: 100%;
+      background: rgba(8, 6, 5, 0.94);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(255, 87, 34, 0.28);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+      padding: 12px 20px;
+      margin-bottom: 28px;
+    }
+
+    .top-sticky-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-brand {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--accent-orange-bright);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
     }
 
     .resume-container {
@@ -45,14 +78,6 @@
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(255, 87, 34, 0.15);
     }
 
-    .action-bar {
-      max-width: 860px;
-      margin: 0 auto 20px auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
     .btn {
       display: inline-flex;
       align-items: center;
@@ -63,16 +88,22 @@
       font-weight: 600;
       text-decoration: none;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .btn-back {
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--text-white);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+    .btn-back-primary {
+      background: rgba(255, 87, 34, 0.15);
+      color: #ffffff;
+      border: 1.5px solid rgba(255, 87, 34, 0.75);
+      box-shadow: 0 0 16px rgba(255, 87, 34, 0.25);
+      font-weight: 700;
     }
-    .btn-back:hover {
-      background: rgba(255, 255, 255, 0.15);
+    .btn-back-primary:hover {
+      background: #ff5722;
+      color: #ffffff;
+      border-color: #ff6d00;
+      box-shadow: 0 0 25px rgba(255, 87, 34, 0.6);
+      transform: translateX(-3px);
     }
 
     .btn-print {
@@ -84,6 +115,81 @@
     .btn-print:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(255, 87, 34, 0.6);
+    }
+
+    /* Bottom Action Card */
+    .bottom-return-card {
+      margin-top: 40px;
+      padding-top: 28px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .bottom-return-info h3 {
+      font-size: 1.15rem;
+      color: var(--text-white);
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+
+    .bottom-return-info p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      max-width: 480px;
+    }
+
+    .bottom-return-buttons {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-back-large {
+      background: linear-gradient(135deg, rgba(255, 87, 34, 0.25), rgba(255, 109, 0, 0.35));
+      border: 1.5px solid #ff5722;
+      color: #ffffff;
+      padding: 12px 24px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      box-shadow: 0 4px 20px rgba(255, 87, 34, 0.35);
+    }
+    .btn-back-large:hover {
+      background: #ff5722;
+      box-shadow: 0 6px 26px rgba(255, 87, 34, 0.65);
+      transform: translateX(-3px);
+    }
+
+    /* Mobile Floating Back Button */
+    .mobile-floating-pill {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      background: rgba(14, 10, 8, 0.94);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1.5px solid #ff5722;
+      border-radius: 9999px;
+      padding: 12px 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 25px rgba(255, 87, 34, 0.45);
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.88rem;
+      text-decoration: none;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .mobile-floating-pill:active {
+      transform: translateX(-50%) scale(0.96);
     }
 
     .resume-header {
@@ -249,14 +355,61 @@
       margin-bottom: 8px;
     }
 
+    @media (max-width: 768px) {
+      body {
+        padding: 0 0 95px 0;
+      }
+      .top-sticky-bar {
+        padding: 10px 14px;
+        margin-bottom: 16px;
+      }
+      .nav-brand {
+        display: none;
+      }
+      .resume-container {
+        padding: 24px 16px;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+      }
+      .header-name {
+        font-size: 2rem;
+      }
+      .header-contact-list {
+        flex-direction: column;
+        gap: 8px;
+      }
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+      .mobile-floating-pill {
+        display: inline-flex;
+      }
+      .bottom-return-card {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+      }
+      .bottom-return-buttons {
+        flex-direction: column;
+        width: 100%;
+      }
+      .bottom-return-buttons .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
     @media print {
       body {
         background: #ffffff;
         color: #111827;
         padding: 0;
       }
-      .action-bar {
-        display: none;
+      .top-sticky-bar,
+      .mobile-floating-pill,
+      .bottom-return-card {
+        display: none !important;
       }
       .resume-container {
         max-width: 100%;
@@ -288,29 +441,42 @@
 </head>
 <body>
 
-  <div class="action-bar">
-    <a href="index.html" class="btn btn-back">
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-      <span>Back to Portfolio</span>
-    </a>
-    <button onclick="window.print()" class="btn btn-print">
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-      <span>Print / Save as PDF</span>
-    </button>
-  </div>
+  <!-- Sticky Top Navigation Bar: Guaranteed visible at all scroll positions -->
+  <header class="top-sticky-bar">
+    <div class="top-sticky-inner">
+      <a href="index.html" class="btn btn-back-primary" id="top-back-btn" onclick="handleGoBack(event)">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        <span>Back to Portfolio</span>
+      </a>
+
+      <span class="nav-brand">Imran Khan &bull; Official Resume</span>
+
+      <button onclick="window.print()" class="btn btn-print">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 6 2 18 2 18 9"></polyline>
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+          <rect x="6" y="14" width="12" height="8"></rect>
+        </svg>
+        <span>Print / Save PDF</span>
+      </button>
+    </div>
+  </header>
 
   <main class="resume-container">
     <header class="resume-header">
       <h1 class="header-name">Imran Khan</h1>
-      <p class="header-title">IoT Engineer | Full Stack &amp; Embedded Systems Instructor</p>
+      <p class="header-title">IT Professional &amp; Instructor | Digital &amp; Technology Solutions</p>
       <div class="header-contact-list">
         <div class="contact-entry">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-          <a href="mailto:engrimrantareen@gmail.com">engrimrantareen@gmail.com</a>
+          <a href="mailto:s.engrimrantareen@gmail.com">s.engrimrantareen@gmail.com</a>
         </div>
         <div class="contact-entry">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-          <a href="tel:+923130267697">+92 313 0267697</a> / <a href="tel:+923331244214">+92 333 1244214</a>
+          <a href="https://wa.me/923331244214" target="_blank" rel="noopener noreferrer">+92 333 1244214</a>
         </div>
         <div class="contact-entry">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
@@ -322,18 +488,25 @@
     <section>
       <h2 class="section-title">Professional Summary</h2>
       <p class="summary-text">
-        A driven Computer Science professional and technical instructor with over 4 years of experience delivering hands-on IoT training, embedded hardware systems, and web interfaces. Experienced in managing technical classrooms under UNICEF-backed programs (ALP Centre &amp; GBHS), building smart sensor integrations, and designing intuitive front-end architectures.
+        Dedicated IT professional and technical instructor providing practical Digital &amp; Technology Solutions across web development, IoT and smart systems, performance marketing, creative design, video editing, and technology education. Experienced in delivering structured technical training under UNICEF and European Union supported programs, building working embedded microcontroller prototypes (ESP32/Arduino), and managing digital marketing campaigns for businesses.
       </p>
     </section>
 
     <section>
-      <h2 class="section-title">Education</h2>
+      <h2 class="section-title">Education &amp; Diplomas</h2>
       <div class="entry-card">
         <div class="entry-header">
           <h3 class="entry-title">BS in Computer Science</h3>
           <span class="entry-date">2020 – 2024</span>
         </div>
         <div class="entry-sub">Lasbela University of Agriculture, Water and Marine Sciences (LUAWMS)</div>
+      </div>
+      <div class="entry-card">
+        <div class="entry-header">
+          <h3 class="entry-title">Diploma of Associate Engineering (DAE) in Civil Engineering</h3>
+          <span class="entry-date">Technical Board</span>
+        </div>
+        <div class="entry-sub">Field CAD &amp; Engineering Foundation</div>
       </div>
       <div class="entry-card">
         <div class="entry-header">
@@ -348,35 +521,66 @@
       <h2 class="section-title">Professional Experience</h2>
       <div class="entry-card">
         <div class="entry-header">
+          <h3 class="entry-title">Instructor – Computer Operator</h3>
+          <span class="entry-date">Apr 2025 – Present</span>
+        </div>
+        <div class="entry-sub">Government Boys High School, Jam Yousaf Colony | Hub (UNICEF / EU Supported Program)</div>
+        <p class="entry-desc">
+          Instructing students in computer fundamentals, operating systems setup, digital productivity tools, troubleshooting, and workplace applications. Managing computer laboratory operations under the UNICEF and European Union supported program.
+        </p>
+        <div class="entry-tags">
+          <span class="entry-tag">Computer Operations</span>
+          <span class="entry-tag">Lab Instruction</span>
+          <span class="entry-tag">UNICEF / EU Program</span>
+        </div>
+      </div>
+
+      <div class="entry-card">
+        <div class="entry-header">
           <h3 class="entry-title">IoT Instructor</h3>
           <span class="entry-date">Jan 2025 – Present</span>
         </div>
-        <div class="entry-sub">ALP Centre (UNICEF) | Hub, Balochistan</div>
+        <div class="entry-sub">ALP Centre / Jamia Hussainia Naimia | Hub (UNICEF-Supported Training)</div>
         <p class="entry-desc">
-          Delivering hands-on training with Arduino, ESP32, and sensor interfacing. Mentoring students through practical hardware deployments, real-time telemetry circuits, and IoT applications.
+          Delivering hands-on training on microcontrollers (ESP32, Arduino Uno/Nano), sensors, automation circuits, relays, and robotics. Mentoring students through practical electronics assembly and smart systems.
         </p>
-      </div>
-
-      <div class="entry-card">
-        <div class="entry-header">
-          <h3 class="entry-title">Computer Operator Instructor</h3>
-          <span class="entry-date">Apr 2025 – Present</span>
+        <div class="entry-tags">
+          <span class="entry-tag">ESP32 / Arduino</span>
+          <span class="entry-tag">Sensor Interfacing</span>
+          <span class="entry-tag">UNICEF Supported</span>
         </div>
-        <div class="entry-sub">GBHS (UNICEF) | Hub, Balochistan</div>
-        <p class="entry-desc">
-          Instructing students in computer fundamentals, digital literacy, Windows administration, and hardware troubleshooting. Managing computer laboratory infrastructure.
-        </p>
       </div>
 
       <div class="entry-card">
         <div class="entry-header">
-          <h3 class="entry-title">Assistant Civil Engineer (Field Practice)</h3>
+          <h3 class="entry-title">Freelance Digital Marketer, Designer &amp; Web Specialist</h3>
+          <span class="entry-date">2023 – Present</span>
+        </div>
+        <div class="entry-sub">Fiverr, Upwork &amp; Direct Clients (Radius Group Certified)</div>
+        <p class="entry-desc">
+          Executing digital marketing campaigns, social media advertising assets, 2D branding designs, short-form promotional videos, and responsive website solutions for commercial clients.
+        </p>
+        <div class="entry-tags">
+          <span class="entry-tag">Meta &amp; Google Ads</span>
+          <span class="entry-tag">Creative Branding</span>
+          <span class="entry-tag">Web Development</span>
+          <span class="entry-tag">Radius Group</span>
+        </div>
+      </div>
+
+      <div class="entry-card">
+        <div class="entry-header">
+          <h3 class="entry-title">Field Assistant Engineer &amp; CAD Practice</h3>
           <span class="entry-date">2017 – 2020</span>
         </div>
         <div class="entry-sub">M. Rahim &amp; Sons</div>
         <p class="entry-desc">
-          Managed structural layouts, documentation, and on-site engineering quality control. Coordinated project blueprints and technical milestones.
+          Supervised technical layouts, on-site materials quality verification, CAD drafting support, and structural coordination across active construction projects.
         </p>
+        <div class="entry-tags">
+          <span class="entry-tag">Field Supervision</span>
+          <span class="entry-tag">CAD Documentation</span>
+        </div>
       </div>
     </section>
 
@@ -384,26 +588,27 @@
       <h2 class="section-title">Featured Projects</h2>
       <div class="entry-card">
         <div class="entry-header">
-          <h3 class="entry-title">Agriculture Smart Water Management System</h3>
-          <span class="entry-date">IoT &amp; Smart Farming</span>
+          <h3 class="entry-title">Smart Agriculture Water Management System</h3>
+          <span class="entry-date">IoT &amp; Automation</span>
         </div>
         <p class="entry-desc">
-          An automated irrigation and soil moisture monitoring setup using embedded sensors and microcontrollers to optimize water usage in arid agricultural zones.
+          An automated irrigation and soil moisture monitoring setup using embedded sensors and microcontrollers (ESP32/Arduino) to optimize water usage in agricultural applications.
         </p>
         <div class="entry-tags">
           <span class="entry-tag">Arduino/ESP32</span>
           <span class="entry-tag">Soil Moisture Sensors</span>
+          <span class="entry-tag">Relay Automation</span>
           <span class="entry-tag">C++</span>
         </div>
       </div>
 
       <div class="entry-card">
         <div class="entry-header">
-          <h3 class="entry-title">RF Remote Controlled Robo Car</h3>
+          <h3 class="entry-title">RF Remote Controlled Robotic Vehicle</h3>
           <span class="entry-date">Robotics &amp; Hardware</span>
         </div>
         <p class="entry-desc">
-          A custom-built motor-driven robotic vehicle controlled via wireless RF signals, featuring integrated motor driver ICs, transmitter-receiver tuning, and robust chassis wiring.
+          A custom-built motor-driven robotic vehicle controlled via wireless RF signals, featuring integrated motor driver ICs, transmitter-receiver tuning, and chassis wiring.
         </p>
         <div class="entry-tags">
           <span class="entry-tag">Microcontrollers</span>
@@ -415,44 +620,68 @@
 
       <div class="entry-card">
         <div class="entry-header">
-          <h3 class="entry-title">Front-End Interactive Web Interfaces</h3>
+          <h3 class="entry-title">Modern Interactive Web Interfaces</h3>
           <span class="entry-date">Web Development</span>
         </div>
         <p class="entry-desc">
-          Responsive, modern UI designs engineered with clean HTML, CSS, and interactive JavaScript logic, featuring smooth physics-based animations and cyber-dark aesthetics.
+          Responsive, modern UI architectures engineered with clean HTML5, CSS3, and interactive JavaScript logic, featuring smooth performance-optimized animations.
         </p>
         <div class="entry-tags">
           <span class="entry-tag">HTML5</span>
           <span class="entry-tag">CSS3</span>
           <span class="entry-tag">JavaScript</span>
+          <span class="entry-tag">Responsive Web</span>
+        </div>
+      </div>
+
+      <div class="entry-card">
+        <div class="entry-header">
+          <h3 class="entry-title">Digital Marketing &amp; Brand Design Showcase</h3>
+          <span class="entry-date">Growth &amp; Creative</span>
+        </div>
+        <p class="entry-desc">
+          Social marketing campaign assets, commercial promotional templates, and brand identity creatives developed through certified Radius Group training.
+        </p>
+        <div class="entry-tags">
+          <span class="entry-tag">Meta Ads</span>
+          <span class="entry-tag">Creative Design</span>
+          <span class="entry-tag">Brand Strategy</span>
         </div>
       </div>
     </section>
 
     <section>
-      <h2 class="section-title">Technical Skills &amp; Competencies</h2>
+      <h2 class="section-title">Core Services &amp; Technical Competencies</h2>
       <div class="grid-2">
         <div class="skills-block">
-          <div class="skills-block-title">Internet of Things &amp; Embedded Hardware</div>
-          <div class="skills-block-text">Microcontrollers (ESP32, Arduino Uno/Nano), Sensor Integration, Hardware Troubleshooting, Remote Control Circuits.</div>
+          <div class="skills-block-title">01 — Web Development</div>
+          <div class="skills-block-text">Business websites, landing pages, e-commerce interfaces, responsive front-end development, JavaScript, and HTML5/CSS3.</div>
         </div>
         <div class="skills-block">
-          <div class="skills-block-title">Software &amp; Web Development</div>
-          <div class="skills-block-text">C++, Data Structures &amp; Algorithms, JavaScript, HTML5, CSS3, Modern UI/UX.</div>
+          <div class="skills-block-title">02 — IoT &amp; Smart Systems</div>
+          <div class="skills-block-text">ESP32, Arduino Uno/Nano, sensor interfacing, automation circuits, telemetry, relays, and embedded C++ programming.</div>
         </div>
         <div class="skills-block">
-          <div class="skills-block-title">Creative &amp; Design Tools</div>
-          <div class="skills-block-text">2D/3D Layouts, Technical Documentation, Video &amp; Image Presentation Design.</div>
+          <div class="skills-block-title">03 — Digital Marketing</div>
+          <div class="skills-block-text">Meta Ads Manager, Google Search marketing, audience research, campaign structure, funnel planning, and analytics.</div>
         </div>
         <div class="skills-block">
-          <div class="skills-block-title">Instruction &amp; Leadership</div>
-          <div class="skills-block-text">Technical Training, Classroom Management, Student Mentorship, Project Coordination.</div>
+          <div class="skills-block-title">04 — Graphic &amp; Creative Design</div>
+          <div class="skills-block-text">Brand identity, social media creatives, promotional graphics, Adobe Photoshop, and Adobe Illustrator.</div>
+        </div>
+        <div class="skills-block">
+          <div class="skills-block-title">05 — Video Editing</div>
+          <div class="skills-block-text">Short-form social media videos, promotional reels, educational walkthroughs, audio sync, and motion graphics.</div>
+        </div>
+        <div class="skills-block">
+          <div class="skills-block-title">06 — IT Training &amp; Education</div>
+          <div class="skills-block-text">Computer operations, practical laboratory instruction, digital literacy, IoT workshops, and student mentoring.</div>
         </div>
       </div>
     </section>
 
     <section>
-      <h2 class="section-title">Certifications &amp; Honors</h2>
+      <h2 class="section-title">Certifications &amp; Credentials</h2>
       <div class="cert-item">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ff5722" stroke-width="2"><circle cx="12" cy="8" r="6"></circle><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"></path></svg>
         <span>NAVTTC Advanced Internet of Things (IoT)</span>
@@ -471,10 +700,72 @@
       </div>
       <div class="cert-item">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ff5722" stroke-width="2"><circle cx="12" cy="8" r="6"></circle><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"></path></svg>
-        <span>Induction Training (Teaching Professionals) Module 6</span>
+        <span>Induction Training for Teaching Professionals (VATT / UNICEF Supported)</span>
+      </div>
+      <div class="cert-item">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ff5722" stroke-width="2"><circle cx="12" cy="8" r="6"></circle><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"></path></svg>
+        <span>Digital Marketing &amp; Creative Design (Radius Group)</span>
       </div>
     </section>
+
+    <!-- Bottom Return Card: Direct access to return after reading the full resume -->
+    <div class="bottom-return-card">
+      <div class="bottom-return-info">
+        <h3>Ready to Explore the Live Portfolio?</h3>
+        <p>Return to the interactive stage to view hands-on IoT architectures, embedded hardware demos, and connect directly.</p>
+      </div>
+      <div class="bottom-return-buttons">
+        <a href="index.html" class="btn btn-back-large" onclick="handleGoBack(event)">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          <span>Back to Portfolio Stage</span>
+        </a>
+        <button onclick="window.print()" class="btn btn-print">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect x="6" y="14" width="12" height="8"></rect>
+          </svg>
+          <span>Print / PDF</span>
+        </button>
+      </div>
+    </div>
   </main>
 
+  <!-- Mobile Floating Quick-Back Button: Always in thumb reach -->
+  <a href="index.html" class="mobile-floating-pill" id="mobile-floating-back" onclick="handleGoBack(event)" aria-label="Back to Portfolio">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+      <line x1="19" y1="12" x2="5" y2="12"></line>
+      <polyline points="12 19 5 12 12 5"></polyline>
+    </svg>
+    <span>Back to Portfolio</span>
+  </a>
+
+  <script>
+    // Smart back navigation: returns smoothly if user arrived via history, or navigates to index.html
+    function handleGoBack(e) {
+      if (e) e.preventDefault();
+      try {
+        if (window.history.length > 1) {
+          window.history.back();
+          // Fallback if history.back didn't navigate within 250ms
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 250);
+          return;
+        }
+      } catch (err) {}
+      window.location.href = 'index.html';
+    }
+
+    // Keyboard support: Escape returns to portfolio
+    window.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        handleGoBack(e);
+      }
+    });
+  </script>
 </body>
 </html>

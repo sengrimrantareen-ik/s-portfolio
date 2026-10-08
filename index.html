@@ -4,12 +4,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Imran Khan — Full-Stack Engineer, AI Solutions Architect &amp; Growth Strategist</title>
+  <title>Imran Khan — IT Professional &amp; Instructor | Digital &amp; Technology Solutions</title>
   <meta name="description"
-    content="Imran Khan | Full-Stack Engineer, AI Solutions Architect &amp; Growth Strategist. Specialized in Web &amp; E-Commerce, IoT Systems, Data Analytics, BI, and High-ROI Meta/Google Ads.">
-  <meta property="og:title" content="Imran Khan — Full-Stack Engineer, AI Solutions Architect &amp; Growth Strategist">
+    content="Imran Khan | IT Professional &amp; Instructor specializing in Digital &amp; Technology Solutions — Web Development, IoT &amp; Smart Systems, Digital Marketing, Creative Design, Video Editing, and IT Training.">
+  <meta property="og:title" content="Imran Khan — IT Professional &amp; Instructor | Digital &amp; Technology Solutions">
   <meta property="og:description"
-    content="Full-Stack Web Development, E-Commerce Platforms, AI Agents, IoT Systems, Data Analytics &amp; Business Intelligence, Meta/Google Ads, and Graphic Design by Imran Khan.">
+    content="Imran Khan — IT Professional &amp; Instructor specializing in Web Development, IoT &amp; Smart Systems, Digital Marketing, Creative Design, Video Editing, and IT Training.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -52,6 +52,10 @@
         inset: auto !important;
         transform: none !important;
         flex-shrink: 0 !important;
+        touch-action: none !important;
+        pointer-events: auto !important;
+        user-select: none !important;
+        -webkit-user-select: none !important;
       }
       .hero-right-visual #animation-canvas,
       #animation-canvas,
@@ -147,6 +151,37 @@
         padding: 22px 18px !important;
         text-align: center !important;
         margin: 0 auto !important;
+      }
+      .hero-left-content .hero-title {
+        font-size: 1.85rem !important;
+        margin-bottom: 6px !important;
+        line-height: 1.15 !important;
+      }
+      .hero-left-content .hero-impact-headline {
+        font-size: 1.08rem !important;
+        margin-bottom: 12px !important;
+        line-height: 1.35 !important;
+      }
+      .hero-left-content .hero-description {
+        font-size: 0.92rem !important;
+        line-height: 1.55 !important;
+        margin-bottom: 14px !important;
+      }
+      .hero-services-bar {
+        justify-content: center !important;
+        font-size: 0.74rem !important;
+        margin-bottom: 18px !important;
+      }
+      .hero-cta-group {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+        width: 100% !important;
+      }
+      .hero-cta-group .btn-primary,
+      .hero-cta-group .btn-secondary {
+        width: 100% !important;
+        justify-content: center !important;
       }
       .stats-glass-bar {
         order: 3 !important;
@@ -267,28 +302,39 @@
 
         <!-- Left Column: Typography & CTAs -->
         <div class="hero-left-content">
-          <!-- Role Tag -->
+          <!-- Role Tag / Eyebrow -->
           <div class="hero-tag">
             <span class="tag-bullet"></span>
-            <span class="tag-text">FULL-STACK · AI SOLUTIONS · GROWTH STRATEGY</span>
+            <span class="tag-text">IT PROFESSIONAL &amp; INSTRUCTOR</span>
           </div>
 
           <!-- Main Impact Title -->
           <h1 class="hero-title" id="hero-title">IMRAN KHAN</h1>
           <h2 class="hero-impact-headline">
-            I build full-stack, AI, and IoT products
+            I build websites, IoT systems and digital solutions
             <span class="title-highlight">that help businesses grow.</span>
           </h2>
 
           <!-- Subtitle Description -->
           <p class="hero-description">
-            I create websites and e-commerce stores, build AI agents and IoT systems, and use analytics, BI, and paid ads to help ideas find an audience. I also design the visuals that give each project its identity.
+            Specializing in Digital &amp; Technology Solutions — combining clean web development, practical IoT automation, digital marketing, creative design, video editing, and hands-on technology education.
           </p>
+
+          <!-- Core Service Domains -->
+          <div class="hero-services-bar" aria-label="Core service domains">
+            <span>Web Development</span>
+            <span class="service-sep">•</span>
+            <span>IoT &amp; Smart Systems</span>
+            <span class="service-sep">•</span>
+            <span>Digital Marketing</span>
+            <span class="service-sep">•</span>
+            <span>Creative Design</span>
+          </div>
 
           <!-- Action Buttons -->
           <div class="hero-cta-group">
-            <a href="#work" class="btn-primary" id="btn-view-work" data-view-target="work">
-              <span>VIEW MY WORK</span>
+            <a href="#contact" class="btn-primary" id="btn-hire-me" data-view-target="contact">
+              <span>HIRE ME</span>
               <svg class="btn-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
                 stroke-width="2.2">
                 <line x1="7" y1="17" x2="17" y2="7"></line>
@@ -296,7 +342,11 @@
               </svg>
             </a>
 
-            <a href="resume.html" target="_blank" class="btn-secondary" id="btn-download-resume">
+            <a href="#work" class="btn-secondary" id="btn-view-work" data-view-target="work">
+              <span>VIEW MY WORK</span>
+            </a>
+
+            <a href="resume.html" class="btn-secondary" id="btn-download-resume" title="View & Download Official Resume">
               <span>DOWNLOAD RESUME</span>
               <svg class="btn-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
                 stroke-width="2.2">
@@ -388,7 +438,7 @@
           </div>
 
           <div class="floating-badge skill-orbit-tag skill-graphic" id="badge-graphic" data-tilt>
-            <span>Graphic Design</span>
+            <span>Creative Design</span>
           </div>
 
           <div class="floating-badge skill-orbit-tag skill-marketing" id="badge-marketing" data-tilt>
@@ -396,23 +446,19 @@
           </div>
 
           <div class="floating-badge skill-orbit-tag skill-bi" id="badge-bi" data-tilt>
-            <span>Business Intelligence</span>
+            <span>Video Editing</span>
           </div>
 
           <div class="floating-badge skill-orbit-tag skill-analytics" id="badge-analytics" data-tilt>
-            <span>Data Analytics</span>
+            <span>IoT &amp; Smart Systems</span>
           </div>
 
           <div class="floating-badge skill-orbit-tag skill-web" id="badge-web" data-tilt>
-            <span>Web Design</span>
+            <span>Web Development</span>
           </div>
 
           <div class="floating-badge skill-orbit-tag skill-portfolio" id="badge-portfolio" data-tilt>
-            <span>Portfolio &amp; CV</span>
-          </div>
-
-          <div class="floating-badge skill-orbit-tag skill-it" id="badge-it" data-tilt>
-            <span>IT Expertise</span>
+            <span>IT Training</span>
           </div>
           </div>
 
@@ -430,8 +476,8 @@
             </svg>
           </div>
           <div class="stat-details">
-            <span class="stat-number">6+</span>
-            <span class="stat-label">YEARS Experiance In IT Fild</span>
+            <span class="stat-number">7+</span>
+            <span class="stat-label">YEARS TECHNICAL PRACTICE</span>
           </div>
         </div>
 
@@ -443,8 +489,8 @@
             <span class="stat-code-icon">&lt;/&gt;</span>
           </div>
           <div class="stat-details">
-            <span class="stat-number">1000+</span>
-            <span class="stat-label">STUDENTS TAUGHT</span>
+            <span class="stat-number">500+</span>
+            <span class="stat-label">STUDENTS TRAINED</span>
           </div>
         </div>
 
@@ -462,7 +508,7 @@
           </div>
           <div class="stat-details">
             <span class="stat-number">25+</span>
-            <span class="stat-label">HARDWARE REPOS</span>
+            <span class="stat-label">PRACTICAL BUILDS</span>
           </div>
         </div>
 
@@ -479,7 +525,7 @@
           </div>
           <div class="stat-details">
             <span class="stat-number">100%</span>
-            <span class="stat-label">HANDS-ON WORK</span>
+            <span class="stat-label">APPLIED EXECUTION</span>
           </div>
         </div>
       </section>
@@ -580,24 +626,34 @@
       </div>
       <div class="about-layout">
         <div class="about-summary">
-          <p>A multidisciplinary technologist with a 6-year track record bridging embedded IoT engineering, full-stack architectures, and high-impact digital systems. From deploying smart hardware (ESP32/Arduino) and directing large-scale technical training under UNICEF initiatives, to scaling brands through performance marketing (Radius Group) and modern web platforms—I build end-to-end solutions that drive real-world outcomes.</p>
+          <p>I am an IT professional and instructor dedicated to providing dependable digital and technology solutions. My work combines clean web development, practical IoT automation, performance marketing, creative design, video editing, and hands-on technology education into one unified ecosystem.</p>
+          <p>With real-world experience conducting structured technical training under UNICEF and European Union supported programs, building working microcontroller prototypes (ESP32 / Arduino), and executing digital marketing campaigns through certified training (Radius Group), I build practical, defensible solutions that deliver measurable value for businesses and learners alike.</p>
         </div>
         <div class="about-education">
-          <span class="about-label">EDUCATION</span>
-          <article class="about-entry"><h3>BS in Computer Science</h3><p>Lasbela University of Agriculture, Water and Marine Sciences (LUAWMS) <span>· 2020–2024</span></p></article>
-          <article class="about-entry"><h3>Pre-Engineering / Intermediate</h3><p>Govt Degree College Hub <span>· 2019</span></p></article>
+          <span class="about-label">EDUCATION &amp; DIPLOMAS</span>
+          <article class="about-entry">
+            <h3>BS in Computer Science</h3>
+            <p>Lasbela University of Agriculture, Water and Marine Sciences (LUAWMS) <span>· 2020–2024</span></p>
+          </article>
+          <article class="about-entry">
+            <h3>Diploma of Associate Engineering (DAE) in Civil Engineering</h3>
+            <p>Technical &amp; Vocational Board <span>· Engineering &amp; CAD Foundation</span></p>
+          </article>
+          <article class="about-entry">
+            <h3>Pre-Engineering / Intermediate</h3>
+            <p>Govt Degree College Hub <span>· 2019</span></p>
+          </article>
         </div>
       </div>
       <div class="about-certifications">
-        <span class="about-label">CERTIFICATIONS &amp; HONORS</span>
+        <span class="about-label">CERTIFICATIONS &amp; CREDENTIALS</span>
         <div class="certification-list">
-          <span>NAVTTC Advanced Internet of Things</span>
-          <span>Introduction Certified (VATT)</span>
+          <span>NAVTTC Advanced Internet of Things (IoT)</span>
+          <span>Microsoft Learn Student Ambassador</span>
           <span>Programming Essentials in Python</span>
           <span>NFTP Creative Design Domain</span>
-          <span>Microsoft Learn Student Ambassador</span>
-          <span>Induction Training for Teaching Professionals ·</span>
-          <span>Digital Marketing &amp; Design Training</span>
+          <span>Induction Training for Teaching Professionals (VATT / UNICEF Supported)</span>
+          <span>Digital Marketing &amp; Creative Design Training (Radius Group)</span>
         </div>
       </div>
     </section>
@@ -605,48 +661,84 @@
     <section class="content-section skills-section view-panel" id="skills" data-view-panel hidden aria-hidden="true" aria-labelledby="skills-heading">
       <div class="section-heading">
         <span class="section-kicker">SERVICES / WHAT I DO</span>
-        <h2 id="skills-heading">Practical skills, <span class="title-highlight">built for real work.</span></h2>
+        <h2 id="skills-heading">Digital &amp; Technology Solutions, <span class="title-highlight">built to perform.</span></h2>
       </div>
       <div class="services-grid">
         <article class="service-card">
-          <span class="skill-index">01 / ENGINEERING</span>
-          <h3>Engineering &amp; AI</h3>
-          <ul class="service-tags" aria-label="Engineering and AI services">
-            <li>Full-Stack Web Development</li>
-            <li>E-Commerce Platforms</li>
-            <li>Autonomous AI Agents</li>
-            <li>Vibe Coding</li>
-            <li>IoT &amp; Embedded Systems</li>
+          <span class="skill-index">01 / WEB DEVELOPMENT</span>
+          <h3>Web Development</h3>
+          <p class="service-description">Websites, landing pages, business websites, e-commerce interfaces, and frontend/backend solutions built with modern web standards.</p>
+          <ul class="service-tags" aria-label="Web development services">
+            <li>Business Websites</li>
+            <li>Landing Pages</li>
+            <li>E-Commerce Interfaces</li>
+            <li>Frontend &amp; Responsive UI</li>
+            <li>Modern JavaScript &amp; HTML5/CSS3</li>
           </ul>
         </article>
+
         <article class="service-card">
-          <span class="skill-index">02 / INSIGHT</span>
-          <h3>Data &amp; Business Intelligence</h3>
-          <ul class="service-tags" aria-label="Data and business intelligence services">
-            <li>Data Analytics</li>
-            <li>BI Dashboards</li>
-            <li>Performance Metrics</li>
-            <li>Predictive Insights</li>
+          <span class="skill-index">02 / IOT &amp; AUTOMATION</span>
+          <h3>IoT &amp; Smart Systems</h3>
+          <p class="service-description">Arduino, ESP32, sensor integration, automation circuits, monitoring systems, smart prototypes and practical IoT solutions.</p>
+          <ul class="service-tags" aria-label="IoT and smart systems services">
+            <li>ESP32 &amp; Arduino Microcontrollers</li>
+            <li>Sensor Interfacing &amp; Telemetry</li>
+            <li>Automation Circuits &amp; Relays</li>
+            <li>Embedded C++ Programming</li>
+            <li>Smart Agricultural Automation</li>
           </ul>
         </article>
+
         <article class="service-card">
-          <span class="skill-index">03 / GROWTH</span>
-          <h3>Performance Marketing</h3>
-          <ul class="service-tags" aria-label="Performance marketing services">
-            <li>Meta Ads</li>
-            <li>Google Ads Campaign Management</li>
-            <li>Funnel Strategy</li>
-            <li>Conversion Optimization</li>
+          <span class="skill-index">03 / GROWTH MARKETING</span>
+          <h3>Digital Marketing</h3>
+          <p class="service-description">Meta/Facebook advertising, Google/Search-focused marketing, campaign planning, audience research, content strategy and analytics.</p>
+          <ul class="service-tags" aria-label="Digital marketing services">
+            <li>Meta Ads Campaign Architecture</li>
+            <li>Google Search Marketing</li>
+            <li>Audience Research &amp; Segmentation</li>
+            <li>Funnel Planning &amp; Optimization</li>
+            <li>Campaign Analytics &amp; Reporting</li>
           </ul>
         </article>
+
         <article class="service-card">
-          <span class="skill-index">04 / CREATIVE</span>
-          <h3>Creative &amp; Graphic Design</h3>
-          <ul class="service-tags" aria-label="Creative and graphic design services">
-            <li>Adobe Photoshop</li>
-            <li>Adobe Illustrator</li>
-            <li>2D / 3D Brand Assets</li>
-            <li>Commercial Ad Creatives</li>
+          <span class="skill-index">04 / CREATIVE DESIGN</span>
+          <h3>Graphic &amp; Creative Design</h3>
+          <p class="service-description">Branding, social media graphics, layouts, promotional creatives, commercial brand assets and visual communication.</p>
+          <ul class="service-tags" aria-label="Graphic and creative design services">
+            <li>Brand Identity &amp; Guidelines</li>
+            <li>Social Media Creatives</li>
+            <li>Adobe Photoshop &amp; Illustrator</li>
+            <li>Promotional Marketing Graphics</li>
+            <li>Visual Brand Communication</li>
+          </ul>
+        </article>
+
+        <article class="service-card">
+          <span class="skill-index">05 / VIDEO PRODUCTION</span>
+          <h3>Video Editing</h3>
+          <p class="service-description">Social media videos, promotional videos, educational walkthroughs, and short-form video editing tailored for audience engagement.</p>
+          <ul class="service-tags" aria-label="Video editing services">
+            <li>Short-Form Social Reels</li>
+            <li>Promotional &amp; Brand Videos</li>
+            <li>Educational &amp; Course Walkthroughs</li>
+            <li>Audio Sync &amp; Motion Transitions</li>
+            <li>Content Post-Production</li>
+          </ul>
+        </article>
+
+        <article class="service-card">
+          <span class="skill-index">06 / IT EDUCATION</span>
+          <h3>IT Training &amp; Technology Education</h3>
+          <p class="service-description">Computer skills, digital productivity tools, IoT fundamentals, practical technology training, and structured student labs.</p>
+          <ul class="service-tags" aria-label="IT training and education services">
+            <li>Computer Operations &amp; Troubleshooting</li>
+            <li>Hands-on IoT &amp; Electronics Workshops</li>
+            <li>Digital Tools &amp; Productivity</li>
+            <li>Student Mentorship &amp; Practical Labs</li>
+            <li>Vocational Technical Curriculum</li>
           </ul>
         </article>
       </div>
@@ -654,55 +746,58 @@
 
     <section class="content-section experience-section view-panel" id="experience" data-view-panel hidden aria-hidden="true" aria-labelledby="experience-heading">
       <div class="section-heading">
-        <span class="section-kicker">2017 — PRESENT</span>
+        <span class="section-kicker">PRACTICAL EXPERIENCE</span>
         <h2 id="experience-heading">A journey built on <span class="title-highlight">doing.</span></h2>
       </div>
       <div class="experience-filters" role="group" aria-label="Filter work experience">
         <button type="button" class="experience-filter active" data-experience-filter="all" aria-pressed="true">All Experience</button>
-        <button type="button" class="experience-filter" data-experience-filter="technical" aria-pressed="false">Technical &amp; IoT Instruction</button>
-        <button type="button" class="experience-filter" data-experience-filter="freelance" aria-pressed="false">Freelance &amp; Digital Agency</button>
-        <button type="button" class="experience-filter" data-experience-filter="engineering" aria-pressed="false">Engineering &amp; Design</button>
+        <button type="button" class="experience-filter" data-experience-filter="technical" aria-pressed="false">Technical &amp; IT Instruction</button>
+        <button type="button" class="experience-filter" data-experience-filter="freelance" aria-pressed="false">Digital Solutions &amp; Marketing</button>
+        <button type="button" class="experience-filter" data-experience-filter="engineering" aria-pressed="false">Engineering Practice</button>
       </div>
       <div class="experience-grid">
         <article class="experience-card" data-experience-category="technical">
           <div class="experience-card-top">
-            <span class="experience-type">TECHNICAL INSTRUCTION</span>
+            <span class="experience-type">VOCATIONAL &amp; COMPUTER TRAINING</span>
+            <span class="experience-date">APR 2025 — PRESENT</span>
+          </div>
+          <h3>Instructor – Computer Operator</h3>
+          <p class="experience-organization">Government Boys High School, Jam Yousaf Colony <span>·</span> Hub</p>
+          <p>Conducted structured computer operations, OS setup, troubleshooting, digital tools, and lab practice under the UNICEF / European Union supported educational initiative.</p>
+          <div class="experience-badges"><span>UNICEF / EU Supported Program</span><span>Computer Operations Lab</span></div>
+        </article>
+
+        <article class="experience-card" data-experience-category="technical">
+          <div class="experience-card-top">
+            <span class="experience-type">TECHNICAL &amp; IOT INSTRUCTION</span>
             <span class="experience-date">JAN 2025 — PRESENT</span>
           </div>
           <h3>IoT Instructor</h3>
-          <p class="experience-organization">ALP Centre (UNICEF) <span>·</span> Hub</p>
-          <p>Delivered intensive practical sessions on ESP32, Arduino Uno/Nano, sensor arrays, automation circuits, and robotics.</p>
-          <div class="experience-badges"><span>Induction Certified (VATT)</span><span>UNICEF Program</span></div>
+          <p class="experience-organization">ALP Centre / Jamia Hussainia Naimia <span>·</span> Hub</p>
+          <p>Instructed students in practical electronics, microcontrollers (ESP32, Arduino Uno/Nano), sensors, automation relays, and hands-on IoT prototyping under the UNICEF-supported training program.</p>
+          <div class="experience-badges"><span>UNICEF-Supported Training</span><span>Embedded Electronics</span></div>
         </article>
-        <article class="experience-card" data-experience-category="technical">
-          <div class="experience-card-top">
-            <span class="experience-type">COMPUTER TRAINING</span>
-            <span class="experience-date">APR 2025 — PRESENT</span>
-          </div>
-          <h3>Advanced Computer Operator Instructor</h3>
-          <p class="experience-organization">GBHS (UNICEF) <span>·</span> Hub</p>
-          <p>Conducted advanced computer operations, operating system diagnostics, troubleshooting labs, and workplace productivity workflows.</p>
-          <div class="experience-badges"><span>UNICEF Program</span><span>Practical Labs</span></div>
-        </article>
+
         <article class="experience-card" data-experience-category="freelance">
           <div class="experience-card-top">
-            <span class="experience-type">FREELANCE &amp; DIGITAL AGENCY</span>
+            <span class="experience-type">DIGITAL SOLUTIONS &amp; MARKETING</span>
             <span class="experience-date">2023 — PRESENT</span>
           </div>
-          <h3>Freelance Digital Marketer &amp; Graphic Designer</h3>
+          <h3>Freelance Digital Marketer, Designer &amp; Web Specialist</h3>
           <p class="experience-organization">Fiverr, Upwork &amp; Direct Clients</p>
-          <p>Certified via Radius Group. Formulated digital ad campaigns, social growth plans, and 2D/3D creative brand assets for commercial clients.</p>
-          <div class="experience-badges"><span>Radius Group Certified</span><span>International Freelancing</span></div>
+          <p>Delivered digital campaign management, social media advertising assets, 2D visual designs, video reels, and website interfaces for commercial clients, backed by Radius Group certification.</p>
+          <div class="experience-badges"><span>Radius Group Certified</span><span>Meta &amp; Google Ads</span><span>Creative Design</span></div>
         </article>
+
         <article class="experience-card" data-experience-category="engineering">
           <div class="experience-card-top">
-            <span class="experience-type">ENGINEERING &amp; DESIGN</span>
+            <span class="experience-type">FIELD ENGINEERING &amp; CAD</span>
             <span class="experience-date">2017 — 2020</span>
           </div>
           <h3>Field Assistant Engineer &amp; CAD Practice</h3>
           <p class="experience-organization">M. Rahim &amp; Sons</p>
-          <p>Managed structural inspection, technical layout plans, material quality control, and contractor coordination.</p>
-          <div class="experience-badges"><span>Field Engineering</span><span>CAD Practice</span></div>
+          <p>Supervised field technical layouts, quality verification of materials, CAD drafting support, and structural coordination across active construction projects.</p>
+          <div class="experience-badges"><span>Field Supervision</span><span>CAD Documentation</span></div>
         </article>
       </div>
     </section>
@@ -812,7 +907,7 @@
         <a class="social-link" href="https://wa.me/923331244214" target="_blank" rel="noopener noreferrer"><span class="social-mark">WA</span><span>WhatsApp</span><b aria-hidden="true">↗</b></a>
         <a class="social-link" href="mailto:s.engrimrantareen@gmail.com"><span class="social-mark">@</span><span>Email</span><b aria-hidden="true">↗</b></a>
       </div>
-      <footer class="site-footer"><span>IMRAN KHAN · IoT ENGINEER &amp; DIGITAL STRATEGIST</span><a href="#stage" data-close-view>Back to Stage ↑</a></footer>
+      <footer class="site-footer"><span>IMRAN KHAN · IT PROFESSIONAL &amp; INSTRUCTOR · DIGITAL &amp; TECHNOLOGY SOLUTIONS</span><a href="#stage" data-close-view>Back to Stage ↑</a></footer>
     </section>
     </main>
     <button class="view-close" id="view-close" type="button" aria-label="Back to Stage" hidden>
@@ -888,8 +983,29 @@
             <span>CSS3</span>
             <span>JavaScript</span>
           </div>
-          <a href="https://github.com/Imran-khan009" class="project-link">
-            <span>Explore Case Study</span>
+          <a href="https://github.com/Imran-khan009" class="project-link" target="_blank" rel="noopener noreferrer">
+            <span>Explore on GitHub</span>
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="7" y1="17" x2="17" y2="7"></line>
+              <polyline points="7 7 17 7 17 17"></polyline>
+            </svg>
+          </a>
+        </div>
+
+        <div class="project-card">
+          <div class="project-header">
+            <span class="project-badge">Digital &amp; Creative</span>
+            <span class="project-year">2024</span>
+          </div>
+          <h3 class="project-title">Digital Marketing &amp; Brand Design Showcase</h3>
+          <p class="project-desc">Multi-platform social marketing assets, templates, and ad creatives developed through certified Radius Group training.</p>
+          <div class="project-tags">
+            <span>Creative Design</span>
+            <span>Meta Ads</span>
+            <span>Brand Identity</span>
+          </div>
+          <a href="https://github.com/Imran-khan009" class="project-link" target="_blank" rel="noopener noreferrer">
+            <span>View Creative Assets</span>
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="7" y1="17" x2="17" y2="7"></line>
               <polyline points="7 7 17 7 17 17"></polyline>

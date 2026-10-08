@@ -656,7 +656,25 @@ body {
   line-height: 1.65;
   color: var(--text-body);
   max-width: 490px;
-  margin-bottom: 34px;
+  margin-bottom: 18px;
+}
+
+.hero-services-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--accent-orange-light);
+  margin-bottom: 28px;
+  letter-spacing: 0.04em;
+}
+
+.hero-services-bar .service-sep {
+  color: rgba(255, 106, 61, 0.4);
+  font-weight: 400;
 }
 
 .hero-cta-group {
@@ -2113,10 +2131,17 @@ body.view-open .mobile-nav-drawer {
 }
 
 .service-card h3 {
-  margin: 10px 0 16px;
+  margin: 10px 0 10px;
   color: var(--text-white);
   font-size: clamp(1.05rem, 1.5vw, 1.3rem);
   line-height: 1.25;
+}
+
+.service-description {
+  color: var(--text-body);
+  font-size: 0.86rem;
+  line-height: 1.55;
+  margin-bottom: 14px;
 }
 
 .service-tags {
