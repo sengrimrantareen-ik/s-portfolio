@@ -16,7 +16,7 @@
   // --- Configuration ---
   const TOTAL_FRAMES = 240;
   const FRAME_DIR = './frames';
-  const LERP_FACTOR = 0.20; // Silky smooth 60/120fps responsive physics glide
+  const LERP_FACTOR = 0.45; // Snappy, ultra-responsive 60/120fps glide (zero sluggish delay)
 
   // --- DOM Elements ---
   const canvas = document.getElementById('animation-canvas');
@@ -48,18 +48,30 @@
   const portfolioContainer = document.querySelector('.portfolio-container');
   const contactForm = document.getElementById('contact-form');
 
+  // --- State & Pipeline Constants ---
+  const STATUS = {
+    UNREQUESTED: 0,
+    QUEUED: 1,
+    LOADING: 2,
+    READY: 3,
+    FAILED: -1,
+  };
+
   // --- State Variables ---
   const images = new Array(TOTAL_FRAMES);
-  const frameStatus = new Int8Array(TOTAL_FRAMES); // 0 = unrequested, 1 = in-flight, 2 = loaded, -1 = error
-  const MAX_CONCURRENT = 6;
-  let activeDownloads = 0;
-  const loadQueue = [];
+  const frameStatus = new Int8Array(TOTAL_FRAMES);
+  const loadQueue = []; // Unique queued frame indices
+  const isMobileInitial = typeof window !== 'undefined' && window.innerWidth <= 768;
+  const MAX_CONCURRENT = isMobileInitial ? 16 : 24; // High-throughput parallel multiplexing
 
+  let activeDownloads = 0;
   let loadedCount = 0;
-  let isReady = false;
+  let isLoaderDismissed = false;
   let currentFrame = 0;
   let targetFrame = 0;
+  let scrollDirection = 1; // +1 = forward, -1 = backward
   let lastDrawnFrame = -1;
+  let lastDrawnWasExact = false;
   let rafId = null;
   let activeView = null;
   let returnFocus = null;
@@ -72,53 +84,71 @@
     return `${FRAME_DIR}/frame_${padded}.jpg`;
   }
 
-  // --- 1. JIT Continuous Frame Streaming Pipeline (Zero Stalls on Scroll) ---
-  function requestFrameLoad(index, highPriority = false) {
+  // --- 1. Directional Dynamic Priority Streaming Engine (Zero Stalls & Zero Duplicates) ---
+  function enqueueFrame(index) {
     if (index < 0 || index >= TOTAL_FRAMES) return;
-    if (frameStatus[index] !== 0) return;
-
-    if (highPriority) {
-      loadQueue.unshift(index);
-    } else {
+    if (frameStatus[index] === STATUS.UNREQUESTED) {
+      frameStatus[index] = STATUS.QUEUED;
       loadQueue.push(index);
     }
-    processQueue();
   }
 
-  function prioritizeAround(targetIdx) {
-    const radius = 12;
-    for (let r = 0; r <= radius; r++) {
-      const forward = targetIdx + r;
-      const backward = targetIdx - r;
-      if (forward < TOTAL_FRAMES && frameStatus[forward] === 0) {
-        requestFrameLoad(forward, true);
-      }
-      if (backward >= 0 && frameStatus[backward] === 0) {
-        requestFrameLoad(backward, true);
-      }
+  // Calculate dynamic priority score (lower score = higher urgent priority)
+  function calculateFramePriority(idx, target, dir) {
+    const diff = idx - target;
+    if (dir >= 0) {
+      if (diff >= 0 && diff <= 32) return diff;
+      else if (diff < 0 && diff >= -10) return 40 + Math.abs(diff) * 2;
+      else if (diff > 32) return 70 + diff;
+      else return 150 + Math.abs(diff);
+    } else {
+      const revDiff = target - idx;
+      if (revDiff >= 0 && revDiff <= 32) return revDiff;
+      else if (revDiff < 0 && revDiff >= -10) return 40 + Math.abs(revDiff) * 2;
+      else if (revDiff > 32) return 70 + revDiff;
+      else return 150 + Math.abs(revDiff);
     }
   }
 
   function processQueue() {
-    while (activeDownloads < MAX_CONCURRENT && loadQueue.length > 0) {
-      const idx = loadQueue.shift();
-      if (frameStatus[idx] !== 0) continue;
+    if (loadQueue.length === 0) return;
 
-      frameStatus[idx] = 1;
+    const target = Math.round(targetFrame);
+    const dir = scrollDirection;
+
+    while (activeDownloads < MAX_CONCURRENT && loadQueue.length > 0) {
+      // Find the most urgently needed frame in the queue
+      let bestQueueIndex = 0;
+      let bestScore = calculateFramePriority(loadQueue[0], target, dir);
+
+      for (let i = 1; i < loadQueue.length; i++) {
+        const score = calculateFramePriority(loadQueue[i], target, dir);
+        if (score < bestScore) {
+          bestScore = score;
+          bestQueueIndex = i;
+        }
+      }
+
+      const idx = loadQueue.splice(bestQueueIndex, 1)[0];
+      frameStatus[idx] = STATUS.LOADING;
       activeDownloads++;
 
-      const img = new Image();
-      img.src = getFrameUrl(idx);
+      startFrameDownload(idx);
+    }
+  }
 
-      const onDone = () => {
-        images[idx] = img;
-        frameStatus[idx] = 2;
+  function startFrameDownload(idx) {
+    const url = getFrameUrl(idx);
+
+    const onComplete = (drawable, success) => {
+      activeDownloads--;
+
+      if (success && drawable) {
+        images[idx] = drawable;
+        frameStatus[idx] = STATUS.READY;
         loadedCount++;
-        activeDownloads--;
 
-        if (loader && !loader.classList.contains('loaded')) {
-          updateLoaderProgress();
-        }
+        updateLoaderProgress();
 
         if (idx === 0 && lastDrawnFrame === -1) {
           resizeCanvas();
@@ -126,88 +156,117 @@
         }
 
         const currentRound = Math.round(currentFrame);
-        if (Math.abs(currentRound - idx) <= 2) {
+        if (currentRound === idx || (!lastDrawnWasExact && Math.abs(currentRound - idx) <= 1)) {
           requestRender();
         }
-
-        setTimeout(processQueue, 0);
-      };
-
-      if ('decode' in img) {
-        img.decode().then(onDone).catch(onDone);
       } else {
-        img.onload = onDone;
-        img.onerror = () => {
-          frameStatus[idx] = -1;
-          activeDownloads--;
-          setTimeout(processQueue, 0);
-        };
+        frameStatus[idx] = STATUS.FAILED;
+        images[idx] = null;
+      }
+
+      processQueue();
+    };
+
+    // Fast off-main-thread createImageBitmap decoding (zero UI thread hiccups)
+    if (typeof window.createImageBitmap === 'function' && typeof window.fetch === 'function') {
+      fetch(url)
+        .then(res => {
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return res.blob();
+        })
+        .then(blob => createImageBitmap(blob))
+        .then(bitmap => {
+          onComplete(bitmap, true);
+        })
+        .catch(() => {
+          downloadFallbackImage(idx, url, onComplete);
+        });
+    } else {
+      downloadFallbackImage(idx, url, onComplete);
+    }
+  }
+
+  function downloadFallbackImage(idx, url, onComplete) {
+    const img = new Image();
+    img.decoding = 'async';
+    img.onload = () => {
+      if (typeof img.decode === 'function') {
+        img.decode()
+          .then(() => onComplete(img, true))
+          .catch(() => onComplete(img, img.naturalWidth > 0));
+      } else {
+        onComplete(img, img.naturalWidth > 0);
+      }
+    };
+    img.onerror = () => onComplete(null, false);
+    img.src = url;
+  }
+
+  function updateLoaderProgress() {
+    if (loader && !isLoaderDismissed) {
+      const percent = Math.min(100, Math.floor((loadedCount / TOTAL_FRAMES) * 100));
+      if (loaderBar) loaderBar.style.width = `${percent}%`;
+      if (loaderPercent) loaderPercent.textContent = `${percent}%`;
+      if (loaderCount) loaderCount.textContent = `${loadedCount} / ${TOTAL_FRAMES}`;
+
+      // When all 240 frames are loaded in memory, dismiss loader for 100% instant silky playback
+      if (loadedCount >= TOTAL_FRAMES && images[0]) {
+        dismissLoader();
       }
     }
   }
 
-  function updateLoaderProgress() {
-    const percent = Math.min(100, Math.floor((loadedCount / 16) * 100));
-    if (loaderBar) loaderBar.style.width = `${percent}%`;
-    if (loaderPercent) loaderPercent.textContent = `${percent}%`;
-    if (loaderCount) loaderCount.textContent = `${loadedCount} / ${TOTAL_FRAMES}`;
-  }
-
   function dismissLoader() {
+    if (isLoaderDismissed) return;
+    isLoaderDismissed = true;
     if (loader && !loader.classList.contains('loaded')) {
       loader.classList.add('loaded');
       setTimeout(() => {
         if (loader) loader.style.display = 'none';
       }, 350);
     }
+    requestRender();
   }
+
+  // Safety fallbacks: on slow connections, do not hang forever
+  setTimeout(() => {
+    if (!isLoaderDismissed && loadedCount >= 80 && images[0]) {
+      dismissLoader();
+    }
+  }, 3000);
+
+  setTimeout(() => {
+    if (!isLoaderDismissed && images[0]) {
+      dismissLoader();
+    }
+  }, 4500);
 
   function preloadImages() {
-    // Stage 1: Load initial fast buffer (frames 0 to 15) with high priority
-    for (let i = 0; i < 16; i++) {
-      requestFrameLoad(i, true);
+    // Queue all 240 frames in natural order
+    for (let i = 0; i < TOTAL_FRAMES; i++) {
+      enqueueFrame(i);
     }
 
-    // Stage 2: Queue keyframes across entire sequence (every 4th frame)
-    for (let i = 16; i < TOTAL_FRAMES; i += 4) {
-      requestFrameLoad(i, false);
-    }
-
-    // Stage 3: Queue all remaining intermediate frames
-    for (let i = 16; i < TOTAL_FRAMES; i++) {
-      if (i % 4 !== 0) {
-        requestFrameLoad(i, false);
-      }
-    }
-
-    // Reveal stage quickly once initial buffer is ready
-    const checkInitialBuffer = () => {
-      if (images[0] && loadedCount >= 4) {
-        dismissLoader();
-        requestRender();
-      } else {
-        setTimeout(checkInitialBuffer, 30);
-      }
-    };
-    checkInitialBuffer();
+    // Launch high-throughput parallel downloads immediately
+    processQueue();
   }
 
-  // Radiate outward from targetIdx: ±1, ±2, ±3... to find the closest loaded frame instantly
+  // Find exact loaded frame or closest available loaded keyframe
   function findClosestLoadedFrame(targetIdx) {
-    if (images[targetIdx] && images[targetIdx].complete && images[targetIdx].naturalWidth > 0) {
-      return images[targetIdx];
+    if (images[targetIdx]) {
+      return { img: images[targetIdx], isExact: true, index: targetIdx };
     }
     for (let offset = 1; offset < TOTAL_FRAMES; offset++) {
       const forward = targetIdx + offset;
       const backward = targetIdx - offset;
-      if (forward < TOTAL_FRAMES && images[forward] && images[forward].complete && images[forward].naturalWidth > 0) {
-        return images[forward];
+      if (forward < TOTAL_FRAMES && images[forward]) {
+        return { img: images[forward], isExact: false, index: forward };
       }
-      if (backward >= 0 && images[backward] && images[backward].complete && images[backward].naturalWidth > 0) {
-        return images[backward];
+      if (backward >= 0 && images[backward]) {
+        return { img: images[backward], isExact: false, index: backward };
       }
     }
-    return images[0] || null;
+    return images[0] ? { img: images[0], isExact: false, index: 0 } : null;
   }
 
   // --- 2. Mobile Hero Layout Lock Engine ---
@@ -282,46 +341,45 @@
     applyMobileHeroLock();
     const isMobile = window.innerWidth <= 768;
 
-    let displayWidth, displayHeight;
-    // Deliver crisp high-DPI (up to 2x / 4K) clarity
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let targetW, targetH;
     if (isMobile) {
-      displayWidth = 190;
-      displayHeight = 190;
+      // 190x190 CSS display with up to 2x DPR for ultra-sharp Retina portrait circles
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      targetW = Math.round(190 * dpr);
+      targetH = Math.round(190 * dpr);
     } else {
-      displayWidth = window.innerWidth;
-      displayHeight = window.innerHeight;
+      // Desktop: cap at 1920x1080 (the source video frames are 1280x720)
+      // Capping at 1080p delivers 100% native clarity while avoiding 4K bicubic CPU/GPU memory stalls
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      const dw = window.innerWidth;
+      const dh = window.innerHeight;
+      targetW = Math.min(1920, Math.round(dw * dpr));
+      targetH = Math.min(1080, Math.round(dh * dpr));
     }
-
-    const targetW = Math.round(displayWidth * dpr);
-    const targetH = Math.round(displayHeight * dpr);
 
     if (canvas.width !== targetW || canvas.height !== targetH) {
       canvas.width = targetW;
       canvas.height = targetH;
       lastDrawnFrame = -1;
+      lastDrawnWasExact = false;
     }
 
     ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
+    ctx.imageSmoothingQuality = isMobile ? 'high' : 'medium';
 
     updateMaxScroll();
 
     const frameIdx = Math.round(currentFrame);
-    if (images[frameIdx] || findClosestLoadedFrame(frameIdx)) {
-      drawFrame(frameIdx);
-    }
+    drawFrame(frameIdx);
   }
 
   function drawFrame(frameIndex) {
     if (!canvas || !ctx) return;
     const clampedIndex = Math.max(0, Math.min(TOTAL_FRAMES - 1, frameIndex));
-    const img = findClosestLoadedFrame(clampedIndex);
+    const result = findClosestLoadedFrame(clampedIndex);
 
-    if (!img) return;
-
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
+    if (!result || !result.img) return;
+    const { img, isExact } = result;
 
     const cw = canvas.width;
     const ch = canvas.height;
@@ -360,6 +418,7 @@
     }
 
     lastDrawnFrame = clampedIndex;
+    lastDrawnWasExact = isExact;
     updateScrollBars(clampedIndex);
   }
 
@@ -390,9 +449,10 @@
   // --- 3. Ultra-Smooth On-Demand RAF Animation & Scroll Scrubbing ---
   function scrubFrames(delta) {
     const newTarget = Math.max(0, Math.min(TOTAL_FRAMES - 1, targetFrame + delta));
-    if (Math.abs(newTarget - targetFrame) > 0.01) {
+    if (Math.abs(newTarget - targetFrame) > 0.001) {
+      scrollDirection = delta >= 0 ? 1 : -1;
       targetFrame = newTarget;
-      prioritizeAround(Math.round(targetFrame));
+      processQueue();
       requestRender();
     }
   }
@@ -402,14 +462,14 @@
     if (Math.abs(delta) > 0.01) {
       currentFrame += delta * LERP_FACTOR;
       const frameToDraw = Math.round(currentFrame);
-      if (frameToDraw !== lastDrawnFrame) {
+      if (frameToDraw !== lastDrawnFrame || !lastDrawnWasExact) {
         drawFrame(frameToDraw);
       }
       rafId = requestAnimationFrame(render);
     } else {
       currentFrame = targetFrame;
       const frameToDraw = Math.round(currentFrame);
-      if (frameToDraw !== lastDrawnFrame) {
+      if (frameToDraw !== lastDrawnFrame || !lastDrawnWasExact) {
         drawFrame(frameToDraw);
       }
       rafId = null; // Idle: 0% CPU consumption
@@ -427,7 +487,7 @@
     cachedMaxScroll = Math.max(1, (docEl.scrollHeight || document.body.scrollHeight || 1) - window.innerHeight);
   }
 
-  // Zero-Reflow Throttled Scroll Listener
+  // Zero-Reflow Throttled Scroll Listener (Synchronized for mobile vertical scroll)
   function handleScroll() {
     if (scrollTicking) return;
     scrollTicking = true;
@@ -437,10 +497,11 @@
       if (isMobile) {
         if (cachedMaxScroll <= 0) updateMaxScroll();
         const scrollFraction = Math.min(1, Math.max(0, window.scrollY / cachedMaxScroll));
-        const newTarget = Math.min(TOTAL_FRAMES - 1, Math.floor(scrollFraction * TOTAL_FRAMES));
+        const newTarget = Math.min(TOTAL_FRAMES - 1, Math.floor(scrollFraction * (TOTAL_FRAMES - 1)));
         if (Math.abs(newTarget - targetFrame) > 0.01) {
+          scrollDirection = newTarget >= targetFrame ? 1 : -1;
           targetFrame = newTarget;
-          prioritizeAround(Math.round(targetFrame));
+          processQueue();
           requestRender();
         }
       }
@@ -458,13 +519,13 @@
       event.preventDefault();
       const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? window.innerHeight : 1;
       const rawDelta = event.deltaY * unit;
-      // Precision normalization: stepped notched mice jump ~100px, trackpads produce ~2-15px
-      const scaledDelta = Math.abs(rawDelta) >= 50 ? rawDelta * 0.045 : rawDelta * 0.07;
+      // Precision normalization: stepped notched mice produce ~100px (~8 frames), trackpads produce fluid continuous ~2-15px
+      const scaledDelta = Math.abs(rawDelta) >= 40 ? (rawDelta / 100) * 8.5 : rawDelta * 0.10;
       scrubFrames(scaledDelta);
     }
   }, { passive: false });
 
-  // Touch Interactions: Direct 120Hz/60Hz Tactile Scrubbing on Mobile
+  // Touch Interactions: Direct 120Hz/60Hz Tactile Scrubbing on Mobile Portrait
   let lastTouchX = null;
   let lastTouchY = null;
   let isCanvasTouch = false;
@@ -481,6 +542,8 @@
       (canvasEl && canvasEl.contains(target)) ||
       (visualEl && visualEl.contains(target)) ||
       target.closest('.hero-right-visual') ||
+      target.closest('.halo-portal-container') ||
+      target.closest('.animation-stage') ||
       target.closest('#animation-canvas')
     );
   }, { passive: true });
@@ -495,7 +558,7 @@
     if (isCanvasTouch) {
       // Direct thumb interaction on the portrait: fluid 3D spin with zero scroll collision
       if (event.cancelable) event.preventDefault();
-      scrubFrames(deltaY * 0.42 + deltaX * 0.3);
+      scrubFrames(deltaY * 0.38 + deltaX * 0.28);
       lastTouchX = currentX;
       lastTouchY = currentY;
       return;
@@ -506,9 +569,12 @@
       if (event.cancelable) event.preventDefault();
       scrubFrames(deltaY * 0.25);
     } else {
-      // On mobile background: smooth scrubbing with natural vertical glide
-      scrubFrames(deltaY * 0.24);
+      // On mobile background, if page height doesn't scroll much, allow vertical swipes to scrub portrait smoothly
+      if (cachedMaxScroll <= 50) {
+        scrubFrames(deltaY * 0.28);
+      }
     }
+    // and handleScroll synchronously updates targetFrame. Do not compete with it.
 
     lastTouchX = currentX;
     lastTouchY = currentY;
