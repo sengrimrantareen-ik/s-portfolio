@@ -10,11 +10,10 @@
   <meta property="og:title" content="Imran Khan — IT Professional &amp; Instructor | Digital &amp; Technology Solutions">
   <meta property="og:description"
     content="Imran Khan — IT Professional &amp; Instructor specializing in Web Development, IoT &amp; Smart Systems, Digital Marketing, Creative Design, Video Editing, and IT Training.">
+  <link rel="preload" as="image" href="frames/frame_0001.webp" fetchpriority="high">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
-    rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="style.css?v=lock2">
   <style id="mobile-hero-lock">
     @media (max-width: 768px) {
@@ -203,7 +202,7 @@
     <div class="loader-content">
       <div class="loader-brand">
         <div class="brand-badge-icon">
-          <img src="assets/brand-avatar.png" alt="Imran Khan" class="loader-logo-avatar">
+          <img src="assets/brand-avatar.webp" alt="Imran Khan" class="loader-logo-avatar" width="42" height="42" decoding="async">
         </div>
         <span class="loader-brand-name">IMRAN KHAN</span>
       </div>
@@ -241,7 +240,7 @@
     <header class="navbar" data-stage-only>
       <div class="nav-left">
         <a href="#stage" class="brand-logo" id="brand-logo">
-          <img class="brand-mark" src="assets/brand-avatar.png" alt="Imran Khan — S.Engr">
+          <img class="brand-mark" src="assets/brand-avatar.webp" alt="Imran Khan — IT Professional" width="36" height="36" decoding="async">
           <span class="brand-text">IMRAN KHAN</span>
         </a>
       </div>
@@ -770,7 +769,7 @@
         <article class="experience-card" data-experience-category="technical">
           <div class="experience-card-top">
             <span class="experience-type">TECHNICAL &amp; IOT INSTRUCTION</span>
-            <span class="experience-date">JAN 2025 — PRESENT</span>
+            <span class="experience-date">JUNE 2024 — PRESENT</span>
           </div>
           <h3>IoT Instructor</h3>
           <p class="experience-organization">ALP Centre / Jamia Hussainia Naimia <span>·</span> Hub</p>
@@ -805,82 +804,402 @@
     <section class="content-section projects-section view-panel" id="work" data-view-panel hidden aria-hidden="true" aria-labelledby="projects-heading">
       <div class="section-heading section-heading-row">
         <div>
-          <span class="section-kicker">SELECTED PRACTICAL WORK</span>
-          <h2 id="projects-heading">Work &amp; <span class="title-highlight">Repositories</span></h2>
+          <span class="section-kicker">AUTHENTIC PRACTICAL WORK &amp; TEACHING REPERTOIRE</span>
+          <h2 id="projects-heading">Work, Engineering &amp; <span class="title-highlight">Student Builds</span></h2>
         </div>
         <a class="section-profile-link" href="https://github.com/Imran-khan009" target="_blank" rel="noopener noreferrer">
           GitHub profile <span aria-hidden="true">↗</span>
         </a>
       </div>
+
+      <!-- Project Category Filters -->
+      <div class="project-filters" role="group" aria-label="Filter projects by category">
+        <button type="button" class="project-filter active" data-project-filter="all" aria-pressed="true">All Works (16)</button>
+        <button type="button" class="project-filter" data-project-filter="iot" aria-pressed="false">IoT &amp; Robotics</button>
+        <button type="button" class="project-filter" data-project-filter="web" aria-pressed="false">Web Development</button>
+        <button type="button" class="project-filter" data-project-filter="creative" aria-pressed="false">Creative &amp; Digital</button>
+        <button type="button" class="project-filter" data-project-filter="student" aria-pressed="false">Student Labs &amp; Mentoring</button>
+      </div>
+
       <div class="projects-grid">
-        <article class="project-card project-showcase-card">
-          <div class="project-visual visual-agriculture" aria-label="Illustrative system flow diagram">
-            <span class="visual-caption">SYSTEM FLOW / CONCEPT</span>
+        <!-- 1. Smart Irrigation System -->
+        <article class="project-card project-showcase-card project-card-interactive" data-project-category="iot" data-project-id="smart-irrigation">
+          <div class="project-card-meta">
+            <h4 class="project-category-tag">IoT &amp; Robotics</h4>
+            <div class="project-status-badges">
+              <span class="role-badge role-badge-personal">Personally Developed</span>
+              <span class="project-status-pill">Hardware Prototype</span>
+            </div>
+          </div>
+          <h3 class="project-title">Smart Agriculture Water Management System</h3>
+          <p class="project-desc">Automated soil moisture sensing and closed-loop relay pump irrigation engineered to optimize water consumption in arid regional farmland.</p>
+          <div class="project-visual visual-agriculture" aria-label="System schematic flow diagram">
+            <span class="visual-caption">SYSTEM SCHEMATIC / CIRCUIT ARCHITECTURE</span>
             <div class="flow-diagram"><span>SOIL<br>SENSOR</span><i></i><span>ESP32</span><i></i><span>RELAY<br>PUMP</span></div>
-            <div class="visual-readout">MOISTURE <b>42%</b><span>·</span> IRRIGATION <b>AUTO</b></div>
+            <div class="visual-readout">MOISTURE <b>42%</b><span>·</span> IRRIGATION <b>AUTO SWITCH</b></div>
           </div>
-          <div class="project-body">
-            <div class="project-header"><span class="project-badge">IoT / AUTOMATION</span><span class="project-year">01</span></div>
-            <h3 class="project-title">Smart Agriculture Water Management System</h3>
-            <p class="project-desc">Automated moisture sensing and closed-loop relay irrigation using microcontrollers.</p>
-            <div class="project-tags"><span>ESP32 / Arduino</span><span>C++</span><span>Sensor Interfacing</span></div>
-            <a href="https://github.com/Imran-khan009" target="_blank" rel="noopener noreferrer" class="project-link"><span>View GitHub Repo</span><span aria-hidden="true">↗</span></a>
-          </div>
+          <div class="project-tags"><span>ESP32 / Arduino</span><span>Capacitive Sensor</span><span>5V Relay</span><span>Embedded C++</span></div>
+          <button type="button" class="project-view-specs-btn" data-open-project="smart-irrigation"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
         </article>
-        <article class="project-card project-showcase-card">
-          <div class="project-visual visual-robot" aria-label="Illustrative wireless robotics diagram">
-            <span class="visual-caption">CONTROL LINK / CONCEPT</span>
-            <div class="robot-diagram"><span class="signal-node">RF<br>REMOTE</span><i></i><span class="board-node">RX<br>CONTROL</span><i></i><span class="wheel-node">MOTOR<br>DRIVER</span></div>
-            <div class="visual-readout">SIGNAL <b>2.4 GHz</b><span>·</span> DRIVE <b>DUAL</b></div>
+
+        <!-- 2. Smart Blind Stick -->
+        <article class="project-card project-showcase-card project-card-interactive" data-project-category="iot student" data-project-id="blind-stick">
+          <div class="project-card-meta">
+            <h4 class="project-category-tag">IoT &amp; Robotics</h4>
+            <div class="project-status-badges">
+              <span class="role-badge role-badge-guided">Guided Student Build</span>
+              <span class="project-status-pill">Curriculum Demonstration</span>
+            </div>
           </div>
-          <div class="project-body">
-            <div class="project-header"><span class="project-badge">ROBOTICS / HARDWARE</span><span class="project-year">02</span></div>
-            <h3 class="project-title">RF Wireless Robotic Vehicle</h3>
-            <p class="project-desc">Motor driver integration with wireless RF remote control communication.</p>
-            <div class="project-tags"><span>C++</span><span>Hardware Schematics</span><span>Motor Drivers</span></div>
-            <a href="https://github.com/Imran-khan009" target="_blank" rel="noopener noreferrer" class="project-link"><span>View GitHub Repo</span><span aria-hidden="true">↗</span></a>
+          <h3 class="project-title">Smart Blind Stick with Obstacle Detection</h3>
+          <p class="project-desc">Assistive mobility cane prototype built with students using ultrasonic echo ranging and dual tactile buzzer/vibration alerts.</p>
+          <div class="project-visual" aria-label="Acoustic ranging and assistive circuit diagram">
+            <span class="visual-caption">ACOUSTIC RANGING / ASSISTIVE CIRCUIT</span>
+            <div class="flow-diagram"><span>HC-SR04<br>ECHO</span><i></i><span>ARDUINO<br>NANO</span><i></i><span>BUZZER /<br>MOTOR</span></div>
+            <div class="visual-readout">RANGE <b>&lt; 50 CM</b><span>·</span> FEEDBACK <b>TACTILE + AUDIO</b></div>
           </div>
+          <div class="project-tags"><span>Arduino Nano</span><span>HC-SR04 Sensor</span><span>Piezo Buzzer</span><span>Vibration Motor</span></div>
+          <button type="button" class="project-view-specs-btn" data-open-project="blind-stick"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
         </article>
-        <article class="project-card project-showcase-card">
-          <div class="project-visual visual-web" aria-label="Illustrative web interface code diagram">
-            <span class="visual-caption">RESPONSIVE INTERFACE / CONCEPT</span>
-            <div class="code-window"><div><b></b><b></b><b></b><span>interface.js</span></div><pre><i>&lt;section</i> class=<em>"work"</em><i>&gt;</i>
-  <i>&lt;h1&gt;</i>Ideas to impact<i>&lt;/h1&gt;</i>
-  <i>&lt;button</i> data-action=<em>"build"</em><i>&gt;</i>
-<strong>  responsive · accessible · clear</strong></pre></div>
+
+        <!-- 3. RC Robot Car -->
+        <article class="project-card project-showcase-card project-card-interactive" data-project-category="iot" data-project-id="rc-robot-car">
+          <div class="project-card-meta">
+            <h4 class="project-category-tag">IoT &amp; Robotics</h4>
+            <div class="project-status-badges">
+              <span class="role-badge role-badge-personal">Personally Developed</span>
+              <span class="project-status-pill">Hardware Prototype</span>
+            </div>
           </div>
-          <div class="project-body">
-            <div class="project-header"><span class="project-badge">WEB / INTERACTION</span><span class="project-year">03</span></div>
-            <h3 class="project-title">Modern Interactive Web Interfaces</h3>
-            <p class="project-desc">Scalable, responsive UI architectures built with clean DOM logic and modern CSS.</p>
-            <div class="project-tags"><span>HTML5</span><span>CSS3</span><span>JavaScript</span></div>
-            <div class="project-actions"><span class="project-link is-pending" aria-disabled="true">Live Demo <span>Pending</span><span aria-hidden="true">↗</span></span><a href="https://github.com/Imran-khan009" target="_blank" rel="noopener noreferrer" class="project-link"><span>GitHub</span><span aria-hidden="true">↗</span></a></div>
+          <h3 class="project-title">RF Wireless Remote-Controlled Robot Car</h3>
+          <p class="project-desc">Custom chassis assembly with 4WD DC geared motors, high-current L298N H-bridge driver, and directional 2.4GHz RF communication.</p>
+          <div class="project-visual visual-robot" aria-label="Wireless robotics diagram">
+            <span class="visual-caption">WIRELESS RF LINK &amp; MOTOR CONTROL</span>
+            <div class="robot-diagram"><span class="signal-node">RF<br>REMOTE</span><i></i><span class="board-node">RX<br>CONTROL</span><i></i><span class="wheel-node">L298N<br>DRIVER</span></div>
+            <div class="visual-readout">SIGNAL <b>2.4 GHz</b><span>·</span> DRIVE <b>DUAL H-BRIDGE</b></div>
           </div>
+          <div class="project-tags"><span>Microcontroller</span><span>L298N Driver</span><span>2.4GHz RF Module</span><span>DC Motors</span></div>
+          <button type="button" class="project-view-specs-btn" data-open-project="rc-robot-car"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
         </article>
-        <article class="project-card project-showcase-card">
-          <div class="project-visual visual-brand" aria-label="Illustrative brand campaign layout">
-            <span class="visual-caption">CAMPAIGN SYSTEM / CONCEPT</span>
-            <div class="brand-board"><span class="brand-stamp">R</span><div><b>MAKE<br>IT MATTER.</b><small>CAMPAIGN / 01</small></div><span class="brand-shape"></span></div>
-            <div class="visual-readout">SOCIAL <b>CAMPAIGNS</b><span>·</span> IDENTITY <b>DESIGN</b></div>
+
+        <!-- 4. Home Automation -->
+        <article class="project-card project-showcase-card project-card-interactive" data-project-category="iot student" data-project-id="home-automation">
+          <div class="project-card-meta">
+            <h4 class="project-category-tag">IoT &amp; Robotics</h4>
+            <div class="project-status-badges">
+              <span class="role-badge role-badge-guided">Guided Student Build</span>
+              <span class="project-status-pill">Lab Demonstration</span>
+            </div>
           </div>
-          <div class="project-body">
-            <div class="project-header"><span class="project-badge">DIGITAL / CREATIVE</span><span class="project-year">04</span></div>
-            <h3 class="project-title">Digital Marketing &amp; Brand Design Showcase</h3>
-            <p class="project-desc">Multi-platform social marketing assets, templates, and high-conversion ad creatives built through Radius Group training.</p>
-            <div class="project-tags"><span>Creative Design</span><span>Social Campaign Strategy</span><span>Brand Identity</span></div>
-            <span class="project-link is-pending" aria-disabled="true">View Portfolio / Drive <span>Pending</span><span aria-hidden="true">↗</span></span>
+          <h3 class="project-title">Multi-Channel Smart Home Automation</h3>
+          <p class="project-desc">Wireless appliance control setup demonstrating optocoupler relay electrical isolation and multi-switch IoT network integration.</p>
+          <div class="project-visual" aria-label="Smart IoT relay network diagram">
+            <span class="visual-caption">SMART IOT RELAY NETWORK</span>
+            <div class="flow-diagram"><span>ESP32<br>WI-FI</span><i></i><span>OPTO<br>ISOLATION</span><i></i><span>4-CH<br>RELAYS</span></div>
+            <div class="visual-readout">TELEMETRY <b>MQTT/HTTP</b><span>·</span> AC LOADS <b>ISOLATED</b></div>
           </div>
+          <div class="project-tags"><span>ESP32 Wi-Fi</span><span>4-Channel Relay</span><span>Optocoupler</span><span>C++</span></div>
+          <button type="button" class="project-view-specs-btn" data-open-project="home-automation"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
+        </article>
+
+        <!-- 5. Flame & Gas Detection System -->
+        <article class="project-card project-showcase-card project-card-interactive" data-project-category="iot student" data-project-id="flame-gas-detector">
+          <div class="project-card-meta">
+            <h4 class="project-category-tag">IoT &amp; Robotics</h4>
+            <div class="project-status-badges">
+              <span class="role-badge role-badge-guided">Guided Student Build</span>
+              <span class="project-status-pill">Safety Lab Prototype</span>
+            </div>
+          </div>
+          <h3 class="project-title">Hazard Flame &amp; Combustible Gas Detection System</h3>
+          <p class="project-desc">Early-warning sensor circuit detecting LPG, butane, and open infrared flames with automatic acoustic sirens and status LEDs.</p>
+          <div class="project-visual" aria-label="Safety sensing early warning diagram">
+            <span class="visual-caption">SAFETY SENSING / EARLY WARNING</span>
+            <div class="flow-diagram"><span>MQ-2 / IR<br>SENSORS</span><i></i><span>ARDUINO<br>UNO</span><i></i><span>ALARM<br>TRIGGER</span></div>
+            <div class="visual-readout">SENSITIVITY <b>ANALOG</b><span>·</span> RESPONSE <b>&lt; 100 MS</b></div>
+          </div>
+          <div class="project-tags"><span>MQ-2 Gas Sensor</span><span>Flame IR Sensor</span><span>Arduino Uno</span><span>Audio Alarm</span></div>
+          <button type="button" class="project-view-specs-btn" data-open-project="flame-gas-detector"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
+        </article>
+
+        <!-- 6. Radar System -->
+        <article class="project-card project-showcase-card project-card-interactive" data-project-category="iot student" data-project-id="radar-system">
+          <div class="project-card-meta">
+            <h4 class="project-category-tag">IoT &amp; Robotics</h4>
+            <div class="project-status-badges">
+              <span class="role-badge role-badge-guided">Guided Student Build</span>
+              <span class="project-status-pill">Laboratory Project</span>
+            </div>
+          </div>
+          <h3 class="project-title">180° Ultrasonic Servo Radar Mapping System</h3>
+          <p class="project-desc">Servo-driven acoustic scanner mapping surrounding spatial obstructions and plotting real-time angle/distance sweeps onto a graphical monitor.</p>
+          <div class="project-visual" aria-label="180 degree radar mapping diagram">
+            <span class="visual-caption">180° SWEEP MAPPING / ACOUSTIC RADAR</span>
+            <div class="flow-diagram"><span>SG90<br>SERVO</span><i></i><span>HC-SR04<br>PING</span><i></i><span>RADAR<br>SCREEN</span></div>
+            <div class="visual-readout">SWEEP <b>15° – 165°</b><span>·</span> DISPLAY <b>REAL-TIME</b></div>
+          </div>
+          <div class="project-tags"><span>Arduino Uno</span><span>SG90 Servo</span><span>HC-SR04 Sensor</span><span>Processing IDE</span></div>
+          <button type="button" class="project-view-specs-btn" data-open-project="radar-system"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
+        </article>
+
+        <!-- 7. Ultrasonic Obstacle-Detection Car -->
+        <article class="project-card project-showcase-card project-card-interactive" data-project-category="iot student" data-project-id="obstacle-car">
+          <div class="project-card-meta">
+            <h4 class="project-category-tag">IoT &amp; Robotics</h4>
+            <div class="project-status-badges">
+              <span class="role-badge role-badge-guided">Guided Student Build</span>
+              <span class="project-status-pill">Robotics Lab Build</span>
+            </div>
+          </div>
+          <h3 class="project-title">Autonomous Ultrasonic Obstacle-Avoidance Car</h3>
+          <p class="project-desc">Self-navigating smart rover utilizing a servo-pivoted ultrasonic head to scan escape routes and execute differential pivot turns.</p>
+          <div class="project-visual" aria-label="Autonomous pathing and collision avoidance diagram">
+            <span class="visual-caption">AUTONOMOUS PATHING &amp; COLLISION AVOIDANCE</span>
+            <div class="flow-diagram"><span>DISTANCE<br>SCAN</span><i></i><span>PATH<br>LOGIC</span><i></i><span>MOTOR<br>STEER</span></div>
+            <div class="visual-readout">DECISION <b>3-WAY SCAN</b><span>·</span> NAVIGATION <b>AUTONOMOUS</b></div>
+          </div>
+          <div class="project-tags"><span>Arduino Uno</span><span>L298N Driver</span><span>Ultrasonic Sensor</span><span>Servo Pan</span></div>
+          <button type="button" class="project-view-specs-btn" data-open-project="obstacle-car"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
+        </article>
+
+        <!-- 8. Other Arduino & ESP32 Modular Projects -->
+        <article class="project-card project-showcase-card project-card-interactive" data-project-category="iot student" data-project-id="modular-arduino-esp32">
+          <div class="project-card-meta">
+            <h4 class="project-category-tag">IoT &amp; Robotics</h4>
+            <div class="project-status-badges">
+              <span class="role-badge role-badge-lab">Practical Lab Activity</span>
+              <span class="project-status-pill">Classroom Modules</span>
+            </div>
+          </div>
+          <h3 class="project-title">Modular Arduino &amp; ESP32 Embedded Labs</h3>
+          <p class="project-desc">Hands-on electronics modules covering PIR motion triggers, DHT11 environmental metrics, OLED I2C telemetry, and PWM motor modulation.</p>
+          <div class="project-visual" aria-label="Practical lab sensors and embedded modules diagram">
+            <span class="visual-caption">PRACTICAL LAB SENSORS &amp; EMBEDDED MODULES</span>
+            <div class="flow-diagram"><span>DHT11<br>TEMP</span><i></i><span>I2C<br>OLED</span><i></i><span>PIR<br>MOTION</span></div>
+            <div class="visual-readout">PROTOCOLS <b>I2C / SPI / PWM</b><span>·</span> LAB <b>VOCATIONAL</b></div>
+          </div>
+          <div class="project-tags"><span>ESP32 / Arduino</span><span>I2C Displays</span><span>PIR Sensors</span><span>Breadboard Wiring</span></div>
+          <button type="button" class="project-view-specs-btn" data-open-project="modular-arduino-esp32"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
+        </article>
+
+        <!-- 9. Custom Websites & Web Applications -->
+        <article class="project-card project-showcase-card project-card-interactive" data-project-category="web" data-project-id="custom-websites">
+          <div class="project-card-meta">
+            <h4 class="project-category-tag">Web Development</h4>
+            <div class="project-status-badges">
+              <span class="role-badge role-badge-personal">Personally Developed</span>
+              <span class="project-status-pill">Completed &amp; Maintained</span>
+            </div>
+          </div>
+          <h3 class="project-title">Custom Business Websites &amp; Web Applications</h3>
+          <p class="project-desc">Standards-compliant frontend codebases engineered for speed, cross-device responsiveness, structured SEO, and dependable performance.</p>
+          <div class="project-visual visual-web" aria-label="Web code interface visual">
+            <span class="visual-caption">RESPONSIVE CODE ARCHITECTURE</span>
+            <div class="code-window"><div><b></b><b></b><b></b><span>app.js</span></div><pre><i>&lt;main</i> class=<em>"production-web"</em><i>&gt;</i>
+  <i>&lt;section&gt;</i>Clean Architecture<i>&lt;/section&gt;</i>
+  <strong>performant · responsive · accessible</strong></pre></div>
+          </div>
+          <div class="project-tags"><span>HTML5</span><span>CSS3</span><span>JavaScript (ES6+)</span><span>Responsive UI</span></div>
+          <button type="button" class="project-view-specs-btn" data-open-project="custom-websites"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
+        </article>
+
+        <!-- 10. Personal & Professional Portfolio Websites -->
+        <article class="project-card project-showcase-card project-card-interactive" data-project-category="web" data-project-id="portfolio-website">
+          <div class="project-card-meta">
+            <h4 class="project-category-tag">Web Development</h4>
+            <div class="project-status-badges">
+              <span class="role-badge role-badge-personal">Personally Developed</span>
+              <span class="project-status-pill">Live &amp; Deployed</span>
+            </div>
+          </div>
+          <h3 class="project-title">Interactive Motion Portfolio Platform</h3>
+          <p class="project-desc">Scroll-driven 240-frame motion portrait platform built with raw HTML5 Canvas 2D, zero layout jitter, and print-ready resume integration.</p>
+          <div class="project-visual" aria-label="240-frame scrub engine diagram">
+            <span class="visual-caption">240-FRAME CANVAS SCRUB ENGINE</span>
+            <div class="flow-diagram"><span>RAF<br>LOOP</span><i></i><span>CANVAS<br>2D</span><i></i><span>LERP<br>GLIDE</span></div>
+            <div class="visual-readout">FPS <b>60/120</b><span>·</span> PIPELINE <b>STREAMED WEBP</b></div>
+          </div>
+          <div class="project-tags"><span>Vite</span><span>HTML5 Canvas</span><span>CSS Glassmorphism</span><span>Netlify / CI/CD</span></div>
+          <button type="button" class="project-view-specs-btn" data-open-project="portfolio-website"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
+        </article>
+
+        <!-- 11. Other Verified Website Projects -->
+        <article class="project-card project-showcase-card project-card-interactive" data-project-category="web" data-project-id="verified-web-projects">
+          <div class="project-card-meta">
+            <h4 class="project-category-tag">Web Development</h4>
+            <div class="project-status-badges">
+              <span class="role-badge role-badge-personal">Personally Developed</span>
+              <span class="project-status-pill">Completed</span>
+            </div>
+          </div>
+          <h3 class="project-title">Tailored Landing Pages &amp; Business Presence</h3>
+          <p class="project-desc">Focused landing pages and institutional web presences structured for clear hierarchy, quick contact action, and fast mobile loading.</p>
+          <div class="project-visual" aria-label="Digital landing pages and profiles diagram">
+            <span class="visual-caption">DIGITAL LANDING PAGES &amp; PROFILES</span>
+            <div class="flow-diagram"><span>LAYOUT</span><i></i><span>ACCESSIBLE<br>DOM</span><i></i><span>FAST<br>PAINT</span></div>
+            <div class="visual-readout">LCP <b>&lt; 2.0 S</b><span>·</span> ACCESSIBILITY <b>100%</b></div>
+          </div>
+          <div class="project-tags"><span>Web Standards</span><span>Mobile Optimization</span><span>Contact Integration</span></div>
+          <button type="button" class="project-view-specs-btn" data-open-project="verified-web-projects"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
+        </article>
+
+        <!-- 12. CV & Resume Design -->
+        <article class="project-card project-showcase-card project-card-interactive" data-project-category="creative" data-project-id="resume-design">
+          <div class="project-card-meta">
+            <h4 class="project-category-tag">Creative &amp; Digital Services</h4>
+            <div class="project-status-badges">
+              <span class="role-badge role-badge-personal">Personally Developed</span>
+              <span class="project-status-pill">Professional Service</span>
+            </div>
+          </div>
+          <h3 class="project-title">Professional CV &amp; Resume Editorial Design</h3>
+          <p class="project-desc">Structured, scannable curriculum vitae architectures crafted with precise typographic pairing, ATS compliance, and print-to-PDF formatting.</p>
+          <div class="project-visual" aria-label="Editorial layout and ATS hierarchy diagram">
+            <span class="visual-caption">EDITORIAL LAYOUT &amp; ATS HIERARCHY</span>
+            <div class="flow-diagram"><span>GRID<br>SYSTEM</span><i></i><span>TYPO<br>PAIRING</span><i></i><span>PRINT<br>VECTOR</span></div>
+            <div class="visual-readout">STANDARD <b>ATS READY</b><span>·</span> EXPORT <b>VECTOR PDF</b></div>
+          </div>
+          <div class="project-tags"><span>Adobe Illustrator</span><span>Typography</span><span>ATS Structure</span><span>Vector PDF</span></div>
+          <button type="button" class="project-view-specs-btn" data-open-project="resume-design"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
+        </article>
+
+        <!-- 13. Graphic Design & Brand Identity -->
+        <article class="project-card project-showcase-card project-card-interactive" data-project-category="creative" data-project-id="graphic-design">
+          <div class="project-card-meta">
+            <h4 class="project-category-tag">Creative &amp; Digital Services</h4>
+            <div class="project-status-badges">
+              <span class="role-badge role-badge-personal">Personally Developed</span>
+              <span class="project-status-pill">NFTP / Radius Certified</span>
+            </div>
+          </div>
+          <h3 class="project-title">Graphic Design &amp; Brand Identity Systems</h3>
+          <p class="project-desc">Commercial logo design, color guidelines, social media visual packs, and promotional graphics developed via certified training.</p>
+          <div class="project-visual visual-brand" aria-label="Brand campaign visual">
+            <span class="visual-caption">VISUAL IDENTITY &amp; DESIGN SYSTEM</span>
+            <div class="brand-board"><span class="brand-stamp">IK</span><div><b>IDENTITY<br>&amp; BRAND.</b><small>NFTP / RADIUS</small></div><span class="brand-shape"></span></div>
+            <div class="visual-readout">VECTOR <b>LOGOS</b><span>·</span> ASSETS <b>MARKETING</b></div>
+          </div>
+          <div class="project-tags"><span>Adobe Photoshop</span><span>Adobe Illustrator</span><span>Brand Identity</span><span>Vector Art</span></div>
+          <button type="button" class="project-view-specs-btn" data-open-project="graphic-design"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
+        </article>
+
+        <!-- 14. Video Editing & Social Content -->
+        <article class="project-card project-showcase-card project-card-interactive" data-project-category="creative" data-project-id="video-editing">
+          <div class="project-card-meta">
+            <h4 class="project-category-tag">Creative &amp; Digital Services</h4>
+            <div class="project-status-badges">
+              <span class="role-badge role-badge-personal">Personally Developed</span>
+              <span class="project-status-pill">Client &amp; Education</span>
+            </div>
+          </div>
+          <h3 class="project-title">Video Editing &amp; Short-Form Social Content</h3>
+          <p class="project-desc">Instructional hardware walkthroughs, promotional brand reels, and educational video content formatted for high audience retention.</p>
+          <div class="project-visual" aria-label="Post-production and motion pacing diagram">
+            <span class="visual-caption">POST-PRODUCTION &amp; MOTION PACING</span>
+            <div class="flow-diagram"><span>TIMELINE<br>CUTS</span><i></i><span>AUDIO<br>SYNC</span><i></i><span>MOTION<br>REEL</span></div>
+            <div class="visual-readout">FORMAT <b>REELS / SHORTS</b><span>·</span> PACING <b>HIGH ENGAGEMENT</b></div>
+          </div>
+          <div class="project-tags"><span>Video Post-Production</span><span>Audio Sync</span><span>Motion Transitions</span><span>Reels</span></div>
+          <button type="button" class="project-view-specs-btn" data-open-project="video-editing"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
+        </article>
+
+        <!-- 15. Digital Marketing & Performance Campaigns -->
+        <article class="project-card project-showcase-card project-card-interactive" data-project-category="creative" data-project-id="digital-marketing">
+          <div class="project-card-meta">
+            <h4 class="project-category-tag">Creative &amp; Digital Services</h4>
+            <div class="project-status-badges">
+              <span class="role-badge role-badge-personal">Personally Developed</span>
+              <span class="project-status-pill">Radius Group Certified</span>
+            </div>
+          </div>
+          <h3 class="project-title">Digital Marketing &amp; Meta Ads Campaigns</h3>
+          <p class="project-desc">Data-backed advertising campaigns, ad copy testing, audience segmentation, and performance tracking across Facebook, Instagram, and search.</p>
+          <div class="project-visual" aria-label="Targeted growth and ad funnels diagram">
+            <span class="visual-caption">TARGETED GROWTH &amp; AD FUNNELS</span>
+            <div class="flow-diagram"><span>AUDIENCE<br>RESEARCH</span><i></i><span>CREATIVE<br>TESTING</span><i></i><span>CONVERSION<br>FUNNEL</span></div>
+            <div class="visual-readout">PLATFORMS <b>META &amp; GOOGLE</b><span>·</span> METRICS <b>ROAS &amp; CTR</b></div>
+          </div>
+          <div class="project-tags"><span>Meta Ads Manager</span><span>Google Search</span><span>Audience Segmentation</span><span>Analytics</span></div>
+          <button type="button" class="project-view-specs-btn" data-open-project="digital-marketing"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
+        </article>
+
+        <!-- 16. E-Commerce Solutions -->
+        <article class="project-card project-showcase-card project-card-interactive" data-project-category="creative" data-project-id="ecommerce-projects">
+          <div class="project-card-meta">
+            <h4 class="project-category-tag">Creative &amp; Digital Services</h4>
+            <div class="project-status-badges">
+              <span class="role-badge role-badge-personal">Personally Developed</span>
+              <span class="project-status-pill">Commercial Setup</span>
+            </div>
+          </div>
+          <h3 class="project-title">E-Commerce Storefronts &amp; Order Flows</h3>
+          <p class="project-desc">Accessible digital catalog architectures with frictionless WhatsApp checkout integration and mobile-optimized product display.</p>
+          <div class="project-visual" aria-label="Digital commerce and checkout flows diagram">
+            <span class="visual-caption">DIGITAL COMMERCE &amp; CHECKOUT FLOWS</span>
+            <div class="flow-diagram"><span>CATALOG<br>GRID</span><i></i><span>PRODUCT<br>PAGE</span><i></i><span>DIRECT<br>ORDER</span></div>
+            <div class="visual-readout">ORDER FLOW <b>WHATSAPP / DIRECT</b><span>·</span> INTEGRATION <b>MOBILE FIRST</b></div>
+          </div>
+          <div class="project-tags"><span>Product Architecture</span><span>WhatsApp Ordering</span><span>Responsive Store</span></div>
+          <button type="button" class="project-view-specs-btn" data-open-project="ecommerce-projects"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
         </article>
       </div>
 
+      <!-- Dedicated Student Practical Activities & Teaching Gallery -->
+      <div class="student-gallery-block" data-project-category="student">
+        <div class="student-gallery-header">
+          <span class="section-kicker">EDUCATIONAL IMPACT &amp; FIELD INSTRUCTION</span>
+          <h3 style="font-size: 1.5rem; color: var(--text-white); margin-top: 4px;">Student Projects &amp; <span class="title-highlight">Practical Activities Gallery</span></h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 6px; max-width: 680px;">Demonstrating genuine vocational training, student electronics labs, and IT capacity-building conducted across District Hub, Balochistan.</p>
+        </div>
+
+        <div class="student-institution-grid">
+          <!-- ALP Centre -->
+          <div class="institution-panel">
+            <span class="institution-tag">UNICEF-SUPPORTED VOCATIONAL PROGRAM</span>
+            <h4>ALP Centre / Jamia Hussainia Naemia</h4>
+            <div class="institution-date">Role: IoT Instructor · June 2024 — Present · Hub Chowki</div>
+            <p>Conducting structured hands-on electronics training covering breadboard circuit assembly, microcontroller programming (ESP32 / Arduino Uno / Nano), ultrasonic navigation, and automated sensor relays.</p>
+            <div class="institution-highlights">
+              <span>Smart Blind Stick</span>
+              <span>Servo Radar Scanner</span>
+              <span>Flame &amp; Gas Alarms</span>
+              <span>500+ Students Mentored</span>
+            </div>
+          </div>
+
+          <!-- GBHS Jam Yousaf Colony -->
+          <div class="institution-panel">
+            <span class="institution-tag">EU &amp; UNICEF SUPPORTED EDUCATION INITIATIVE</span>
+            <h4>Government Boys High School, Jam Yousaf Colony</h4>
+            <div class="institution-date">Role: Computer Operator Instructor · April 2025 — Present · District Hub</div>
+            <p>Delivering comprehensive computer laboratory instruction including operating system installation, hardware diagnosis, office productivity suites, digital literacy, and workplace IT preparation.</p>
+            <div class="institution-highlights">
+              <span>Hardware Assembly &amp; Troubleshooting</span>
+              <span>Operating System Setup</span>
+              <span>Office Productivity</span>
+              <span>Digital File Systems</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Student Privacy Notice -->
+        <div class="student-privacy-notice">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#ff6a3d" stroke-width="2" style="flex-shrink:0;">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          <span><strong>Student Privacy Protocol:</strong> In strict compliance with institutional guidelines and educational safeguarding policies, student names, grades, and personal identifiers remain confidential. All student builds are presented as curriculum group achievements.</span>
+        </div>
+      </div>
+
+      <!-- Archive Drawer -->
       <div class="archive-wrap">
         <button class="archive-toggle" id="archive-toggle" type="button" aria-expanded="false" aria-controls="archive-panel">
-          <span>Explore Full GitHub &amp; Project Archive</span><span class="archive-chevron" aria-hidden="true">+</span>
+          <span>Explore Verified GitHub &amp; Technical Archive</span><span class="archive-chevron" aria-hidden="true">+</span>
         </button>
         <div class="archive-panel" id="archive-panel" hidden>
-          <div class="archive-row"><div><span class="archive-kind">REPOSITORIES</span><h3>GitHub hardware &amp; web repository archive</h3></div><a href="https://github.com/Imran-khan009" target="_blank" rel="noopener noreferrer" class="archive-action">Open GitHub <span aria-hidden="true">↗</span></a></div>
-          <div class="archive-row"><div><span class="archive-kind">VIDEO DEMONSTRATIONS</span><h3>Project walkthroughs and build demonstrations</h3></div><span class="archive-pending">Link pending <span aria-hidden="true">↗</span></span></div>
-          <div class="archive-row"><div><span class="archive-kind">STUDENT PRACTICAL LABS</span><h3>IoT, robotics and computer training sessions</h3></div><span class="archive-pending">Link pending <span aria-hidden="true">↗</span></span></div>
+          <div class="archive-row"><div><span class="archive-kind">REPOSITORIES</span><h3>Official GitHub hardware, web &amp; code repositories</h3></div><a href="https://github.com/Imran-khan009" target="_blank" rel="noopener noreferrer" class="archive-action">Open GitHub <span aria-hidden="true">↗</span></a></div>
+          <div class="archive-row"><div><span class="archive-kind">AUTHENTIC HARDWARE MEDIA</span><h3>Hardware circuit photos &amp; demonstration videos</h3></div><span class="archive-pending">Asset uploads pending user files <span aria-hidden="true">↗</span></span></div>
+          <div class="archive-row"><div><span class="archive-kind">STUDENT PRACTICAL LABS</span><h3>IoT, robotics and computer operator lab training records</h3></div><span class="archive-pending">Verified institutional sessions <span aria-hidden="true">↗</span></span></div>
         </div>
       </div>
     </section>
@@ -916,101 +1235,58 @@
     </button>
   </div>
 
-  <!-- Interactive Project Showcase Modal (Opens on 'View My Work' / Nav) -->
-  <div class="portfolio-modal" id="work-modal">
-    <div class="modal-backdrop" id="modal-backdrop"></div>
+  <!-- Detailed Project Specifications & Authentic Media Modal -->
+  <div class="portfolio-modal" id="project-detail-modal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" id="project-modal-backdrop"></div>
     <div class="modal-card">
       <div class="modal-header">
         <div>
-          <span class="modal-eyebrow">PORTFOLIO SHOWCASE</span>
-          <h2 class="modal-title">Featured Projects</h2>
+          <span class="modal-eyebrow" id="modal-project-category">IoT &amp; ROBOTICS</span>
+          <h2 class="modal-title" id="modal-project-title">Project Title</h2>
         </div>
-        <button class="modal-close" id="modal-close">&times;</button>
+        <button class="modal-close" id="project-modal-close" aria-label="Close project details">&times;</button>
       </div>
-      <div class="modal-grid">
-        <div class="project-card">
-          <div class="project-header">
-            <span class="project-badge">IoT &amp; Smart Irrigation System</span>
-            <span class="project-year">2024</span>
-          </div>
-          <h3 class="project-title">Agriculture Smart Water Management System</h3>
-          <p class="project-desc">An automated irrigation and soil moisture monitoring setup using embedded sensors and microcontrollers to optimize water usage.</p>
-          <div class="project-tags">
-            <span>Arduino/ESP32</span>
-            <span>Soil Moisture Sensors</span>
-            <span>C++</span>
-          </div>
-          <a href="https://github.com/Imran-khan009" class="project-link">
-            <span>Explore Case Study</span>
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="7" y1="17" x2="17" y2="7"></line>
-              <polyline points="7 7 17 7 17 17"></polyline>
-            </svg>
-          </a>
+
+      <div class="project-detail-content">
+        <div class="detail-badge-group">
+          <span class="role-badge" id="modal-role-badge">Personally Developed</span>
+          <span class="project-status-pill" id="modal-status-badge">Hardware Prototype</span>
         </div>
 
-        <div class="project-card">
-          <div class="project-header">
-            <span class="project-badge">Robotics &amp; Hardware</span>
-            <span class="project-year">2023</span>
-          </div>
-          <h3 class="project-title">RF Remote Controlled Robo Car</h3>
-          <p class="project-desc">A custom-built motor-driven robotic vehicle controlled via wireless RF signals, featuring integrated motor driver ICs and chassis wiring.</p>
-          <div class="project-tags">
-            <span>Microcontrollers</span>
-            <span>RF Transceivers</span>
-            <span>Motor Drivers</span>
-            <span>C++</span>
-          </div>
-          <a href="https://github.com/Imran-khan009" class="project-link">
-            <span>Explore Case Study</span>
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="7" y1="17" x2="17" y2="7"></line>
-              <polyline points="7 7 17 7 17 17"></polyline>
-            </svg>
-          </a>
+        <div class="detail-block">
+          <span class="detail-block-title">01 / Objective &amp; Problem Solved</span>
+          <p class="detail-block-text" id="modal-project-objective"></p>
         </div>
 
-        <div class="project-card">
-          <div class="project-header">
-            <span class="project-badge">Web Development</span>
-            <span class="project-year">2025</span>
-          </div>
-          <h3 class="project-title">Front-End Interactive Web Interfaces</h3>
-          <p class="project-desc">Responsive, modern UI designs engineered with clean HTML, CSS, and interactive JavaScript logic.</p>
-          <div class="project-tags">
-            <span>HTML5</span>
-            <span>CSS3</span>
-            <span>JavaScript</span>
-          </div>
-          <a href="https://github.com/Imran-khan009" class="project-link" target="_blank" rel="noopener noreferrer">
-            <span>Explore on GitHub</span>
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="7" y1="17" x2="17" y2="7"></line>
-              <polyline points="7 7 17 7 17 17"></polyline>
-            </svg>
-          </a>
+        <div class="detail-block">
+          <span class="detail-block-title">02 / Components, Hardware &amp; Tools</span>
+          <div class="detail-components-wrap" id="modal-project-components"></div>
         </div>
 
-        <div class="project-card">
-          <div class="project-header">
-            <span class="project-badge">Digital &amp; Creative</span>
-            <span class="project-year">2024</span>
-          </div>
-          <h3 class="project-title">Digital Marketing &amp; Brand Design Showcase</h3>
-          <p class="project-desc">Multi-platform social marketing assets, templates, and ad creatives developed through certified Radius Group training.</p>
-          <div class="project-tags">
-            <span>Creative Design</span>
-            <span>Meta Ads</span>
-            <span>Brand Identity</span>
-          </div>
-          <a href="https://github.com/Imran-khan009" class="project-link" target="_blank" rel="noopener noreferrer">
-            <span>View Creative Assets</span>
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="7" y1="17" x2="17" y2="7"></line>
-              <polyline points="7 7 17 7 17 17"></polyline>
+        <div class="detail-block">
+          <span class="detail-block-title">03 / Personal Role &amp; Implementation</span>
+          <p class="detail-block-text" id="modal-project-role"></p>
+        </div>
+
+        <div class="detail-block">
+          <span class="detail-block-title">04 / Authentic Media &amp; Demonstration Slot</span>
+          <div class="detail-media-container" id="modal-media-slot">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.8" class="media-box-icon">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <polyline points="21 15 16 10 5 21"></polyline>
             </svg>
+            <span class="media-placeholder-tag" id="modal-media-filename">assets/projects/smart-irrigation.webp</span>
+            <p class="media-placeholder-info" id="modal-media-info">Authentic project photo / circuit diagram / video walkthrough slot. Recommended size: 800×600px. Upload real hardware photography or demo video.</p>
+          </div>
+        </div>
+
+        <div class="detail-actions-row">
+          <a href="https://github.com/Imran-khan009" target="_blank" rel="noopener noreferrer" class="project-view-specs-btn" id="modal-github-link">
+            <span>Explore on GitHub Profile</span>
+            <span aria-hidden="true">↗</span>
           </a>
+          <button type="button" class="btn-secondary" id="modal-dismiss-btn" style="padding: 7px 18px; font-size: 0.8rem;">Close Details</button>
         </div>
       </div>
     </div>
@@ -1069,7 +1345,7 @@
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <script src="script.js" defer></script>
 </body>
 
 </html>

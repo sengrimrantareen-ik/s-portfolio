@@ -78,8 +78,11 @@
   let scrollTicking = false;
   let cachedMaxScroll = 0;
 
-  // Format frame URL with zero-padding (e.g. frames/frame_0001.jpg)
+  // Format frame URL (frame 0 uses high-priority lightweight WebP)
   function getFrameUrl(index) {
+    if (index === 0) {
+      return `${FRAME_DIR}/frame_0001.webp`;
+    }
     const padded = String(index + 1).padStart(4, '0');
     return `${FRAME_DIR}/frame_${padded}.jpg`;
   }
@@ -208,11 +211,6 @@
       if (loaderBar) loaderBar.style.width = `${percent}%`;
       if (loaderPercent) loaderPercent.textContent = `${percent}%`;
       if (loaderCount) loaderCount.textContent = `${loadedCount} / ${TOTAL_FRAMES}`;
-
-      // When all 240 frames are loaded in memory, dismiss loader for 100% instant silky playback
-      if (loadedCount >= TOTAL_FRAMES && images[0]) {
-        dismissLoader();
-      }
     }
   }
 
@@ -223,31 +221,64 @@
       loader.classList.add('loaded');
       setTimeout(() => {
         if (loader) loader.style.display = 'none';
-      }, 350);
+      }, 200);
     }
     requestRender();
   }
 
-  // Safety fallbacks: on slow connections, do not hang forever
-  setTimeout(() => {
-    if (!isLoaderDismissed && loadedCount >= 80 && images[0]) {
-      dismissLoader();
-    }
-  }, 3000);
-
-  setTimeout(() => {
-    if (!isLoaderDismissed && images[0]) {
-      dismissLoader();
-    }
-  }, 4500);
-
-  function preloadImages() {
-    // Queue all 240 frames in natural order
-    for (let i = 0; i < TOTAL_FRAMES; i++) {
+  // Initial Paint: Preload frames 0 to 3 ONLY (network 100% free for initial paint & sub-1.5s LCP)
+  function preloadInitialFrames() {
+    for (let i = 0; i <= 3; i++) {
       enqueueFrame(i);
     }
+    processQueue();
+  }
 
-    // Launch high-throughput parallel downloads immediately
+  // Defer frames 4 through 239 until after load event via requestIdleCallback / chunked timers
+  let isBackgroundLoadingStarted = false;
+  function startDeferredFrameLoading() {
+    if (isBackgroundLoadingStarted) return;
+    isBackgroundLoadingStarted = true;
+
+    let nextBatchIndex = 4;
+    const BATCH_SIZE = 12;
+
+    function scheduleBatch(deadline) {
+      if (nextBatchIndex >= TOTAL_FRAMES) return;
+
+      while (nextBatchIndex < TOTAL_FRAMES && (!deadline || deadline.timeRemaining() > 1)) {
+        const end = Math.min(TOTAL_FRAMES, nextBatchIndex + BATCH_SIZE);
+        for (let i = nextBatchIndex; i < end; i++) {
+          enqueueFrame(i);
+        }
+        nextBatchIndex = end;
+        processQueue();
+        if (nextBatchIndex >= TOTAL_FRAMES) return;
+      }
+
+      if (nextBatchIndex < TOTAL_FRAMES) {
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(scheduleBatch, { timeout: 800 });
+        } else {
+          setTimeout(() => scheduleBatch(null), 80);
+        }
+      }
+    }
+
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(scheduleBatch, { timeout: 800 });
+    } else {
+      setTimeout(() => scheduleBatch(null), 100);
+    }
+  }
+
+  // Immediate on-demand lookahead buffer if user scrolls before background frames are ready
+  function ensureFramesAround(target) {
+    const center = Math.round(target);
+    for (let r = 0; r <= 16; r++) {
+      enqueueFrame(center + r);
+      enqueueFrame(center - r);
+    }
     processQueue();
   }
 
@@ -383,29 +414,31 @@
 
     const cw = canvas.width;
     const ch = canvas.height;
-    const iw = img.naturalWidth || 1280;
-    const ih = img.naturalHeight || 720;
+    const iw = img.naturalWidth || img.width || 1280;
+    const ih = img.naturalHeight || img.height || 720;
 
     const isMobile = window.innerWidth <= 768;
 
     if (isMobile || Math.abs(cw - ch) < 15) {
-      // Mobile 1:1 circle portal: dead-center the animated face & portrait inside the circular frame
-      // Subject head center coordinates in 1280x720 video:
-      // focusX = iw * 0.495 (approx 634px)
-      // focusY = ih * 0.375 (approx 270px)
-      const focusX = iw * 0.495;
-      const focusY = ih * 0.375;
-      // Crop a square region of 68% of image height around the head
-      const cropSize = ih * 0.68;
-      let sx = focusX - cropSize / 2;
-      let sy = focusY - cropSize / 2;
-      const sw = cropSize;
-      const sh = cropSize;
+      // Mobile 1:1 circle portal
+      if (Math.abs(iw - ih) < 5) {
+        // Pre-cropped 1:1 square image (e.g. frame_0001_mobile.webp): direct hardware blit
+        ctx.drawImage(img, 0, 0, iw, ih, 0, 0, cw, ch);
+      } else {
+        // 1280x720 video frame: center the animated headshot inside the circular portal
+        const focusX = iw * 0.495;
+        const focusY = ih * 0.375;
+        const cropSize = ih * 0.68;
+        let sx = focusX - cropSize / 2;
+        let sy = focusY - cropSize / 2;
+        const sw = cropSize;
+        const sh = cropSize;
 
-      sx = Math.max(0, Math.min(iw - sw, sx));
-      sy = Math.max(0, Math.min(ih - sh, sy));
+        sx = Math.max(0, Math.min(iw - sw, sx));
+        sy = Math.max(0, Math.min(ih - sh, sy));
 
-      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, cw, ch);
+        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, cw, ch);
+      }
     } else {
       // Desktop widescreen / full-screen mode: aspect-ratio cover-fitting
       const scale = Math.max(cw / iw, ch / ih);
@@ -452,7 +485,7 @@
     if (Math.abs(newTarget - targetFrame) > 0.001) {
       scrollDirection = delta >= 0 ? 1 : -1;
       targetFrame = newTarget;
-      processQueue();
+      ensureFramesAround(targetFrame);
       requestRender();
     }
   }
@@ -501,7 +534,7 @@
         if (Math.abs(newTarget - targetFrame) > 0.01) {
           scrollDirection = newTarget >= targetFrame ? 1 : -1;
           targetFrame = newTarget;
-          processQueue();
+          ensureFramesAround(targetFrame);
           requestRender();
         }
       }
@@ -611,6 +644,323 @@
 
   experienceFilters.forEach(button => {
     button.addEventListener('click', () => setExperienceFilter(button.dataset.experienceFilter));
+  });
+
+  // --- Project Category Filtering ---
+  const projectFilters = document.querySelectorAll('[data-project-filter]');
+  const projectCards = document.querySelectorAll('[data-project-category]');
+
+  function setProjectFilter(filter) {
+    projectFilters.forEach(button => {
+      const selected = button.dataset.projectFilter === filter;
+      button.classList.toggle('active', selected);
+      button.setAttribute('aria-pressed', String(selected));
+    });
+
+    projectCards.forEach(card => {
+      const categories = (card.dataset.projectCategory || '').trim().split(/\s+/);
+      card.hidden = filter !== 'all' && !categories.includes(filter);
+    });
+  }
+
+  projectFilters.forEach(button => {
+    button.addEventListener('click', () => setProjectFilter(button.dataset.projectFilter));
+  });
+
+  // --- Detailed Project Specifications Data Repository ---
+  const PROJECTS_DATA = {
+    'smart-irrigation': {
+      title: 'Smart Agriculture Water Management System',
+      category: 'IoT & ROBOTICS',
+      roleBadge: 'Personally Developed',
+      roleClass: 'role-badge-personal',
+      status: 'Hardware Prototype',
+      objective: 'Automated soil moisture sensing and closed-loop relay pump irrigation engineered to optimize water consumption in arid regional farmland across Balochistan.',
+      components: ['ESP32 / Arduino Uno', 'Capacitive Soil Moisture Sensor', '5V Optocoupler Relay Module', '12V DC Submersible Pump', 'Embedded C++', 'Analog Calibration Curves'],
+      roleDescription: 'Personally designed the circuit schematic, programmed threshold hysteresis in C++ to prevent rapid motor switching, and conducted laboratory calibration between dry and saturated soil.',
+      mediaFilename: 'assets/projects/smart-irrigation-hardware.webp',
+      mediaInfo: 'Authentic project hardware photo / field test demo video slot. Recommended size: 800×600px. Upload workbench circuit photography or demo clip.',
+      githubUrl: 'https://github.com/Imran-khan009'
+    },
+    'blind-stick': {
+      title: 'Smart Blind Stick with Obstacle Detection',
+      category: 'IoT & ROBOTICS',
+      roleBadge: 'Guided Student Build',
+      roleClass: 'role-badge-guided',
+      status: 'Curriculum Demonstration',
+      objective: 'Assistive walking mobility aid developed with students at ALP Centre Hub to detect obstacles within 50cm using acoustic echolocation and provide immediate tactile buzzer/vibration alerts.',
+      components: ['Arduino Nano', 'HC-SR04 Ultrasonic Sensor', 'Piezo Buzzer (5V)', 'Vibration Coin Motor', '9V Power Pack', 'Compact Enclosure'],
+      roleDescription: 'Guided vocational student cohort through breadboard circuit assembly, distance calculation timing formula, and soldering compact components onto a lightweight cane structure.',
+      mediaFilename: 'assets/projects/smart-blind-stick.webp',
+      mediaInfo: 'Student project demonstration photo / prototype walk test video slot. Recommended size: 800×600px. Upload student lab build photography.',
+      githubUrl: 'https://github.com/Imran-khan009'
+    },
+    'rc-robot-car': {
+      title: 'RF Wireless Remote-Controlled Robot Car',
+      category: 'IoT & ROBOTICS',
+      roleBadge: 'Personally Developed',
+      roleClass: 'role-badge-personal',
+      status: 'Hardware Prototype',
+      objective: 'Engineered a 4WD robotic ground vehicle controlled wirelessly via 2.4GHz RF signals, featuring bidirectional dual H-bridge motor drivers and differential steering.',
+      components: ['Microcontroller Board', 'L298N Dual H-Bridge Driver', '4x DC Geared TT Motors', '2.4GHz RF Transceiver Module', '4WD Chassis', 'High-Drain Battery Pack'],
+      roleDescription: 'Personally completed chassis mechanical assembly, wired high-current motor drive circuits, and wrote the wireless transmitter/receiver packet transmission sketch.',
+      mediaFilename: 'assets/projects/rc-robot-car.webp',
+      mediaInfo: 'Robot car hardware photo / field maneuvering video demo slot. Recommended size: 800×600px.',
+      githubUrl: 'https://github.com/Imran-khan009'
+    },
+    'home-automation': {
+      title: 'Multi-Channel Smart Home Automation',
+      category: 'IoT & ROBOTICS',
+      roleBadge: 'Guided Student Build',
+      roleClass: 'role-badge-guided',
+      status: 'Lab Demonstration',
+      objective: 'Wireless IoT appliance controller engineered to demonstrate optocoupler relay isolation and remote device switching via Wi-Fi.',
+      components: ['ESP32 Dual-Core Wi-Fi', '4-Channel Optocoupled Relay Board', 'Simulated 220V/12V Loads', 'IoT Web Dashboard', 'C++ Firmware'],
+      roleDescription: 'Supervised students in electrical safety protocols, low-voltage to high-voltage isolation, setting up local Wi-Fi station connectivity, and relay state management.',
+      mediaFilename: 'assets/projects/home-automation.webp',
+      mediaInfo: 'Classroom automation board photo / relay switching video slot. Recommended size: 800×600px.',
+      githubUrl: 'https://github.com/Imran-khan009'
+    },
+    'flame-gas-detector': {
+      title: 'Hazard Flame & Combustible Gas Detection System',
+      category: 'IoT & ROBOTICS',
+      roleBadge: 'Guided Student Build',
+      roleClass: 'role-badge-guided',
+      status: 'Safety Lab Prototype',
+      objective: 'Early-warning laboratory safety prototype engineered to detect LPG, butane, and open infrared flames with instantaneous alarm sirens and status indicators.',
+      components: ['MQ-2 Gas / Smoke Sensor', 'IR Flame Sensor Module', 'Arduino Uno', 'Active Piezo Siren', 'High-Lumen LEDs', 'Analog Comparator'],
+      roleDescription: 'Instructed students on gas sensor preheating cycles, analog PPM threshold calibration, and writing non-blocking interrupt routines for immediate safety triggering.',
+      mediaFilename: 'assets/projects/flame-gas-detector.webp',
+      mediaInfo: 'Sensor test rig photo / smoke-trigger testing video demo slot. Recommended size: 800×600px.',
+      githubUrl: 'https://github.com/Imran-khan009'
+    },
+    'radar-system': {
+      title: '180° Ultrasonic Servo Radar Mapping System',
+      category: 'IoT & ROBOTICS',
+      roleBadge: 'Guided Student Build',
+      roleClass: 'role-badge-guided',
+      status: 'Laboratory Project',
+      objective: 'Acoustic sweep radar sweeping 15° to 165° to detect approaching obstacles and plot real-time polar coordinates on a connected computer monitor.',
+      components: ['Arduino Uno', 'SG90 Micro Servo Motor', 'HC-SR04 Ultrasonic Sensor', 'Processing IDE UI', 'Serial Baud Link', 'Breadboard Mount'],
+      roleDescription: 'Guided students through servo degree incrementing, serial coordinate output formatting, and visualizing the sweep radar beam graphically on screen.',
+      mediaFilename: 'assets/projects/radar-system.webp',
+      mediaInfo: 'Servo sweep test photo / graphical radar display video slot. Recommended size: 800×600px.',
+      githubUrl: 'https://github.com/Imran-khan009'
+    },
+    'obstacle-car': {
+      title: 'Autonomous Ultrasonic Obstacle-Avoidance Car',
+      category: 'IoT & ROBOTICS',
+      roleBadge: 'Guided Student Build',
+      roleClass: 'role-badge-guided',
+      status: 'Robotics Lab Build',
+      objective: 'Autonomous mobile rover equipped with a servo-mounted ultrasonic sensor to scan 3-directional escape paths and evade walls or barriers automatically.',
+      components: ['Arduino Uno', 'HC-SR04 Sensor', 'SG90 Servo', 'L298N Motor Driver', '2WD / 4WD Smart Chassis', 'Autonomous Navigation Code'],
+      roleDescription: 'Mentored student groups through obstacle detection state machines (Look Left, Look Right, Compare Distance, Steer Clear) and motor PWM tuning.',
+      mediaFilename: 'assets/projects/obstacle-car.webp',
+      mediaInfo: 'Autonomous avoidance arena test photo / rover navigation video slot. Recommended size: 800×600px.',
+      githubUrl: 'https://github.com/Imran-khan009'
+    },
+    'modular-arduino-esp32': {
+      title: 'Modular Arduino & ESP32 Embedded Labs',
+      category: 'IoT & ROBOTICS',
+      roleBadge: 'Practical Lab Activity',
+      roleClass: 'role-badge-lab',
+      status: 'Classroom Modules',
+      objective: 'Practical training curriculum covering electronics fundamentals: PIR motion triggers, DHT11 digital humidity/temperature, I2C OLED screens, and PWM analog control.',
+      components: ['ESP32 DevKit', 'Arduino Uno & Nano', 'DHT11 Temp/Humidity', '0.96" I2C OLED Display', 'PIR Motion Sensor', 'Passive Components'],
+      roleDescription: 'Authored and delivered hands-on vocational lab worksheets, instructed 500+ students on multimeter circuit diagnostics, serial debugging, and breadboard wiring best practices.',
+      mediaFilename: 'assets/projects/modular-electronics.webp',
+      mediaInfo: 'Classroom electronics workbench photo / student circuit wiring showcase. Recommended size: 800×600px.',
+      githubUrl: 'https://github.com/Imran-khan009'
+    },
+    'custom-websites': {
+      title: 'Custom Business Websites & Web Applications',
+      category: 'WEB DEVELOPMENT',
+      roleBadge: 'Personally Developed',
+      roleClass: 'role-badge-personal',
+      status: 'Completed & Maintained',
+      objective: 'Clean, semantic, high-performance business websites engineered for speed, cross-device responsiveness, structured SEO, and dependable uptime.',
+      components: ['HTML5 Semantic Markup', 'Modern CSS3 Layouts', 'Vanilla JavaScript (ES6+)', 'Mobile-First Responsive Grid', 'Semantic Meta / OpenGraph'],
+      roleDescription: 'Personally architected frontend layouts, eliminated render-blocking CSS, wrote responsive layout systems, and verified cross-browser compatibility.',
+      mediaFilename: 'assets/projects/custom-websites.webp',
+      mediaInfo: 'Full-page responsive screenshot / mobile viewport screen recording slot. Recommended size: 1200×800px.',
+      githubUrl: 'https://github.com/Imran-khan009'
+    },
+    'portfolio-website': {
+      title: 'Interactive Motion Portfolio Platform',
+      category: 'WEB DEVELOPMENT',
+      roleBadge: 'Personally Developed',
+      roleClass: 'role-badge-personal',
+      status: 'Live & Deployed',
+      objective: 'High-performance portfolio platform featuring a 240-frame interactive 3D motion portrait, responsive mobile viewport lock, and print-ready resume page.',
+      components: ['Vite Build Tool', 'HTML5 Canvas 2D Engine', 'CSS Glassmorphism', 'Touch / Wheel Normalization', 'Print Stylesheet', 'Netlify / Git CI/CD'],
+      roleDescription: 'Personally engineered frame streaming scheduler, tactile mobile scrubbing engine, accessible modal views, and 60fps canvas rendering pipeline.',
+      mediaFilename: 'assets/projects/portfolio-screenshot.webp',
+      mediaInfo: 'Live portfolio platform desktop & mobile showcase screenshot. Recommended size: 1200×800px.',
+      githubUrl: 'https://github.com/Imran-khan009'
+    },
+    'verified-web-projects': {
+      title: 'Tailored Landing Pages & Business Presence',
+      category: 'WEB DEVELOPMENT',
+      roleBadge: 'Personally Developed',
+      roleClass: 'role-badge-personal',
+      status: 'Completed',
+      objective: 'Focused landing pages and organizational web presences structured for clear hierarchy, quick contact action, and fast mobile loading.',
+      components: ['Web Standards', 'Mobile Optimization', 'Contact Form Integration', 'Performance Tuning'],
+      roleDescription: 'Engineered clean landing pages for commercial and educational initiatives, providing straightforward contact paths and instant mobile paint times.',
+      mediaFilename: 'assets/projects/landing-page-projects.webp',
+      mediaInfo: 'Landing page interface screenshot / live web preview slot. Recommended size: 1200×800px.',
+      githubUrl: 'https://github.com/Imran-khan009'
+    },
+    'resume-design': {
+      title: 'Professional CV & Resume Editorial Design',
+      category: 'CREATIVE & DIGITAL',
+      roleBadge: 'Personally Developed',
+      roleClass: 'role-badge-personal',
+      status: 'Professional Service',
+      objective: 'Engineered high-impact, ATS-friendly curriculum vitae and resume layouts tailored for engineering, IT, and vocational professionals.',
+      components: ['Adobe Illustrator', 'Typography Hierarchy', 'ATS-Scannable Layouts', 'Print & Digital PDF Specs', 'Vector Iconography'],
+      roleDescription: 'Created standardized corporate CV templates, structured visual section hierarchies, and produced high-resolution print-ready and digital vector exports.',
+      mediaFilename: 'assets/projects/cv-resume-design.webp',
+      mediaInfo: 'Sample anonymized professional CV layout mockup. Recommended size: 800×1100px.',
+      githubUrl: 'https://github.com/Imran-khan009'
+    },
+    'graphic-design': {
+      title: 'Graphic Design & Brand Identity Systems',
+      category: 'CREATIVE & DIGITAL',
+      roleBadge: 'Personally Developed',
+      roleClass: 'role-badge-personal',
+      status: 'NFTP / Radius Certified',
+      objective: 'Commercial logo design, brand color systems, social media visual packs, and promotional graphics developed via certified training.',
+      components: ['Adobe Photoshop', 'Adobe Illustrator', 'Brand Style Guides', 'Vector Logo Marks', 'Social Media Creatives'],
+      roleDescription: 'Designed client brand marks, vector collateral, promotional marketing assets, and social campaign banners with strict color fidelity.',
+      mediaFilename: 'assets/projects/graphic-design-brand.webp',
+      mediaInfo: 'Brand identity showcase board / logo vector sheet slot. Recommended size: 1000×700px.',
+      githubUrl: 'https://github.com/Imran-khan009'
+    },
+    'video-editing': {
+      title: 'Video Editing & Short-Form Social Content',
+      category: 'CREATIVE & DIGITAL',
+      roleBadge: 'Personally Developed',
+      roleClass: 'role-badge-personal',
+      status: 'Client & Education',
+      objective: 'Instructional hardware walkthroughs, promotional brand reels, and educational video content formatted for high audience retention.',
+      components: ['Video Post-Production', 'Audio Leveling & Sync', 'Motion Text Transitions', '9:16 Social Reels', 'Technical Demonstration Cuts'],
+      roleDescription: 'Edited hardware experiment demonstrations, student workshop highlights, and social promotional clips with sharp audio pacing and visual clarity.',
+      mediaFilename: 'assets/projects/video-editing-samples.webp',
+      mediaInfo: 'Video editing timeline screenshot / demo reel thumbnail slot. Recommended size: 1280×720px.',
+      githubUrl: 'https://github.com/Imran-khan009'
+    },
+    'digital-marketing': {
+      title: 'Digital Marketing & Meta Ads Campaigns',
+      category: 'CREATIVE & DIGITAL',
+      roleBadge: 'Personally Developed',
+      roleClass: 'role-badge-personal',
+      status: 'Radius Group Certified',
+      objective: 'Data-backed advertising campaigns, ad copy testing, audience segmentation, and performance tracking across Facebook, Instagram, and search.',
+      components: ['Meta Ads Manager', 'Google Search Ads', 'Audience Segmentation', 'Funnel Architecture', 'Ad Copy & Creative Testing'],
+      roleDescription: 'Formulated conversion campaigns, selected target demographics, designed advertising creative variants, and analyzed campaign CTR and cost per lead.',
+      mediaFilename: 'assets/projects/digital-marketing-campaigns.webp',
+      mediaInfo: 'Campaign dashboard metrics / ad creative variants slot. Recommended size: 1000×700px.',
+      githubUrl: 'https://github.com/Imran-khan009'
+    },
+    'ecommerce-projects': {
+      title: 'E-Commerce Storefronts & Order Flows',
+      category: 'CREATIVE & DIGITAL',
+      roleBadge: 'Personally Developed',
+      roleClass: 'role-badge-personal',
+      status: 'Commercial Setup',
+      objective: 'Accessible digital catalog architectures with frictionless WhatsApp checkout integration and mobile-optimized product display.',
+      components: ['Product Catalog Architecture', 'Direct WhatsApp Ordering API', 'Mobile-First Layout', 'Inventory Classification'],
+      roleDescription: 'Configured online catalog flows, integrated one-click direct WhatsApp order links with pre-filled item messages, and streamlined checkout for regional buyers.',
+      mediaFilename: 'assets/projects/ecommerce-solutions.webp',
+      mediaInfo: 'Storefront catalog screenshot / WhatsApp checkout flow demo slot. Recommended size: 1000×700px.',
+      githubUrl: 'https://github.com/Imran-khan009'
+    }
+  };
+
+  // --- Project Detail Modal Logic ---
+  const projectDetailModal = document.getElementById('project-detail-modal');
+  const projectModalClose = document.getElementById('project-modal-close');
+  const projectModalBackdrop = document.getElementById('project-modal-backdrop');
+  const projectModalDismiss = document.getElementById('modal-dismiss-btn');
+  let activeProjectModalTrigger = null;
+
+  function openProjectDetail(projectId, trigger) {
+    const data = PROJECTS_DATA[projectId];
+    if (!data || !projectDetailModal) return;
+
+    activeProjectModalTrigger = trigger || document.activeElement;
+
+    // Populate modal fields
+    const modalCategory = document.getElementById('modal-project-category');
+    const modalTitle = document.getElementById('modal-project-title');
+    const modalRole = document.getElementById('modal-role-badge');
+    const modalStatus = document.getElementById('modal-status-badge');
+    const modalObjective = document.getElementById('modal-project-objective');
+    const modalComponents = document.getElementById('modal-project-components');
+    const modalRoleDesc = document.getElementById('modal-project-role');
+    const modalMediaFilename = document.getElementById('modal-media-filename');
+    const modalMediaInfo = document.getElementById('modal-media-info');
+    const modalGithubLink = document.getElementById('modal-github-link');
+
+    if (modalCategory) modalCategory.textContent = data.category;
+    if (modalTitle) modalTitle.textContent = data.title;
+    if (modalRole) {
+      modalRole.textContent = data.roleBadge;
+      modalRole.className = `role-badge ${data.roleClass}`;
+    }
+    if (modalStatus) modalStatus.textContent = data.status;
+    if (modalObjective) modalObjective.textContent = data.objective;
+    if (modalRoleDesc) modalRoleDesc.textContent = data.roleDescription;
+    if (modalMediaFilename) modalMediaFilename.textContent = data.mediaFilename;
+    if (modalMediaInfo) modalMediaInfo.textContent = data.mediaInfo;
+    if (modalGithubLink) modalGithubLink.href = data.githubUrl;
+
+    if (modalComponents) {
+      modalComponents.innerHTML = '';
+      data.components.forEach(comp => {
+        const chip = document.createElement('span');
+        chip.className = 'component-chip';
+        chip.textContent = comp;
+        modalComponents.appendChild(chip);
+      });
+    }
+
+    projectDetailModal.classList.add('active');
+    projectDetailModal.setAttribute('aria-hidden', 'false');
+    if (projectModalClose) projectModalClose.focus();
+  }
+
+  function closeProjectDetail() {
+    if (!projectDetailModal || !projectDetailModal.classList.contains('active')) return;
+    projectDetailModal.classList.remove('active');
+    projectDetailModal.setAttribute('aria-hidden', 'true');
+    if (activeProjectModalTrigger && activeProjectModalTrigger.isConnected) {
+      activeProjectModalTrigger.focus({ preventScroll: true });
+    }
+    activeProjectModalTrigger = null;
+  }
+
+  if (projectModalClose) projectModalClose.addEventListener('click', closeProjectDetail);
+  if (projectModalBackdrop) projectModalBackdrop.addEventListener('click', closeProjectDetail);
+  if (projectModalDismiss) projectModalDismiss.addEventListener('click', closeProjectDetail);
+
+  // Bind project cards and spec buttons
+  document.querySelectorAll('[data-open-project]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openProjectDetail(btn.dataset.openProject, btn);
+    });
+  });
+
+  document.querySelectorAll('.project-card-interactive').forEach(card => {
+    card.addEventListener('click', (e) => {
+      // Don't trigger if user clicked a direct external link
+      if (e.target.closest('a')) return;
+      const pid = card.dataset.projectId;
+      if (pid) openProjectDetail(pid, card);
+    });
   });
 
   if (archiveToggle && archivePanel) {
@@ -804,6 +1154,7 @@
   // Keyboard accessibility
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+      closeProjectDetail();
       closeView();
       if (mobileDrawer) mobileDrawer.classList.remove('open');
       if (menuToggle) menuToggle.setAttribute('aria-expanded', 'false');
@@ -826,14 +1177,17 @@
   window.addEventListener('DOMContentLoaded', () => {
     applyMobileHeroLock();
     resizeCanvas();
-    preloadImages();
+    preloadInitialFrames();
     initTiltEffects();
+    dismissLoader(); // Instantly dismiss any blocking overlay so LCP paints under 1.5s
   });
 
   window.addEventListener('load', () => {
     applyMobileHeroLock();
     resizeCanvas();
     updateMaxScroll();
+    // Keep network 100% idle during initial paint, start background frames on idle
+    setTimeout(startDeferredFrameLoading, 250);
   });
 
   window.addEventListener('orientationchange', () => {
