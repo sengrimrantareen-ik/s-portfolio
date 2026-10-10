@@ -296,7 +296,7 @@
         canvasEl.style.setProperty('display', 'block', 'important');
       }
       if (visualEl) {
-        visualEl.style.setProperty('order', '1', 'important');
+        visualEl.style.setProperty('order', '2', 'important');
         visualEl.style.setProperty('position', 'relative', 'important');
         visualEl.style.setProperty('width', '290px', 'important');
         visualEl.style.setProperty('height', '290px', 'important');

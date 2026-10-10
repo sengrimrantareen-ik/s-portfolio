@@ -2937,9 +2937,9 @@ a:focus-visible {
     margin: 0 auto !important;
   }
 
-  /* Unit 1 (Top): The 360° Neon Halo & Animated Canvas (order: 1) */
+  /* Unit 2 (Middle): The 360° Neon Halo & Animated Canvas (order: 2) */
   .hero-right-visual {
-    order: 1 !important;
+    order: 2 !important;
     position: relative !important;
     width: 290px !important;
     height: 290px !important;
@@ -3154,9 +3154,9 @@ a:focus-visible {
   #badge-portfolio { --orbit-x: -118px; --orbit-y: -38px; }
   #badge-it { --orbit-x: -73px; --orbit-y: -100px; }
 
-  /* Unit 2 (Middle): Solid Dark Hero Content Card with text & CTA buttons (order: 2) */
+  /* Unit 1 (Top): Solid Dark Hero Content Card with text & CTA buttons (order: 1) */
   .hero-left-content {
-    order: 2 !important;
+    order: 1 !important;
     width: 100% !important;
     max-width: 100% !important;
     background: #0d0c0b !important;
