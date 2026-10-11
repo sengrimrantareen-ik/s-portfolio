@@ -16,7 +16,7 @@
   // --- Configuration ---
   const TOTAL_FRAMES = 240;
   const FRAME_DIR = './frames';
-  const LERP_FACTOR = 0.45; // Snappy, ultra-responsive 60/120fps glide (zero sluggish delay)
+  const LERP_FACTOR = 0.55; // Fluid, responsive 60/120fps tracking without lag or abrupt snapping
 
   // --- DOM Elements ---
   const canvas = document.getElementById('animation-canvas');
@@ -60,9 +60,13 @@
   // --- State Variables ---
   const images = new Array(TOTAL_FRAMES);
   const frameStatus = new Int8Array(TOTAL_FRAMES);
+  const frameLastAccess = new Uint32Array(TOTAL_FRAMES);
+  let globalAccessCounter = 0;
+
   const loadQueue = []; // Unique queued frame indices
   const isMobileInitial = typeof window !== 'undefined' && window.innerWidth <= 768;
-  const MAX_CONCURRENT = isMobileInitial ? 16 : 24; // High-throughput parallel multiplexing
+  const MAX_CONCURRENT = isMobileInitial ? 6 : 8; // Optimal HTTP multiplexing without connection starvation
+  const MAX_CACHED_FRAMES = isMobileInitial ? 65 : 120; // Bounded memory budget (~230MB - ~420MB uncompressed RGBA)
 
   let activeDownloads = 0;
   let loadedCount = 0;
@@ -87,7 +91,43 @@
     return `${FRAME_DIR}/frame_${padded}.jpg`;
   }
 
-  // --- 1. Directional Dynamic Priority Streaming Engine (Zero Stalls & Zero Duplicates) ---
+  // Manage memory footprint: evict farthest off-screen frames when cache limit is exceeded
+  function evictFarthestFrames() {
+    let readyCount = 0;
+    for (let i = 0; i < TOTAL_FRAMES; i++) {
+      if (frameStatus[i] === STATUS.READY) readyCount++;
+    }
+    if (readyCount <= MAX_CACHED_FRAMES) return;
+
+    const center = Math.round(currentFrame);
+    // Find candidate frames to evict (never evict frame 0 or frames within active window of 18)
+    const candidates = [];
+    for (let i = 1; i < TOTAL_FRAMES; i++) {
+      if (frameStatus[i] === STATUS.READY && images[i]) {
+        const dist = Math.abs(i - center);
+        if (dist > 18) {
+          candidates.push({ idx: i, dist, lastAccess: frameLastAccess[i] });
+        }
+      }
+    }
+
+    // Sort by largest distance first, then oldest access
+    candidates.sort((a, b) => b.dist - a.dist || a.lastAccess - b.lastAccess);
+
+    const toEvict = readyCount - MAX_CACHED_FRAMES;
+    for (let k = 0; k < Math.min(toEvict, candidates.length); k++) {
+      const idx = candidates[k].idx;
+      const drawable = images[idx];
+      if (drawable && typeof drawable.close === 'function') {
+        try { drawable.close(); } catch (_) {}
+      }
+      images[idx] = null;
+      frameStatus[idx] = STATUS.UNREQUESTED;
+      loadedCount = Math.max(0, loadedCount - 1);
+    }
+  }
+
+  // --- 1. Contiguous Direction-Aware Priority Streaming Engine ---
   function enqueueFrame(index) {
     if (index < 0 || index >= TOTAL_FRAMES) return;
     if (frameStatus[index] === STATUS.UNREQUESTED) {
@@ -97,19 +137,22 @@
   }
 
   // Calculate dynamic priority score (lower score = higher urgent priority)
+  // Guarantees contiguous buffering along scroll direction
   function calculateFramePriority(idx, target, dir) {
     const diff = idx - target;
     if (dir >= 0) {
-      if (diff >= 0 && diff <= 32) return diff;
-      else if (diff < 0 && diff >= -10) return 40 + Math.abs(diff) * 2;
-      else if (diff > 32) return 70 + diff;
-      else return 150 + Math.abs(diff);
+      // Forward scroll: contiguous lookahead ahead gets highest priority
+      if (diff >= 0 && diff <= 24) return diff;
+      else if (diff < 0 && diff >= -8) return 30 + Math.abs(diff) * 2;
+      else if (diff > 24) return 60 + diff;
+      else return 120 + Math.abs(diff);
     } else {
+      // Backward scroll: contiguous lookahead backwards gets highest priority
       const revDiff = target - idx;
-      if (revDiff >= 0 && revDiff <= 32) return revDiff;
-      else if (revDiff < 0 && revDiff >= -10) return 40 + Math.abs(revDiff) * 2;
-      else if (revDiff > 32) return 70 + revDiff;
-      else return 150 + Math.abs(revDiff);
+      if (revDiff >= 0 && revDiff <= 24) return revDiff;
+      else if (revDiff < 0 && revDiff >= -8) return 30 + Math.abs(revDiff) * 2;
+      else if (revDiff > 24) return 60 + revDiff;
+      else return 120 + Math.abs(revDiff);
     }
   }
 
@@ -120,7 +163,6 @@
     const dir = scrollDirection;
 
     while (activeDownloads < MAX_CONCURRENT && loadQueue.length > 0) {
-      // Find the most urgently needed frame in the queue
       let bestQueueIndex = 0;
       let bestScore = calculateFramePriority(loadQueue[0], target, dir);
 
@@ -149,17 +191,25 @@
       if (success && drawable) {
         images[idx] = drawable;
         frameStatus[idx] = STATUS.READY;
+        frameLastAccess[idx] = ++globalAccessCounter;
         loadedCount++;
 
         updateLoaderProgress();
+        evictFarthestFrames();
 
         if (idx === 0 && lastDrawnFrame === -1) {
           resizeCanvas();
           drawFrame(0);
         }
 
+        // Stale-frame fix: If canvas is currently displaying an approximation,
+        // and this newly downloaded frame is closer to the current scroll target
+        // than what is currently painted, immediately trigger a re-draw.
         const currentRound = Math.round(currentFrame);
-        if (currentRound === idx || (!lastDrawnWasExact && Math.abs(currentRound - idx) <= 1)) {
+        const distToCurrent = Math.abs(idx - currentRound);
+        const currentPaintedDist = lastDrawnFrame >= 0 ? Math.abs(lastDrawnFrame - currentRound) : 999;
+
+        if (idx === currentRound || (!lastDrawnWasExact && distToCurrent <= currentPaintedDist)) {
           requestRender();
         }
       } else {
@@ -253,6 +303,7 @@
         }
         nextBatchIndex = end;
         processQueue();
+
         if (nextBatchIndex >= TOTAL_FRAMES) return;
       }
 
@@ -272,31 +323,47 @@
     }
   }
 
-  // Immediate on-demand lookahead buffer if user scrolls before background frames are ready
+  // Contiguous direction-aware lookahead buffer when user scrolls
   function ensureFramesAround(target) {
     const center = Math.round(target);
-    for (let r = 0; r <= 16; r++) {
-      enqueueFrame(center + r);
-      enqueueFrame(center - r);
+    const lookahead = 16;
+    const lookbehind = 8;
+
+    if (scrollDirection >= 0) {
+      // Scrolling forward: buffer ahead contiguously first, then immediately behind
+      for (let r = 0; r <= lookahead; r++) enqueueFrame(center + r);
+      for (let r = 1; r <= lookbehind; r++) enqueueFrame(center - r);
+    } else {
+      // Scrolling backward: buffer behind contiguously first, then immediately ahead
+      for (let r = 0; r <= lookahead; r++) enqueueFrame(center - r);
+      for (let r = 1; r <= lookbehind; r++) enqueueFrame(center + r);
     }
     processQueue();
   }
 
-  // Find exact loaded frame or closest available loaded keyframe
+  // Find exact loaded frame or closest available contiguous loaded keyframe
   function findClosestLoadedFrame(targetIdx) {
     if (images[targetIdx]) {
+      frameLastAccess[targetIdx] = ++globalAccessCounter;
       return { img: images[targetIdx], isExact: true, index: targetIdx };
     }
+
     for (let offset = 1; offset < TOTAL_FRAMES; offset++) {
       const forward = targetIdx + offset;
       const backward = targetIdx - offset;
-      if (forward < TOTAL_FRAMES && images[forward]) {
-        return { img: images[forward], isExact: false, index: forward };
+      const first = scrollDirection >= 0 ? forward : backward;
+      const second = scrollDirection >= 0 ? backward : forward;
+
+      if (first >= 0 && first < TOTAL_FRAMES && images[first]) {
+        frameLastAccess[first] = ++globalAccessCounter;
+        return { img: images[first], isExact: false, index: first };
       }
-      if (backward >= 0 && images[backward]) {
-        return { img: images[backward], isExact: false, index: backward };
+      if (second >= 0 && second < TOTAL_FRAMES && images[second]) {
+        frameLastAccess[second] = ++globalAccessCounter;
+        return { img: images[second], isExact: false, index: second };
       }
     }
+
     return images[0] ? { img: images[0], isExact: false, index: 0 } : null;
   }
 
@@ -455,13 +522,25 @@
     updateScrollBars(clampedIndex);
   }
 
+  let lastPercentString = '';
+  let lastOrbitAngle = -999;
+
   function updateScrollBars(frameIndex) {
     const progress = frameIndex / (TOTAL_FRAMES - 1);
     const progressPercent = `${(progress * 100).toFixed(1)}%`;
 
-    if (progressLine) progressLine.style.width = progressPercent;
-    if (bottomScrubBar) bottomScrubBar.style.width = progressPercent;
-    if (experienceOrbit) experienceOrbit.style.setProperty('--orbit-angle', `${(progress * 360).toFixed(1)}deg`);
+    if (progressPercent !== lastPercentString) {
+      lastPercentString = progressPercent;
+      if (progressLine) progressLine.style.width = progressPercent;
+      if (bottomScrubBar) bottomScrubBar.style.width = progressPercent;
+    }
+
+    // Cache orbit angle: only mutate DOM when angle changes by at least 0.5 deg
+    const angle = progress * 360;
+    if (experienceOrbit && Math.abs(angle - lastOrbitAngle) >= 0.5) {
+      lastOrbitAngle = angle;
+      experienceOrbit.style.setProperty('--orbit-angle', `${angle.toFixed(1)}deg`);
+    }
   }
 
   function updateActiveNavLink(activeSection = null) {
