@@ -754,12 +754,16 @@
       roleBadge: 'Personally Developed',
       roleClass: 'role-badge-personal',
       status: 'Hardware Prototype',
-      objective: 'Automated soil moisture sensing and closed-loop relay pump irrigation engineered to optimize water consumption in arid regional farmland across Balochistan.',
-      components: ['ESP32 / Arduino Uno', 'Capacitive Soil Moisture Sensor', '5V Optocoupler Relay Module', '12V DC Submersible Pump', 'Embedded C++', 'Analog Calibration Curves'],
-      roleDescription: 'Personally designed the circuit schematic, programmed threshold hysteresis in C++ to prevent rapid motor switching, and conducted laboratory calibration between dry and saturated soil.',
-      mediaFilename: 'assets/projects/smart-irrigation-hardware.webp',
-      mediaInfo: 'Authentic project hardware photo / field test demo video slot. Recommended size: 800×600px. Upload workbench circuit photography or demo clip.',
-      githubUrl: 'https://github.com/Imran-khan009'
+      objective: 'Automated ultrasonic water-level detection and closed-loop relay pump irrigation engineered to optimize water consumption in arid regional farmland across Balochistan.',
+      components: ['Arduino Uno / ESP32', 'Ultrasonic HC-SR04 Sensor', '5V Optocoupled Relay Module', 'Water Submersible Pump', 'Embedded C++', 'Threshold Switching Logic'],
+      roleDescription: 'Personally designed the circuit wiring schematic, calibrated echo distance thresholds at 20cm, and conducted hardware laboratory testing with student demonstrations.',
+      mediaFilename: 'assets/water-management-circuit.png',
+      mediaInfo: 'High-resolution Fritzing circuit schematic and live student hardware demonstration video recorded in the vocational electronics laboratory.',
+      githubUrl: 'https://github.com/Imran-khan009/arduino-ultrasonic-water-control-system',
+      circuitDiagram: 'assets/water-management-circuit.png',
+      diagramCaption: 'System Schematic Architecture (ESP32/Arduino + Ultrasonic Sensor + 5V Relay + Pump)',
+      videoUrl: 'assets/water-management-video.mp4',
+      videoCaption: 'Authentic student laboratory hardware demonstration: Ultrasonic Water Control & Irrigation System'
     },
     'blind-stick': {
       title: 'Smart Blind Stick with Obstacle Detection',
@@ -822,9 +826,13 @@
       objective: 'Acoustic sweep radar sweeping 15° to 165° to detect approaching obstacles and plot real-time polar coordinates on a connected computer monitor.',
       components: ['Arduino Uno', 'SG90 Micro Servo Motor', 'HC-SR04 Ultrasonic Sensor', 'Processing IDE UI', 'Serial Baud Link', 'Breadboard Mount'],
       roleDescription: 'Guided students through servo degree incrementing, serial coordinate output formatting, and visualizing the sweep radar beam graphically on screen.',
-      mediaFilename: 'assets/projects/radar-system.webp',
-      mediaInfo: 'Servo sweep test photo / graphical radar display video slot. Recommended size: 800×600px.',
-      githubUrl: 'https://github.com/Imran-khan009'
+      mediaFilename: 'assets/circuit-diagram.png',
+      mediaInfo: 'High-resolution Fritzing circuit wiring diagram and live student demonstration video recorded in the robotics laboratory.',
+      githubUrl: 'https://github.com/Imran-khan009/arduino-ultrasonic-radar-system/blob/main/README.md',
+      circuitDiagram: 'assets/circuit-diagram.png',
+      diagramCaption: 'Fritzing Wiring Schematic (Arduino Uno + HC-SR04 Ultrasonic + SG90 Servo)',
+      videoUrl: 'assets/radar-demo-video.mp4',
+      videoCaption: 'Authentic student demonstration video: Ultrasonic Radar System built with Arduino & SG90 Servo'
     },
     'obstacle-car': {
       title: 'Autonomous Ultrasonic Obstacle-Avoidance Car',
@@ -983,6 +991,8 @@
     const modalMediaInfo = document.getElementById('modal-media-info');
     const modalGithubLink = document.getElementById('modal-github-link');
 
+    const modalMediaSlot = document.getElementById('modal-media-slot');
+
     if (modalCategory) modalCategory.textContent = data.category;
     if (modalTitle) modalTitle.textContent = data.title;
     if (modalRole) {
@@ -994,7 +1004,19 @@
     if (modalRoleDesc) modalRoleDesc.textContent = data.roleDescription;
     if (modalMediaFilename) modalMediaFilename.textContent = data.mediaFilename;
     if (modalMediaInfo) modalMediaInfo.textContent = data.mediaInfo;
-    if (modalGithubLink) modalGithubLink.href = data.githubUrl;
+    if (modalGithubLink) {
+      modalGithubLink.href = data.githubUrl;
+      const ghLabel = modalGithubLink.querySelector('span');
+      if (ghLabel) {
+        if (data.githubUrl.includes('arduino-ultrasonic-water-control-system')) {
+          ghLabel.textContent = 'View Water Control System Repository on GitHub';
+        } else if (data.githubUrl.includes('arduino-ultrasonic-radar-system')) {
+          ghLabel.textContent = 'View Arduino Radar Repository & Documentation';
+        } else {
+          ghLabel.textContent = 'Explore on GitHub Profile';
+        }
+      }
+    }
 
     if (modalComponents) {
       modalComponents.innerHTML = '';
@@ -1006,6 +1028,84 @@
       });
     }
 
+    // Dynamic Media Presentation: Rich Circuit Diagram & Video Player
+    if (modalMediaSlot) {
+      if (data.circuitDiagram || data.videoUrl) {
+        modalMediaSlot.classList.add('has-media');
+        modalMediaSlot.innerHTML = `
+          <div class="modal-media-tabs">
+            ${data.circuitDiagram ? `<button type="button" class="modal-media-tab-btn active" data-tab="diagram">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <span>Circuit Diagram</span>
+            </button>` : ''}
+            ${data.videoUrl ? `<button type="button" class="modal-media-tab-btn ${!data.circuitDiagram ? 'active' : ''}" data-tab="video">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <span>Live Demonstration Video</span>
+            </button>` : ''}
+          </div>
+
+          ${data.circuitDiagram ? `
+            <div class="modal-media-tab-pane" id="tab-pane-diagram">
+              <div class="modal-diagram-img-wrap">
+                <a href="${data.circuitDiagram}" target="_blank" rel="noopener noreferrer" title="Click to view full diagram">
+                  <img src="${data.circuitDiagram}" alt="${data.title} Circuit Diagram" class="modal-diagram-img" loading="lazy">
+                </a>
+              </div>
+              <div class="media-caption-bar">
+                <span>${data.diagramCaption || 'Fritzing Circuit Wiring Schematic'}</span>
+                <a href="${data.circuitDiagram}" target="_blank" rel="noopener noreferrer">Open Full Size ↗</a>
+              </div>
+            </div>
+          ` : ''}
+
+          ${data.videoUrl ? `
+            <div class="modal-media-tab-pane" id="tab-pane-video" style="${data.circuitDiagram ? 'display: none;' : ''}">
+              <div class="modal-video-wrap">
+                <video class="modal-video-player" controls preload="metadata" playsinline poster="${data.circuitDiagram || ''}">
+                  <source src="${data.videoUrl}" type="video/mp4">
+                  Your browser does not support HTML5 video playback.
+                </video>
+              </div>
+              <div class="media-caption-bar">
+                <span>${data.videoCaption || 'Live Project Demonstration'}</span>
+                <a href="${data.githubUrl}" target="_blank" rel="noopener noreferrer">Source Code on GitHub ↗</a>
+              </div>
+            </div>
+          ` : ''}
+        `;
+
+        // Wire tab toggling
+        const tabBtns = modalMediaSlot.querySelectorAll('.modal-media-tab-btn');
+        tabBtns.forEach(btn => {
+          btn.addEventListener('click', () => {
+            tabBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const targetTab = btn.dataset.tab;
+            const diagramPane = modalMediaSlot.querySelector('#tab-pane-diagram');
+            const videoPane = modalMediaSlot.querySelector('#tab-pane-video');
+            if (diagramPane) diagramPane.style.display = targetTab === 'diagram' ? 'block' : 'none';
+            if (videoPane) {
+              videoPane.style.display = targetTab === 'video' ? 'block' : 'none';
+              const vid = videoPane.querySelector('video');
+              if (vid && targetTab === 'video') vid.play().catch(() => {});
+              else if (vid) vid.pause();
+            }
+          });
+        });
+      } else {
+        modalMediaSlot.classList.remove('has-media');
+        modalMediaSlot.innerHTML = `
+          <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.8" class="media-box-icon">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+            <polyline points="21 15 16 10 5 21"></polyline>
+          </svg>
+          <span class="media-placeholder-tag" id="modal-media-filename">${data.mediaFilename}</span>
+          <p class="media-placeholder-info" id="modal-media-info">${data.mediaInfo}</p>
+        `;
+      }
+    }
+
     projectDetailModal.classList.add('active');
     projectDetailModal.setAttribute('aria-hidden', 'false');
     if (projectModalClose) projectModalClose.focus();
@@ -1013,6 +1113,8 @@
 
   function closeProjectDetail() {
     if (!projectDetailModal || !projectDetailModal.classList.contains('active')) return;
+    const vid = projectDetailModal.querySelector('video');
+    if (vid) vid.pause();
     projectDetailModal.classList.remove('active');
     projectDetailModal.setAttribute('aria-hidden', 'true');
     if (activeProjectModalTrigger && activeProjectModalTrigger.isConnected) {

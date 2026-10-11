@@ -2710,6 +2710,30 @@ a:focus-visible {
   border-color: rgba(255, 106, 61, 0.45);
 }
 
+.card-diagram-preview {
+  width: 100%;
+  margin-top: 14px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #ffffff;
+  padding: 6px;
+  border: 1px solid rgba(255, 106, 61, 0.35);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+.project-showcase-card:hover .card-diagram-preview {
+  border-color: rgba(255, 106, 61, 0.8);
+  transform: scale(1.02);
+}
+
+.card-diagram-img {
+  width: 100%;
+  height: 125px;
+  object-fit: contain;
+  display: block;
+}
+
 .visual-caption {
   position: absolute;
   top: 10px;
@@ -3106,46 +3130,108 @@ a:focus-visible {
 }
 
 .project-view-specs-btn {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
-  padding: 12px 18px;
+  padding: 12px 20px;
   border-radius: 10px;
-  background: rgba(18, 14, 12, 0.6);
-  border: 1px solid rgba(255, 106, 61, 0.5);
-  color: #ff6a3d;
+  background: linear-gradient(135deg, rgba(255, 106, 61, 0.22) 0%, rgba(255, 87, 34, 0.12) 45%, rgba(18, 14, 12, 0.96) 100%);
+  border: 1px solid rgba(255, 106, 61, 0.7);
+  color: #ff9d7d;
   font-family: 'JetBrains Mono', monospace;
-  font-weight: 600;
-  font-size: 0.85rem;
-  letter-spacing: 0.02em;
+  font-weight: 700;
+  font-size: 0.83rem;
+  letter-spacing: 0.03em;
   text-decoration: none;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
   box-sizing: border-box;
   outline: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.15), inset 0 -1px 0 rgba(0, 0, 0, 0.7), 0 0 12px rgba(255, 106, 61, 0.18);
+  overflow: hidden;
+  user-select: none;
 }
 
+/* Subtle ambient pulse effect */
+.project-view-specs-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+  transition: left 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.project-view-specs-btn:hover::before {
+  left: 120%;
+}
+
+.project-view-specs-btn span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  transition: color 0.2s ease;
+}
+
+/* Styled interactive arrow chip with high contrast */
 .project-view-specs-btn span:last-child {
-  transition: transform 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: rgba(255, 106, 61, 0.28);
+  border: 1px solid rgba(255, 106, 61, 0.6);
+  color: #ff7f50;
+  font-size: 0.85rem;
+  font-weight: 800;
+  line-height: 1;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
+/* Hover state - ultra high contrast luminous cyber-orange */
 .project-view-specs-btn:hover {
-  background: #ff6a3d;
-  color: #0d0c0b;
-  border-color: #ff6a3d;
-  box-shadow: 0 0 20px rgba(255, 106, 61, 0.5), 0 4px 12px rgba(0, 0, 0, 0.5);
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, #ff6a3d 0%, #ff5722 100%);
+  color: #0b0908;
+  border-color: #ffa182;
+  box-shadow: 0 0 28px rgba(255, 106, 61, 0.65), 0 8px 24px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  transform: translateY(-2px);
+}
+
+.project-view-specs-btn:hover span:first-child {
+  color: #0b0908;
+  text-shadow: none;
 }
 
 .project-view-specs-btn:hover span:last-child {
-  transform: translate(3px, -3px);
+  background: #0b0908;
+  border-color: rgba(0, 0, 0, 0.6);
+  color: #ff6a3d;
+  transform: translate(2px, -2px) scale(1.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* Active click state - crisp tactile depression */
+.project-view-specs-btn:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7), 0 0 14px rgba(255, 106, 61, 0.45), inset 0 2px 4px rgba(0, 0, 0, 0.4);
 }
 
 .project-view-specs-btn:focus-visible {
   outline: 2px solid #ff6a3d;
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 
 /* Project Detail Modal Layout */
@@ -3211,6 +3297,192 @@ a:focus-visible {
   align-items: center;
   justify-content: center;
   gap: 8px;
+}
+
+.detail-media-container.has-media {
+  border-style: solid;
+  border-color: rgba(255, 106, 61, 0.3);
+  padding: 16px;
+  background: rgba(10, 8, 7, 0.98);
+}
+
+.modal-media-tabs {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 8px;
+}
+
+.modal-media-tab-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.modal-media-tab-btn:hover {
+  background: rgba(255, 106, 61, 0.12);
+  color: var(--text-white);
+  border-color: rgba(255, 106, 61, 0.4);
+}
+
+.modal-media-tab-btn.active {
+  background: rgba(255, 106, 61, 0.2);
+  color: var(--accent-orange-bright);
+  border-color: var(--accent-orange);
+}
+
+.modal-media-tab-pane {
+  width: 100%;
+}
+
+.modal-diagram-img-wrap {
+  width: 100%;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #ffffff;
+  padding: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+}
+
+.modal-diagram-img {
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+  object-fit: contain;
+  display: block;
+}
+
+.modal-video-wrap {
+  width: 100%;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #000000;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.modal-video-player {
+  width: 100%;
+  max-height: 440px;
+  display: block;
+  background: #000;
+  outline: none;
+}
+
+.media-caption-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding-top: 8px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.media-caption-bar a {
+  color: var(--accent-orange-bright);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.project-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: stretch;
+  margin-top: 16px;
+  width: 100%;
+}
+
+.project-card-actions .project-view-specs-btn {
+  flex: 1 1 200px;
+  width: auto;
+}
+
+.project-card-gh-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 16px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(20, 20, 24, 0.95) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  color: #f3f4f6;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.15), inset 0 -1px 0 rgba(0, 0, 0, 0.6);
+  user-select: none;
+  cursor: pointer;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Subtle micro-shimmer line on hover */
+.project-card-gh-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+  transition: left 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.project-card-gh-btn:hover::before {
+  left: 120%;
+}
+
+.project-card-gh-btn svg {
+  flex-shrink: 0;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), fill 0.2s ease;
+  fill: #e5e7eb;
+}
+
+.project-card-gh-btn:hover {
+  background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+  border-color: #ffffff;
+  color: #0b0f19;
+  transform: translateY(-2px);
+  box-shadow: 0 0 24px rgba(255, 255, 255, 0.4), 0 8px 20px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.project-card-gh-btn:hover svg {
+  fill: #0b0f19;
+  transform: scale(1.12) rotate(-4deg);
+}
+
+.project-card-gh-btn:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7), inset 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.project-card-gh-btn:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
 }
 
 .media-placeholder-tag {
