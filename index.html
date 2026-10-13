@@ -198,7 +198,7 @@
 <body class="stage-locked">
 
   <!-- Loading Screen Overlay -->
-  <div id="loader" class="loader-overlay">
+  <div id="loader" class="loader-overlay loaded" style="display: none;">
     <div class="loader-content">
       <div class="loader-brand">
         <div class="brand-badge-icon">
@@ -459,6 +459,10 @@
           <div class="floating-badge skill-orbit-tag skill-portfolio" id="badge-portfolio" data-tilt>
             <span>IT Training</span>
           </div>
+
+          <div class="floating-badge skill-orbit-tag skill-it" id="badge-it" data-tilt>
+            <span>Embedded Systems</span>
+          </div>
           </div>
 
         </div>
@@ -475,7 +479,7 @@
             </svg>
           </div>
           <div class="stat-details">
-            <span class="stat-number">7+</span>
+            <span class="stat-number" data-counter-target="7" data-counter-suffix="+">7+</span>
             <span class="stat-label">YEARS TECHNICAL PRACTICE</span>
           </div>
         </div>
@@ -488,7 +492,7 @@
             <span class="stat-code-icon">&lt;/&gt;</span>
           </div>
           <div class="stat-details">
-            <span class="stat-number">500+</span>
+            <span class="stat-number" data-counter-target="500" data-counter-suffix="+">500+</span>
             <span class="stat-label">STUDENTS TRAINED</span>
           </div>
         </div>
@@ -506,7 +510,7 @@
             </svg>
           </div>
           <div class="stat-details">
-            <span class="stat-number">25+</span>
+            <span class="stat-number" data-counter-target="50" data-counter-suffix="+">50+</span>
             <span class="stat-label">PRACTICAL BUILDS</span>
           </div>
         </div>
@@ -523,7 +527,7 @@
             </svg>
           </div>
           <div class="stat-details">
-            <span class="stat-number">100%</span>
+            <span class="stat-number" data-counter-target="100" data-counter-suffix="%">100%</span>
             <span class="stat-label">APPLIED EXECUTION</span>
           </div>
         </div>
@@ -829,337 +833,785 @@
       <div class="projects-grid">
         <!-- 1. Smart Irrigation System -->
         <article class="project-card project-showcase-card project-card-interactive" data-project-category="iot" data-project-id="smart-irrigation">
-          <div class="project-card-meta">
-            <h4 class="project-category-tag">IoT &amp; Robotics</h4>
-            <div class="project-status-badges">
-              <span class="role-badge role-badge-personal">Personally Developed</span>
-              <span class="project-status-pill">Hardware Prototype</span>
+          <!-- Header Row -->
+          <div class="card-showcase-header">
+            <span class="card-showcase-kicker">01 / AUTHENTIC MEDIA &amp; DEMONSTRATION</span>
+            <div class="media-capsule-switcher card-capsule-switcher" role="tablist">
+              <button type="button" class="capsule-tab-btn active card-tab-btn" data-card-tab="diagram" data-target-card="smart-irrigation" role="tab" aria-selected="true">Circuit Diagram</button>
+              <button type="button" class="capsule-tab-btn card-tab-btn" data-card-tab="video" data-target-card="smart-irrigation" role="tab" aria-selected="false">Live Video Demo</button>
             </div>
           </div>
+
           <h3 class="project-title">Smart Agriculture Water Management System</h3>
           <p class="project-desc">Automated ultrasonic distance water-level sensing and closed-loop relay pump irrigation engineered to optimize water consumption in arid regional farmland.</p>
-          <div class="project-visual visual-agriculture" aria-label="Circuit wiring diagram preview">
-            <span class="visual-caption">SYSTEM SCHEMATIC / CIRCUIT ARCHITECTURE</span>
-            <div class="card-diagram-preview">
-              <img src="assets/water-management-circuit.png" alt="Smart Agriculture Water Management Circuit Diagram" class="card-diagram-img" loading="lazy">
+
+          <!-- Media Viewer Container -->
+          <div class="card-media-viewer" id="card-viewer-smart-irrigation">
+            <button type="button" class="media-expand-badge card-expand-btn" data-open-project="smart-irrigation" title="Expand Full Diagram">
+              <span>Click to Expand ↗</span>
+            </button>
+            <div class="card-tab-pane card-pane-diagram" id="card-pane-diagram-smart-irrigation">
+              <img src="assets/water-management-circuit.png" alt="Smart Agriculture Water Management Circuit Diagram" class="card-diagram-showcase-img" loading="lazy">
+            </div>
+            <div class="card-tab-pane card-pane-video" id="card-pane-video-smart-irrigation" style="display: none;">
+              <video class="card-showcase-video" controls preload="metadata" playsinline poster="assets/water-management-circuit.png">
+                <source src="assets/water-management-video.mp4" type="video/mp4">
+              </video>
             </div>
           </div>
-          <div class="project-tags"><span>ESP32 / Arduino</span><span>Ultrasonic Sensor</span><span>5V Relay</span><span>Submersible Pump</span></div>
-          <div class="project-card-actions">
-            <button type="button" class="project-view-specs-btn" data-open-project="smart-irrigation"><span>View Specs, Diagram &amp; Video</span><span aria-hidden="true">↗</span></button>
-            <a href="https://github.com/Imran-khan009/arduino-ultrasonic-water-control-system" target="_blank" rel="noopener noreferrer" class="project-card-gh-btn" title="View GitHub Repository &amp; Code">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-              <span>GitHub Repo</span>
-            </a>
+
+          <!-- Footer & Action Row -->
+          <div class="card-showcase-footer">
+            <div class="media-system-architecture">System Architecture: ESP32/Arduino + Ultrasonic Sensor + 5V Relay + Pump</div>
+            <div class="media-actions-row">
+              <a href="https://github.com/Imran-khan009/arduino-ultrasonic-water-control-system" target="_blank" rel="noopener noreferrer" class="media-btn-github" title="View GitHub Repository">
+                <span>↗ View GitHub Repository</span>
+              </a>
+              <button type="button" class="media-btn-close card-specs-btn" data-open-project="smart-irrigation">View Specs &amp; Details ↗</button>
+            </div>
           </div>
         </article>
 
         <!-- 2. Smart Blind Stick -->
         <article class="project-card project-showcase-card project-card-interactive" data-project-category="iot student" data-project-id="blind-stick">
-          <div class="project-card-meta">
-            <h4 class="project-category-tag">IoT &amp; Robotics</h4>
-            <div class="project-status-badges">
-              <span class="role-badge role-badge-guided">Guided Student Build</span>
-              <span class="project-status-pill">Curriculum Demonstration</span>
+          <!-- Header Row -->
+          <div class="card-showcase-header">
+            <span class="card-showcase-kicker">02 / AUTHENTIC MEDIA &amp; DEMONSTRATION</span>
+            <div class="media-capsule-switcher card-capsule-switcher" role="tablist">
+              <button type="button" class="capsule-tab-btn active card-tab-btn" data-card-tab="diagram" data-target-card="blind-stick" role="tab" aria-selected="true">Circuit Diagram</button>
+              <button type="button" class="capsule-tab-btn card-tab-btn" data-card-tab="video" data-target-card="blind-stick" role="tab" aria-selected="false">Live Audio Demo</button>
             </div>
           </div>
+
           <h3 class="project-title">Smart Blind Stick with Obstacle Detection</h3>
           <p class="project-desc">Assistive mobility cane prototype built with students using ultrasonic echo ranging and dual tactile buzzer/vibration alerts.</p>
-          <div class="project-visual" aria-label="Acoustic ranging and assistive circuit diagram">
-            <span class="visual-caption">ACOUSTIC RANGING / ASSISTIVE CIRCUIT</span>
-            <div class="flow-diagram"><span>HC-SR04<br>ECHO</span><i></i><span>ARDUINO<br>NANO</span><i></i><span>BUZZER /<br>MOTOR</span></div>
-            <div class="visual-readout">RANGE <b>&lt; 50 CM</b><span>·</span> FEEDBACK <b>TACTILE + AUDIO</b></div>
+
+          <!-- Media Viewer Container -->
+          <div class="card-media-viewer" id="card-viewer-blind-stick">
+            <button type="button" class="media-expand-badge card-expand-btn" data-open-project="blind-stick" title="Expand Full Diagram">
+              <span>Click to Expand ↗</span>
+            </button>
+            <div class="card-tab-pane card-pane-diagram" id="card-pane-diagram-blind-stick">
+              <div class="project-visual" aria-label="Acoustic ranging and assistive circuit diagram">
+                <span class="visual-caption">ACOUSTIC RANGING / ASSISTIVE CIRCUIT</span>
+                <div class="flow-diagram"><span>HC-SR04<br>ECHO</span><i></i><span>ARDUINO<br>NANO</span><i></i><span>BUZZER /<br>MOTOR</span></div>
+                <div class="visual-readout">RANGE <b>&lt; 50 CM</b><span>·</span> FEEDBACK <b>TACTILE + AUDIO</b></div>
+              </div>
+            </div>
+            <div class="card-tab-pane card-pane-video" id="card-pane-video-blind-stick" style="display: none;">
+              <div class="card-interactive-demo-panel">
+                <div class="card-demo-status-pill"><span class="card-demo-pulse-dot"></span><span>LIVE SENSOR TELEMETRY</span></div>
+                <div class="card-demo-readout-row">
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Proximity Range</span><span class="card-demo-metric-val">&lt; 38 cm</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Haptic Motor</span><span class="card-demo-metric-val" style="color: #4ade80;">ACTIVE</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Buzzer Pitch</span><span class="card-demo-metric-val">2.8 kHz PWM</span></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="project-tags"><span>Arduino Nano</span><span>HC-SR04 Sensor</span><span>Piezo Buzzer</span><span>Vibration Motor</span></div>
-          <button type="button" class="project-view-specs-btn" data-open-project="blind-stick"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
+
+          <!-- Footer & Action Row -->
+          <div class="card-showcase-footer">
+            <div class="media-system-architecture">System Architecture: Arduino Nano + HC-SR04 Sensor + Piezo Buzzer + Vibration Motor</div>
+            <div class="media-actions-row">
+              <a href="https://github.com/Imran-khan009" target="_blank" rel="noopener noreferrer" class="media-btn-github" title="View GitHub Repository">
+                <span>↗ View GitHub Repository</span>
+              </a>
+              <button type="button" class="media-btn-close card-specs-btn" data-open-project="blind-stick">View Specs &amp; Details ↗</button>
+            </div>
+          </div>
         </article>
 
         <!-- 3. RC Robot Car -->
         <article class="project-card project-showcase-card project-card-interactive" data-project-category="iot" data-project-id="rc-robot-car">
-          <div class="project-card-meta">
-            <h4 class="project-category-tag">IoT &amp; Robotics</h4>
-            <div class="project-status-badges">
-              <span class="role-badge role-badge-personal">Personally Developed</span>
-              <span class="project-status-pill">Hardware Prototype</span>
+          <!-- Header Row -->
+          <div class="card-showcase-header">
+            <span class="card-showcase-kicker">03 / AUTHENTIC MEDIA &amp; DEMONSTRATION</span>
+            <div class="media-capsule-switcher card-capsule-switcher" role="tablist">
+              <button type="button" class="capsule-tab-btn active card-tab-btn" data-card-tab="diagram" data-target-card="rc-robot-car" role="tab" aria-selected="true">Circuit Diagram</button>
+              <button type="button" class="capsule-tab-btn card-tab-btn" data-card-tab="video" data-target-card="rc-robot-car" role="tab" aria-selected="false">RF Control Demo</button>
             </div>
           </div>
+
           <h3 class="project-title">RF Wireless Remote-Controlled Robot Car</h3>
           <p class="project-desc">Custom chassis assembly with 4WD DC geared motors, high-current L298N H-bridge driver, and directional 2.4GHz RF communication.</p>
-          <div class="project-visual visual-robot" aria-label="Wireless robotics diagram">
-            <span class="visual-caption">WIRELESS RF LINK &amp; MOTOR CONTROL</span>
-            <div class="robot-diagram"><span class="signal-node">RF<br>REMOTE</span><i></i><span class="board-node">RX<br>CONTROL</span><i></i><span class="wheel-node">L298N<br>DRIVER</span></div>
-            <div class="visual-readout">SIGNAL <b>2.4 GHz</b><span>·</span> DRIVE <b>DUAL H-BRIDGE</b></div>
+
+          <!-- Media Viewer Container -->
+          <div class="card-media-viewer" id="card-viewer-rc-robot-car">
+            <button type="button" class="media-expand-badge card-expand-btn" data-open-project="rc-robot-car" title="Expand Full Diagram">
+              <span>Click to Expand ↗</span>
+            </button>
+            <div class="card-tab-pane card-pane-diagram" id="card-pane-diagram-rc-robot-car">
+              <div class="project-visual visual-robot" aria-label="Wireless robotics diagram">
+                <span class="visual-caption">WIRELESS RF LINK &amp; MOTOR CONTROL</span>
+                <div class="robot-diagram"><span class="signal-node">RF<br>REMOTE</span><i></i><span class="board-node">RX<br>CONTROL</span><i></i><span class="wheel-node">L298N<br>DRIVER</span></div>
+                <div class="visual-readout">SIGNAL <b>2.4 GHz</b><span>·</span> DRIVE <b>DUAL H-BRIDGE</b></div>
+              </div>
+            </div>
+            <div class="card-tab-pane card-pane-video" id="card-pane-video-rc-robot-car" style="display: none;">
+              <div class="card-interactive-demo-panel">
+                <div class="card-demo-status-pill"><span class="card-demo-pulse-dot"></span><span>RF CAR TELEMETRY 2.4GHz</span></div>
+                <div class="card-demo-readout-row">
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">RF Packet</span><span class="card-demo-metric-val">0xFA FORWARD</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">PWM Left/Right</span><span class="card-demo-metric-val" style="color: #4ade80;">220 / 220</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Motor Voltage</span><span class="card-demo-metric-val">7.4V Li-Po</span></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="project-tags"><span>Microcontroller</span><span>L298N Driver</span><span>2.4GHz RF Module</span><span>DC Motors</span></div>
-          <button type="button" class="project-view-specs-btn" data-open-project="rc-robot-car"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
+
+          <!-- Footer & Action Row -->
+          <div class="card-showcase-footer">
+            <div class="media-system-architecture">System Architecture: Microcontroller + L298N Dual H-Bridge + 2.4GHz RF + 4WD Chassis</div>
+            <div class="media-actions-row">
+              <a href="https://github.com/Imran-khan009" target="_blank" rel="noopener noreferrer" class="media-btn-github" title="View GitHub Repository">
+                <span>↗ View GitHub Repository</span>
+              </a>
+              <button type="button" class="media-btn-close card-specs-btn" data-open-project="rc-robot-car">View Specs &amp; Details ↗</button>
+            </div>
+          </div>
         </article>
 
         <!-- 4. Home Automation -->
         <article class="project-card project-showcase-card project-card-interactive" data-project-category="iot student" data-project-id="home-automation">
-          <div class="project-card-meta">
-            <h4 class="project-category-tag">IoT &amp; Robotics</h4>
-            <div class="project-status-badges">
-              <span class="role-badge role-badge-guided">Guided Student Build</span>
-              <span class="project-status-pill">Lab Demonstration</span>
+          <!-- Header Row -->
+          <div class="card-showcase-header">
+            <span class="card-showcase-kicker">04 / AUTHENTIC MEDIA &amp; DEMONSTRATION</span>
+            <div class="media-capsule-switcher card-capsule-switcher" role="tablist">
+              <button type="button" class="capsule-tab-btn active card-tab-btn" data-card-tab="diagram" data-target-card="home-automation" role="tab" aria-selected="true">Circuit Diagram</button>
+              <button type="button" class="capsule-tab-btn card-tab-btn" data-card-tab="video" data-target-card="home-automation" role="tab" aria-selected="false">IoT Network Demo</button>
             </div>
           </div>
+
           <h3 class="project-title">Multi-Channel Smart Home Automation</h3>
           <p class="project-desc">Wireless appliance control setup demonstrating optocoupler relay electrical isolation and multi-switch IoT network integration.</p>
-          <div class="project-visual" aria-label="Smart IoT relay network diagram">
-            <span class="visual-caption">SMART IOT RELAY NETWORK</span>
-            <div class="flow-diagram"><span>ESP32<br>WI-FI</span><i></i><span>OPTO<br>ISOLATION</span><i></i><span>4-CH<br>RELAYS</span></div>
-            <div class="visual-readout">TELEMETRY <b>MQTT/HTTP</b><span>·</span> AC LOADS <b>ISOLATED</b></div>
+
+          <!-- Media Viewer Container -->
+          <div class="card-media-viewer" id="card-viewer-home-automation">
+            <button type="button" class="media-expand-badge card-expand-btn" data-open-project="home-automation" title="Expand Full Diagram">
+              <span>Click to Expand ↗</span>
+            </button>
+            <div class="card-tab-pane card-pane-diagram" id="card-pane-diagram-home-automation">
+              <div class="project-visual" aria-label="Smart IoT relay network diagram">
+                <span class="visual-caption">SMART IOT RELAY NETWORK</span>
+                <div class="flow-diagram"><span>ESP32<br>WI-FI</span><i></i><span>OPTO<br>ISOLATION</span><i></i><span>4-CH<br>RELAYS</span></div>
+                <div class="visual-readout">TELEMETRY <b>MQTT/HTTP</b><span>·</span> AC LOADS <b>ISOLATED</b></div>
+              </div>
+            </div>
+            <div class="card-tab-pane card-pane-video" id="card-pane-video-home-automation" style="display: none;">
+              <div class="card-interactive-demo-panel">
+                <div class="card-demo-status-pill"><span class="card-demo-pulse-dot"></span><span>ESP32 WEB SOCKET LINK</span></div>
+                <div class="card-demo-readout-row">
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Relay 1 (Lighting)</span><span class="card-demo-metric-val" style="color: #4ade80;">ON (220V)</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Relay 2 (Fan)</span><span class="card-demo-metric-val" style="color: #4ade80;">ON (PWM)</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Relay 3 &amp; 4</span><span class="card-demo-metric-val" style="color: #8b92a5;">STANDBY</span></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="project-tags"><span>ESP32 Wi-Fi</span><span>4-Channel Relay</span><span>Optocoupler</span><span>C++</span></div>
-          <button type="button" class="project-view-specs-btn" data-open-project="home-automation"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
+
+          <!-- Footer & Action Row -->
+          <div class="card-showcase-footer">
+            <div class="media-system-architecture">System Architecture: ESP32 Wi-Fi + Optocoupler + 4-Channel Relays + AC Loads</div>
+            <div class="media-actions-row">
+              <a href="https://github.com/Imran-khan009" target="_blank" rel="noopener noreferrer" class="media-btn-github" title="View GitHub Repository">
+                <span>↗ View GitHub Repository</span>
+              </a>
+              <button type="button" class="media-btn-close card-specs-btn" data-open-project="home-automation">View Specs &amp; Details ↗</button>
+            </div>
+          </div>
         </article>
 
         <!-- 5. Flame & Gas Detection System -->
         <article class="project-card project-showcase-card project-card-interactive" data-project-category="iot student" data-project-id="flame-gas-detector">
-          <div class="project-card-meta">
-            <h4 class="project-category-tag">IoT &amp; Robotics</h4>
-            <div class="project-status-badges">
-              <span class="role-badge role-badge-guided">Guided Student Build</span>
-              <span class="project-status-pill">Safety Lab Prototype</span>
+          <!-- Header Row -->
+          <div class="card-showcase-header">
+            <span class="card-showcase-kicker">05 / AUTHENTIC MEDIA &amp; DEMONSTRATION</span>
+            <div class="media-capsule-switcher card-capsule-switcher" role="tablist">
+              <button type="button" class="capsule-tab-btn active card-tab-btn" data-card-tab="diagram" data-target-card="flame-gas-detector" role="tab" aria-selected="true">Circuit Diagram</button>
+              <button type="button" class="capsule-tab-btn card-tab-btn" data-card-tab="video" data-target-card="flame-gas-detector" role="tab" aria-selected="false">Safety Alarm Demo</button>
             </div>
           </div>
+
           <h3 class="project-title">Hazard Flame &amp; Combustible Gas Detection System</h3>
           <p class="project-desc">Early-warning sensor circuit detecting LPG, butane, and open infrared flames with automatic acoustic sirens and status LEDs.</p>
-          <div class="project-visual" aria-label="Safety sensing early warning diagram">
-            <span class="visual-caption">SAFETY SENSING / EARLY WARNING</span>
-            <div class="flow-diagram"><span>MQ-2 / IR<br>SENSORS</span><i></i><span>ARDUINO<br>UNO</span><i></i><span>ALARM<br>TRIGGER</span></div>
-            <div class="visual-readout">SENSITIVITY <b>ANALOG</b><span>·</span> RESPONSE <b>&lt; 100 MS</b></div>
+
+          <!-- Media Viewer Container -->
+          <div class="card-media-viewer" id="card-viewer-flame-gas-detector">
+            <button type="button" class="media-expand-badge card-expand-btn" data-open-project="flame-gas-detector" title="Expand Full Diagram">
+              <span>Click to Expand ↗</span>
+            </button>
+            <div class="card-tab-pane card-pane-diagram" id="card-pane-diagram-flame-gas-detector">
+              <div class="project-visual" aria-label="Safety sensing early warning diagram">
+                <span class="visual-caption">SAFETY SENSING / EARLY WARNING</span>
+                <div class="flow-diagram"><span>MQ-2 / IR<br>SENSORS</span><i></i><span>ARDUINO<br>UNO</span><i></i><span>ALARM<br>TRIGGER</span></div>
+                <div class="visual-readout">SENSITIVITY <b>ANALOG</b><span>·</span> RESPONSE <b>&lt; 100 MS</b></div>
+              </div>
+            </div>
+            <div class="card-tab-pane card-pane-video" id="card-pane-video-flame-gas-detector" style="display: none;">
+              <div class="card-interactive-demo-panel">
+                <div class="card-demo-status-pill"><span class="card-demo-pulse-dot"></span><span>HAZARD MONITOR ARMED</span></div>
+                <div class="card-demo-readout-row">
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">LPG / Butane</span><span class="card-demo-metric-val">120 PPM (Normal)</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Flame IR Band</span><span class="card-demo-metric-val" style="color: #4ade80;">CLEAR</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Siren Strobe</span><span class="card-demo-metric-val">ARMED &lt;100ms</span></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="project-tags"><span>MQ-2 Gas Sensor</span><span>Flame IR Sensor</span><span>Arduino Uno</span><span>Audio Alarm</span></div>
-          <button type="button" class="project-view-specs-btn" data-open-project="flame-gas-detector"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
+
+          <!-- Footer & Action Row -->
+          <div class="card-showcase-footer">
+            <div class="media-system-architecture">System Architecture: MQ-2 Gas / Flame Sensor + Arduino Uno + Active Siren Alarm</div>
+            <div class="media-actions-row">
+              <a href="https://github.com/Imran-khan009" target="_blank" rel="noopener noreferrer" class="media-btn-github" title="View GitHub Repository">
+                <span>↗ View GitHub Repository</span>
+              </a>
+              <button type="button" class="media-btn-close card-specs-btn" data-open-project="flame-gas-detector">View Specs &amp; Details ↗</button>
+            </div>
+          </div>
         </article>
 
         <!-- 6. Radar System -->
         <article class="project-card project-showcase-card project-card-interactive" data-project-category="iot student" data-project-id="radar-system">
-          <div class="project-card-meta">
-            <h4 class="project-category-tag">IoT &amp; Robotics</h4>
-            <div class="project-status-badges">
-              <span class="role-badge role-badge-guided">Guided Student Build</span>
-              <span class="project-status-pill">Laboratory Project</span>
+          <!-- Header Row -->
+          <div class="card-showcase-header">
+            <span class="card-showcase-kicker">06 / AUTHENTIC MEDIA &amp; DEMONSTRATION</span>
+            <div class="media-capsule-switcher card-capsule-switcher" role="tablist">
+              <button type="button" class="capsule-tab-btn active card-tab-btn" data-card-tab="diagram" data-target-card="radar-system" role="tab" aria-selected="true">Circuit Diagram</button>
+              <button type="button" class="capsule-tab-btn card-tab-btn" data-card-tab="video" data-target-card="radar-system" role="tab" aria-selected="false">Live Video Demo</button>
             </div>
           </div>
+
           <h3 class="project-title">180° Ultrasonic Servo Radar Mapping System</h3>
           <p class="project-desc">Servo-driven acoustic scanner mapping surrounding spatial obstructions and plotting real-time angle/distance sweeps onto a graphical monitor.</p>
-          <div class="project-visual visual-radar" aria-label="Circuit wiring diagram preview">
-            <span class="visual-caption">SYSTEM SCHEMATIC / CIRCUIT ARCHITECTURE</span>
-            <div class="card-diagram-preview">
-              <img src="assets/circuit-diagram.png" alt="180° Ultrasonic Servo Radar Mapping System Circuit Diagram" class="card-diagram-img" loading="lazy">
+
+          <!-- Media Viewer Container -->
+          <div class="card-media-viewer" id="card-viewer-radar-system">
+            <button type="button" class="media-expand-badge card-expand-btn" data-open-project="radar-system" title="Expand Full Diagram">
+              <span>Click to Expand ↗</span>
+            </button>
+            <div class="card-tab-pane card-pane-diagram" id="card-pane-diagram-radar-system">
+              <img src="assets/circuit-diagram.png" alt="180° Ultrasonic Servo Radar Mapping System Circuit Diagram" class="card-diagram-showcase-img" loading="lazy">
+            </div>
+            <div class="card-tab-pane card-pane-video" id="card-pane-video-radar-system" style="display: none;">
+              <video class="card-showcase-video" controls preload="metadata" playsinline poster="assets/circuit-diagram.png">
+                <source src="assets/radar-demo-video.mp4" type="video/mp4">
+              </video>
             </div>
           </div>
-          <div class="project-tags"><span>Arduino Uno</span><span>SG90 Servo</span><span>HC-SR04 Sensor</span><span>Processing IDE</span></div>
-          <div class="project-card-actions">
-            <button type="button" class="project-view-specs-btn" data-open-project="radar-system"><span>View Specs, Diagram &amp; Video</span><span aria-hidden="true">↗</span></button>
-            <a href="https://github.com/Imran-khan009/arduino-ultrasonic-radar-system/blob/main/README.md" target="_blank" rel="noopener noreferrer" class="project-card-gh-btn" title="View GitHub Repository &amp; Code">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-              <span>GitHub Repo</span>
-            </a>
+
+          <!-- Footer & Action Row -->
+          <div class="card-showcase-footer">
+            <div class="media-system-architecture">System Architecture: Arduino Uno + HC-SR04 Ultrasonic Sensor + SG90 Servo</div>
+            <div class="media-actions-row">
+              <a href="https://github.com/Imran-khan009/arduino-ultrasonic-radar-system/blob/main/README.md" target="_blank" rel="noopener noreferrer" class="media-btn-github" title="View GitHub Repository">
+                <span>↗ View GitHub Repository</span>
+              </a>
+              <button type="button" class="media-btn-close card-specs-btn" data-open-project="radar-system">View Specs &amp; Details ↗</button>
+            </div>
           </div>
         </article>
 
         <!-- 7. Ultrasonic Obstacle-Detection Car -->
         <article class="project-card project-showcase-card project-card-interactive" data-project-category="iot student" data-project-id="obstacle-car">
-          <div class="project-card-meta">
-            <h4 class="project-category-tag">IoT &amp; Robotics</h4>
-            <div class="project-status-badges">
-              <span class="role-badge role-badge-guided">Guided Student Build</span>
-              <span class="project-status-pill">Robotics Lab Build</span>
+          <!-- Header Row -->
+          <div class="card-showcase-header">
+            <span class="card-showcase-kicker">07 / AUTHENTIC MEDIA &amp; DEMONSTRATION</span>
+            <div class="media-capsule-switcher card-capsule-switcher" role="tablist">
+              <button type="button" class="capsule-tab-btn active card-tab-btn" data-card-tab="diagram" data-target-card="obstacle-car" role="tab" aria-selected="true">Circuit Diagram</button>
+              <button type="button" class="capsule-tab-btn card-tab-btn" data-card-tab="video" data-target-card="obstacle-car" role="tab" aria-selected="false">Navigation Demo</button>
             </div>
           </div>
+
           <h3 class="project-title">Autonomous Ultrasonic Obstacle-Avoidance Car</h3>
           <p class="project-desc">Self-navigating smart rover utilizing a servo-pivoted ultrasonic head to scan escape routes and execute differential pivot turns.</p>
-          <div class="project-visual" aria-label="Autonomous pathing and collision avoidance diagram">
-            <span class="visual-caption">AUTONOMOUS PATHING &amp; COLLISION AVOIDANCE</span>
-            <div class="flow-diagram"><span>DISTANCE<br>SCAN</span><i></i><span>PATH<br>LOGIC</span><i></i><span>MOTOR<br>STEER</span></div>
-            <div class="visual-readout">DECISION <b>3-WAY SCAN</b><span>·</span> NAVIGATION <b>AUTONOMOUS</b></div>
+
+          <!-- Media Viewer Container -->
+          <div class="card-media-viewer" id="card-viewer-obstacle-car">
+            <button type="button" class="media-expand-badge card-expand-btn" data-open-project="obstacle-car" title="Expand Full Diagram">
+              <span>Click to Expand ↗</span>
+            </button>
+            <div class="card-tab-pane card-pane-diagram" id="card-pane-diagram-obstacle-car">
+              <div class="project-visual" aria-label="Autonomous pathing and collision avoidance diagram">
+                <span class="visual-caption">AUTONOMOUS PATHING &amp; COLLISION AVOIDANCE</span>
+                <div class="flow-diagram"><span>DISTANCE<br>SCAN</span><i></i><span>PATH<br>LOGIC</span><i></i><span>MOTOR<br>STEER</span></div>
+                <div class="visual-readout">DECISION <b>3-WAY SCAN</b><span>·</span> NAVIGATION <b>AUTONOMOUS</b></div>
+              </div>
+            </div>
+            <div class="card-tab-pane card-pane-video" id="card-pane-video-obstacle-car" style="display: none;">
+              <div class="card-interactive-demo-panel">
+                <div class="card-demo-status-pill"><span class="card-demo-pulse-dot"></span><span>SWEEP RADAR HEAD SCANNING</span></div>
+                <div class="card-demo-readout-row">
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Left Range</span><span class="card-demo-metric-val">42 cm</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Center Range</span><span class="card-demo-metric-val" style="color: #ef4444;">18 cm (Block)</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Right Range</span><span class="card-demo-metric-val" style="color: #4ade80;">85 cm (Clear)</span></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="project-tags"><span>Arduino Uno</span><span>L298N Driver</span><span>Ultrasonic Sensor</span><span>Servo Pan</span></div>
-          <button type="button" class="project-view-specs-btn" data-open-project="obstacle-car"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
+
+          <!-- Footer & Action Row -->
+          <div class="card-showcase-footer">
+            <div class="media-system-architecture">System Architecture: Arduino Uno + L298N Driver + HC-SR04 Sensor + Pan Servo</div>
+            <div class="media-actions-row">
+              <a href="https://github.com/Imran-khan009" target="_blank" rel="noopener noreferrer" class="media-btn-github" title="View GitHub Repository">
+                <span>↗ View GitHub Repository</span>
+              </a>
+              <button type="button" class="media-btn-close card-specs-btn" data-open-project="obstacle-car">View Specs &amp; Details ↗</button>
+            </div>
+          </div>
         </article>
 
         <!-- 8. Other Arduino & ESP32 Modular Projects -->
         <article class="project-card project-showcase-card project-card-interactive" data-project-category="iot student" data-project-id="modular-arduino-esp32">
-          <div class="project-card-meta">
-            <h4 class="project-category-tag">IoT &amp; Robotics</h4>
-            <div class="project-status-badges">
-              <span class="role-badge role-badge-lab">Practical Lab Activity</span>
-              <span class="project-status-pill">Classroom Modules</span>
+          <!-- Header Row -->
+          <div class="card-showcase-header">
+            <span class="card-showcase-kicker">08 / AUTHENTIC MEDIA &amp; DEMONSTRATION</span>
+            <div class="media-capsule-switcher card-capsule-switcher" role="tablist">
+              <button type="button" class="capsule-tab-btn active card-tab-btn" data-card-tab="diagram" data-target-card="modular-arduino-esp32" role="tab" aria-selected="true">Circuit Diagram</button>
+              <button type="button" class="capsule-tab-btn card-tab-btn" data-card-tab="video" data-target-card="modular-arduino-esp32" role="tab" aria-selected="false">Lab Modules Demo</button>
             </div>
           </div>
+
           <h3 class="project-title">Modular Arduino &amp; ESP32 Embedded Labs</h3>
           <p class="project-desc">Hands-on electronics modules covering PIR motion triggers, DHT11 environmental metrics, OLED I2C telemetry, and PWM motor modulation.</p>
-          <div class="project-visual" aria-label="Practical lab sensors and embedded modules diagram">
-            <span class="visual-caption">PRACTICAL LAB SENSORS &amp; EMBEDDED MODULES</span>
-            <div class="flow-diagram"><span>DHT11<br>TEMP</span><i></i><span>I2C<br>OLED</span><i></i><span>PIR<br>MOTION</span></div>
-            <div class="visual-readout">PROTOCOLS <b>I2C / SPI / PWM</b><span>·</span> LAB <b>VOCATIONAL</b></div>
+
+          <!-- Media Viewer Container -->
+          <div class="card-media-viewer" id="card-viewer-modular-arduino-esp32">
+            <button type="button" class="media-expand-badge card-expand-btn" data-open-project="modular-arduino-esp32" title="Expand Full Diagram">
+              <span>Click to Expand ↗</span>
+            </button>
+            <div class="card-tab-pane card-pane-diagram" id="card-pane-diagram-modular-arduino-esp32">
+              <div class="project-visual" aria-label="Practical lab sensors and embedded modules diagram">
+                <span class="visual-caption">PRACTICAL LAB SENSORS &amp; EMBEDDED MODULES</span>
+                <div class="flow-diagram"><span>DHT11<br>TEMP</span><i></i><span>I2C<br>OLED</span><i></i><span>PIR<br>MOTION</span></div>
+                <div class="visual-readout">PROTOCOLS <b>I2C / SPI / PWM</b><span>·</span> LAB <b>VOCATIONAL</b></div>
+              </div>
+            </div>
+            <div class="card-tab-pane card-pane-video" id="card-pane-video-modular-arduino-esp32" style="display: none;">
+              <div class="card-interactive-demo-panel">
+                <div class="card-demo-status-pill"><span class="card-demo-pulse-dot"></span><span>I2C SENSOR BUS TELEMETRY</span></div>
+                <div class="card-demo-readout-row">
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Temperature</span><span class="card-demo-metric-val">28.4 °C</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Humidity</span><span class="card-demo-metric-val">58% RH</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Motion Trigger</span><span class="card-demo-metric-val" style="color: #4ade80;">HIGH</span></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="project-tags"><span>ESP32 / Arduino</span><span>I2C Displays</span><span>PIR Sensors</span><span>Breadboard Wiring</span></div>
-          <button type="button" class="project-view-specs-btn" data-open-project="modular-arduino-esp32"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
+
+          <!-- Footer & Action Row -->
+          <div class="card-showcase-footer">
+            <div class="media-system-architecture">System Architecture: ESP32/Arduino + I2C OLED Display + DHT11 + PIR Sensor</div>
+            <div class="media-actions-row">
+              <a href="https://github.com/Imran-khan009" target="_blank" rel="noopener noreferrer" class="media-btn-github" title="View GitHub Repository">
+                <span>↗ View GitHub Repository</span>
+              </a>
+              <button type="button" class="media-btn-close card-specs-btn" data-open-project="modular-arduino-esp32">View Specs &amp; Details ↗</button>
+            </div>
+          </div>
         </article>
 
         <!-- 9. Custom Websites & Web Applications -->
         <article class="project-card project-showcase-card project-card-interactive" data-project-category="web" data-project-id="custom-websites">
-          <div class="project-card-meta">
-            <h4 class="project-category-tag">Web Development</h4>
-            <div class="project-status-badges">
-              <span class="role-badge role-badge-personal">Personally Developed</span>
-              <span class="project-status-pill">Completed &amp; Maintained</span>
+          <!-- Header Row -->
+          <div class="card-showcase-header">
+            <span class="card-showcase-kicker">09 / AUTHENTIC MEDIA &amp; DEMONSTRATION</span>
+            <div class="media-capsule-switcher card-capsule-switcher" role="tablist">
+              <button type="button" class="capsule-tab-btn active card-tab-btn" data-card-tab="diagram" data-target-card="custom-websites" role="tab" aria-selected="true">Code Architecture</button>
+              <button type="button" class="capsule-tab-btn card-tab-btn" data-card-tab="video" data-target-card="custom-websites" role="tab" aria-selected="false">Live Web Output</button>
             </div>
           </div>
+
           <h3 class="project-title">Custom Business Websites &amp; Web Applications</h3>
           <p class="project-desc">Standards-compliant frontend codebases engineered for speed, cross-device responsiveness, structured SEO, and dependable performance.</p>
-          <div class="project-visual visual-web" aria-label="Web code interface visual">
-            <span class="visual-caption">RESPONSIVE CODE ARCHITECTURE</span>
-            <div class="code-window"><div><b></b><b></b><b></b><span>app.js</span></div><pre><i>&lt;main</i> class=<em>"production-web"</em><i>&gt;</i>
+
+          <!-- Media Viewer Container -->
+          <div class="card-media-viewer" id="card-viewer-custom-websites">
+            <button type="button" class="media-expand-badge card-expand-btn" data-open-project="custom-websites" title="Expand Full Diagram">
+              <span>Click to Expand ↗</span>
+            </button>
+            <div class="card-tab-pane card-pane-diagram" id="card-pane-diagram-custom-websites">
+              <div class="project-visual visual-web" aria-label="Web code interface visual">
+                <span class="visual-caption">RESPONSIVE CODE ARCHITECTURE</span>
+                <div class="code-window"><div><b></b><b></b><b></b><span>app.js</span></div><pre><i>&lt;main</i> class=<em>"production-web"</em><i>&gt;</i>
   <i>&lt;section&gt;</i>Clean Architecture<i>&lt;/section&gt;</i>
   <strong>performant · responsive · accessible</strong></pre></div>
+              </div>
+            </div>
+            <div class="card-tab-pane card-pane-video" id="card-pane-video-custom-websites" style="display: none;">
+              <div class="card-interactive-demo-panel">
+                <div class="card-demo-status-pill"><span class="card-demo-pulse-dot"></span><span>LIGHTHOUSE AUDIT: 100/100</span></div>
+                <div class="card-demo-readout-row">
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Performance</span><span class="card-demo-metric-val" style="color: #4ade80;">99 / 100</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Accessibility</span><span class="card-demo-metric-val" style="color: #4ade80;">100 / 100</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">SEO Audit</span><span class="card-demo-metric-val" style="color: #4ade80;">100 / 100</span></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="project-tags"><span>HTML5</span><span>CSS3</span><span>JavaScript (ES6+)</span><span>Responsive UI</span></div>
-          <button type="button" class="project-view-specs-btn" data-open-project="custom-websites"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
+
+          <!-- Footer & Action Row -->
+          <div class="card-showcase-footer">
+            <div class="media-system-architecture">System Architecture: HTML5 + CSS3 + ES6+ JavaScript + Responsive Grid Engine</div>
+            <div class="media-actions-row">
+              <a href="https://github.com/Imran-khan009" target="_blank" rel="noopener noreferrer" class="media-btn-github" title="View GitHub Repository">
+                <span>↗ View GitHub Repository</span>
+              </a>
+              <button type="button" class="media-btn-close card-specs-btn" data-open-project="custom-websites">View Specs &amp; Details ↗</button>
+            </div>
+          </div>
         </article>
 
         <!-- 10. Personal & Professional Portfolio Websites -->
         <article class="project-card project-showcase-card project-card-interactive" data-project-category="web" data-project-id="portfolio-website">
-          <div class="project-card-meta">
-            <h4 class="project-category-tag">Web Development</h4>
-            <div class="project-status-badges">
-              <span class="role-badge role-badge-personal">Personally Developed</span>
-              <span class="project-status-pill">Live &amp; Deployed</span>
+          <!-- Header Row -->
+          <div class="card-showcase-header">
+            <span class="card-showcase-kicker">10 / AUTHENTIC MEDIA &amp; DEMONSTRATION</span>
+            <div class="media-capsule-switcher card-capsule-switcher" role="tablist">
+              <button type="button" class="capsule-tab-btn active card-tab-btn" data-card-tab="diagram" data-target-card="portfolio-website" role="tab" aria-selected="true">Engine Pipeline</button>
+              <button type="button" class="capsule-tab-btn card-tab-btn" data-card-tab="video" data-target-card="portfolio-website" role="tab" aria-selected="false">Canvas 2D Stream</button>
             </div>
           </div>
+
           <h3 class="project-title">Interactive Motion Portfolio Platform</h3>
           <p class="project-desc">Scroll-driven 240-frame motion portrait platform built with raw HTML5 Canvas 2D, zero layout jitter, and print-ready resume integration.</p>
-          <div class="project-visual" aria-label="240-frame scrub engine diagram">
-            <span class="visual-caption">240-FRAME CANVAS SCRUB ENGINE</span>
-            <div class="flow-diagram"><span>RAF<br>LOOP</span><i></i><span>CANVAS<br>2D</span><i></i><span>LERP<br>GLIDE</span></div>
-            <div class="visual-readout">FPS <b>60/120</b><span>·</span> PIPELINE <b>STREAMED WEBP</b></div>
+
+          <!-- Media Viewer Container -->
+          <div class="card-media-viewer" id="card-viewer-portfolio-website">
+            <button type="button" class="media-expand-badge card-expand-btn" data-open-project="portfolio-website" title="Expand Full Diagram">
+              <span>Click to Expand ↗</span>
+            </button>
+            <div class="card-tab-pane card-pane-diagram" id="card-pane-diagram-portfolio-website">
+              <div class="project-visual" aria-label="240-frame scrub engine diagram">
+                <span class="visual-caption">240-FRAME CANVAS SCRUB ENGINE</span>
+                <div class="flow-diagram"><span>RAF<br>LOOP</span><i></i><span>CANVAS<br>2D</span><i></i><span>LERP<br>GLIDE</span></div>
+                <div class="visual-readout">FPS <b>60/120</b><span>·</span> PIPELINE <b>STREAMED WEBP</b></div>
+              </div>
+            </div>
+            <div class="card-tab-pane card-pane-video" id="card-pane-video-portfolio-website" style="display: none;">
+              <div class="card-interactive-demo-panel">
+                <div class="card-demo-status-pill"><span class="card-demo-pulse-dot"></span><span>RENDER LOOP: 60 FPS GLIDE</span></div>
+                <div class="card-demo-readout-row">
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Active Buffer</span><span class="card-demo-metric-val">240 Frames</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Memory Footprint</span><span class="card-demo-metric-val" style="color: #4ade80;">&lt; 35 MB</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Scrub Latency</span><span class="card-demo-metric-val">0 ms Instant</span></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="project-tags"><span>Vite</span><span>HTML5 Canvas</span><span>CSS Glassmorphism</span><span>Netlify / CI/CD</span></div>
-          <button type="button" class="project-view-specs-btn" data-open-project="portfolio-website"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
+
+          <!-- Footer & Action Row -->
+          <div class="card-showcase-footer">
+            <div class="media-system-architecture">System Architecture: Vite + HTML5 Canvas 2D + 240 WebP Stream + CI/CD</div>
+            <div class="media-actions-row">
+              <a href="https://github.com/Imran-khan009" target="_blank" rel="noopener noreferrer" class="media-btn-github" title="View GitHub Repository">
+                <span>↗ View GitHub Repository</span>
+              </a>
+              <button type="button" class="media-btn-close card-specs-btn" data-open-project="portfolio-website">View Specs &amp; Details ↗</button>
+            </div>
+          </div>
         </article>
 
         <!-- 11. Other Verified Website Projects -->
         <article class="project-card project-showcase-card project-card-interactive" data-project-category="web" data-project-id="verified-web-projects">
-          <div class="project-card-meta">
-            <h4 class="project-category-tag">Web Development</h4>
-            <div class="project-status-badges">
-              <span class="role-badge role-badge-personal">Personally Developed</span>
-              <span class="project-status-pill">Completed</span>
+          <!-- Header Row -->
+          <div class="card-showcase-header">
+            <span class="card-showcase-kicker">11 / AUTHENTIC MEDIA &amp; DEMONSTRATION</span>
+            <div class="media-capsule-switcher card-capsule-switcher" role="tablist">
+              <button type="button" class="capsule-tab-btn active card-tab-btn" data-card-tab="diagram" data-target-card="verified-web-projects" role="tab" aria-selected="true">DOM Architecture</button>
+              <button type="button" class="capsule-tab-btn card-tab-btn" data-card-tab="video" data-target-card="verified-web-projects" role="tab" aria-selected="false">Performance Spec</button>
             </div>
           </div>
+
           <h3 class="project-title">Tailored Landing Pages &amp; Business Presence</h3>
           <p class="project-desc">Focused landing pages and institutional web presences structured for clear hierarchy, quick contact action, and fast mobile loading.</p>
-          <div class="project-visual" aria-label="Digital landing pages and profiles diagram">
-            <span class="visual-caption">DIGITAL LANDING PAGES &amp; PROFILES</span>
-            <div class="flow-diagram"><span>LAYOUT</span><i></i><span>ACCESSIBLE<br>DOM</span><i></i><span>FAST<br>PAINT</span></div>
-            <div class="visual-readout">LCP <b>&lt; 2.0 S</b><span>·</span> ACCESSIBILITY <b>100%</b></div>
+
+          <!-- Media Viewer Container -->
+          <div class="card-media-viewer" id="card-viewer-verified-web-projects">
+            <button type="button" class="media-expand-badge card-expand-btn" data-open-project="verified-web-projects" title="Expand Full Diagram">
+              <span>Click to Expand ↗</span>
+            </button>
+            <div class="card-tab-pane card-pane-diagram" id="card-pane-diagram-verified-web-projects">
+              <div class="project-visual" aria-label="Digital landing pages and profiles diagram">
+                <span class="visual-caption">DIGITAL LANDING PAGES &amp; PROFILES</span>
+                <div class="flow-diagram"><span>LAYOUT</span><i></i><span>ACCESSIBLE<br>DOM</span><i></i><span>FAST<br>PAINT</span></div>
+                <div class="visual-readout">LCP <b>&lt; 2.0 S</b><span>·</span> ACCESSIBILITY <b>100%</b></div>
+              </div>
+            </div>
+            <div class="card-tab-pane card-pane-video" id="card-pane-video-verified-web-projects" style="display: none;">
+              <div class="card-interactive-demo-panel">
+                <div class="card-demo-status-pill"><span class="card-demo-pulse-dot"></span><span>FAST-LOAD CORE WEB VITALS</span></div>
+                <div class="card-demo-readout-row">
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">LCP Paint</span><span class="card-demo-metric-val" style="color: #4ade80;">1.4s Fast</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">CLS Shift</span><span class="card-demo-metric-val">0.00 Zero</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">FID Response</span><span class="card-demo-metric-val">&lt; 15ms</span></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="project-tags"><span>Web Standards</span><span>Mobile Optimization</span><span>Contact Integration</span></div>
-          <button type="button" class="project-view-specs-btn" data-open-project="verified-web-projects"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
+
+          <!-- Footer & Action Row -->
+          <div class="card-showcase-footer">
+            <div class="media-system-architecture">System Architecture: Semantic Layout + Accessible DOM + High-Performance Web Core</div>
+            <div class="media-actions-row">
+              <a href="https://github.com/Imran-khan009" target="_blank" rel="noopener noreferrer" class="media-btn-github" title="View GitHub Repository">
+                <span>↗ View GitHub Repository</span>
+              </a>
+              <button type="button" class="media-btn-close card-specs-btn" data-open-project="verified-web-projects">View Specs &amp; Details ↗</button>
+            </div>
+          </div>
         </article>
 
         <!-- 12. CV & Resume Design -->
         <article class="project-card project-showcase-card project-card-interactive" data-project-category="creative" data-project-id="resume-design">
-          <div class="project-card-meta">
-            <h4 class="project-category-tag">Creative &amp; Digital Services</h4>
-            <div class="project-status-badges">
-              <span class="role-badge role-badge-personal">Personally Developed</span>
-              <span class="project-status-pill">Professional Service</span>
+          <!-- Header Row -->
+          <div class="card-showcase-header">
+            <span class="card-showcase-kicker">12 / AUTHENTIC MEDIA &amp; DEMONSTRATION</span>
+            <div class="media-capsule-switcher card-capsule-switcher" role="tablist">
+              <button type="button" class="capsule-tab-btn active card-tab-btn" data-card-tab="diagram" data-target-card="resume-design" role="tab" aria-selected="true">Vector System</button>
+              <button type="button" class="capsule-tab-btn card-tab-btn" data-card-tab="video" data-target-card="resume-design" role="tab" aria-selected="false">Print Preview</button>
             </div>
           </div>
+
           <h3 class="project-title">Professional CV &amp; Resume Editorial Design</h3>
           <p class="project-desc">Structured, scannable curriculum vitae architectures crafted with precise typographic pairing, ATS compliance, and print-to-PDF formatting.</p>
-          <div class="project-visual" aria-label="Editorial layout and ATS hierarchy diagram">
-            <span class="visual-caption">EDITORIAL LAYOUT &amp; ATS HIERARCHY</span>
-            <div class="flow-diagram"><span>GRID<br>SYSTEM</span><i></i><span>TYPO<br>PAIRING</span><i></i><span>PRINT<br>VECTOR</span></div>
-            <div class="visual-readout">STANDARD <b>ATS READY</b><span>·</span> EXPORT <b>VECTOR PDF</b></div>
+
+          <!-- Media Viewer Container -->
+          <div class="card-media-viewer" id="card-viewer-resume-design">
+            <button type="button" class="media-expand-badge card-expand-btn" data-open-project="resume-design" title="Expand Full Diagram">
+              <span>Click to Expand ↗</span>
+            </button>
+            <div class="card-tab-pane card-pane-diagram" id="card-pane-diagram-resume-design">
+              <div class="project-visual" aria-label="Editorial layout and ATS hierarchy diagram">
+                <span class="visual-caption">EDITORIAL LAYOUT &amp; ATS HIERARCHY</span>
+                <div class="flow-diagram"><span>GRID<br>SYSTEM</span><i></i><span>TYPO<br>PAIRING</span><i></i><span>PRINT<br>VECTOR</span></div>
+                <div class="visual-readout">STANDARD <b>ATS READY</b><span>·</span> EXPORT <b>VECTOR PDF</b></div>
+              </div>
+            </div>
+            <div class="card-tab-pane card-pane-video" id="card-pane-video-resume-design" style="display: none;">
+              <div class="card-interactive-demo-panel">
+                <div class="card-demo-status-pill"><span class="card-demo-pulse-dot"></span><span>VECTOR PDF PRINT METRICS</span></div>
+                <div class="card-demo-readout-row">
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Resolution</span><span class="card-demo-metric-val">300 DPI CMYK</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">ATS Compliance</span><span class="card-demo-metric-val" style="color: #4ade80;">100% Pass</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Typo Hierarchy</span><span class="card-demo-metric-val">Outfit / Mono</span></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="project-tags"><span>Adobe Illustrator</span><span>Typography</span><span>ATS Structure</span><span>Vector PDF</span></div>
-          <button type="button" class="project-view-specs-btn" data-open-project="resume-design"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
+
+          <!-- Footer & Action Row -->
+          <div class="card-showcase-footer">
+            <div class="media-system-architecture">System Architecture: Adobe Illustrator + Typography System + ATS Hierarchy + PDF</div>
+            <div class="media-actions-row">
+              <a href="https://github.com/Imran-khan009" target="_blank" rel="noopener noreferrer" class="media-btn-github" title="View GitHub Repository">
+                <span>↗ View GitHub Repository</span>
+              </a>
+              <button type="button" class="media-btn-close card-specs-btn" data-open-project="resume-design">View Specs &amp; Details ↗</button>
+            </div>
+          </div>
         </article>
 
         <!-- 13. Graphic Design & Brand Identity -->
         <article class="project-card project-showcase-card project-card-interactive" data-project-category="creative" data-project-id="graphic-design">
-          <div class="project-card-meta">
-            <h4 class="project-category-tag">Creative &amp; Digital Services</h4>
-            <div class="project-status-badges">
-              <span class="role-badge role-badge-personal">Personally Developed</span>
-              <span class="project-status-pill">NFTP / Radius Certified</span>
+          <!-- Header Row -->
+          <div class="card-showcase-header">
+            <span class="card-showcase-kicker">13 / AUTHENTIC MEDIA &amp; DEMONSTRATION</span>
+            <div class="media-capsule-switcher card-capsule-switcher" role="tablist">
+              <button type="button" class="capsule-tab-btn active card-tab-btn" data-card-tab="diagram" data-target-card="graphic-design" role="tab" aria-selected="true">Brand System</button>
+              <button type="button" class="capsule-tab-btn card-tab-btn" data-card-tab="video" data-target-card="graphic-design" role="tab" aria-selected="false">Asset Palette</button>
             </div>
           </div>
+
           <h3 class="project-title">Graphic Design &amp; Brand Identity Systems</h3>
           <p class="project-desc">Commercial logo design, color guidelines, social media visual packs, and promotional graphics developed via certified training.</p>
-          <div class="project-visual visual-brand" aria-label="Brand campaign visual">
-            <span class="visual-caption">VISUAL IDENTITY &amp; DESIGN SYSTEM</span>
-            <div class="brand-board"><span class="brand-stamp">IK</span><div><b>IDENTITY<br>&amp; BRAND.</b><small>NFTP / RADIUS</small></div><span class="brand-shape"></span></div>
-            <div class="visual-readout">VECTOR <b>LOGOS</b><span>·</span> ASSETS <b>MARKETING</b></div>
+
+          <!-- Media Viewer Container -->
+          <div class="card-media-viewer" id="card-viewer-graphic-design">
+            <button type="button" class="media-expand-badge card-expand-btn" data-open-project="graphic-design" title="Expand Full Diagram">
+              <span>Click to Expand ↗</span>
+            </button>
+            <div class="card-tab-pane card-pane-diagram" id="card-pane-diagram-graphic-design">
+              <div class="project-visual visual-brand" aria-label="Brand campaign visual">
+                <span class="visual-caption">VISUAL IDENTITY &amp; DESIGN SYSTEM</span>
+                <div class="brand-board"><span class="brand-stamp">IK</span><div><b>IDENTITY<br>&amp; BRAND.</b><small>NFTP / RADIUS</small></div><span class="brand-shape"></span></div>
+                <div class="visual-readout">VECTOR <b>LOGOS</b><span>·</span> ASSETS <b>MARKETING</b></div>
+              </div>
+            </div>
+            <div class="card-tab-pane card-pane-video" id="card-pane-video-graphic-design" style="display: none;">
+              <div class="card-interactive-demo-panel">
+                <div class="card-demo-status-pill"><span class="card-demo-pulse-dot"></span><span>BRAND IDENTITY SYSTEM</span></div>
+                <div class="card-demo-readout-row">
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Primary Color</span><span class="card-demo-metric-val" style="color: #FF6A3D;">#FF6A3D Orange</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Dark Neutral</span><span class="card-demo-metric-val">#151821 Deep</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Format Types</span><span class="card-demo-metric-val">SVG / AI / PNG</span></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="project-tags"><span>Adobe Photoshop</span><span>Adobe Illustrator</span><span>Brand Identity</span><span>Vector Art</span></div>
-          <button type="button" class="project-view-specs-btn" data-open-project="graphic-design"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
+
+          <!-- Footer & Action Row -->
+          <div class="card-showcase-footer">
+            <div class="media-system-architecture">System Architecture: Adobe Photoshop + Illustrator + Brand Identity System</div>
+            <div class="media-actions-row">
+              <a href="https://github.com/Imran-khan009" target="_blank" rel="noopener noreferrer" class="media-btn-github" title="View GitHub Repository">
+                <span>↗ View GitHub Repository</span>
+              </a>
+              <button type="button" class="media-btn-close card-specs-btn" data-open-project="graphic-design">View Specs &amp; Details ↗</button>
+            </div>
+          </div>
         </article>
 
         <!-- 14. Video Editing & Social Content -->
         <article class="project-card project-showcase-card project-card-interactive" data-project-category="creative" data-project-id="video-editing">
-          <div class="project-card-meta">
-            <h4 class="project-category-tag">Creative &amp; Digital Services</h4>
-            <div class="project-status-badges">
-              <span class="role-badge role-badge-personal">Personally Developed</span>
-              <span class="project-status-pill">Client &amp; Education</span>
+          <!-- Header Row -->
+          <div class="card-showcase-header">
+            <span class="card-showcase-kicker">14 / AUTHENTIC MEDIA &amp; DEMONSTRATION</span>
+            <div class="media-capsule-switcher card-capsule-switcher" role="tablist">
+              <button type="button" class="capsule-tab-btn active card-tab-btn" data-card-tab="diagram" data-target-card="video-editing" role="tab" aria-selected="true">Timeline Cuts</button>
+              <button type="button" class="capsule-tab-btn card-tab-btn" data-card-tab="video" data-target-card="video-editing" role="tab" aria-selected="false">Reels Output</button>
             </div>
           </div>
+
           <h3 class="project-title">Video Editing &amp; Short-Form Social Content</h3>
           <p class="project-desc">Instructional hardware walkthroughs, promotional brand reels, and educational video content formatted for high audience retention.</p>
-          <div class="project-visual" aria-label="Post-production and motion pacing diagram">
-            <span class="visual-caption">POST-PRODUCTION &amp; MOTION PACING</span>
-            <div class="flow-diagram"><span>TIMELINE<br>CUTS</span><i></i><span>AUDIO<br>SYNC</span><i></i><span>MOTION<br>REEL</span></div>
-            <div class="visual-readout">FORMAT <b>REELS / SHORTS</b><span>·</span> PACING <b>HIGH ENGAGEMENT</b></div>
+
+          <!-- Media Viewer Container -->
+          <div class="card-media-viewer" id="card-viewer-video-editing">
+            <button type="button" class="media-expand-badge card-expand-btn" data-open-project="video-editing" title="Expand Full Diagram">
+              <span>Click to Expand ↗</span>
+            </button>
+            <div class="card-tab-pane card-pane-diagram" id="card-pane-diagram-video-editing">
+              <div class="project-visual" aria-label="Post-production and motion pacing diagram">
+                <span class="visual-caption">POST-PRODUCTION &amp; MOTION PACING</span>
+                <div class="flow-diagram"><span>TIMELINE<br>CUTS</span><i></i><span>AUDIO<br>SYNC</span><i></i><span>MOTION<br>REEL</span></div>
+                <div class="visual-readout">FORMAT <b>REELS / SHORTS</b><span>·</span> PACING <b>HIGH ENGAGEMENT</b></div>
+              </div>
+            </div>
+            <div class="card-tab-pane card-pane-video" id="card-pane-video-video-editing" style="display: none;">
+              <div class="card-interactive-demo-panel">
+                <div class="card-demo-status-pill"><span class="card-demo-pulse-dot"></span><span>9:16 VERTICAL MOTION REEL</span></div>
+                <div class="card-demo-readout-row">
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Frame Rate</span><span class="card-demo-metric-val">60 FPS 1080p</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Audio Normal</span><span class="card-demo-metric-val" style="color: #4ade80;">-14 LUFS Clean</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Retention Curve</span><span class="card-demo-metric-val">&gt; 78% Avg</span></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="project-tags"><span>Video Post-Production</span><span>Audio Sync</span><span>Motion Transitions</span><span>Reels</span></div>
-          <button type="button" class="project-view-specs-btn" data-open-project="video-editing"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
+
+          <!-- Footer & Action Row -->
+          <div class="card-showcase-footer">
+            <div class="media-system-architecture">System Architecture: Timeline Cuts + Multi-Track Audio Sync + Motion Title Pacing</div>
+            <div class="media-actions-row">
+              <a href="https://github.com/Imran-khan009" target="_blank" rel="noopener noreferrer" class="media-btn-github" title="View GitHub Repository">
+                <span>↗ View GitHub Repository</span>
+              </a>
+              <button type="button" class="media-btn-close card-specs-btn" data-open-project="video-editing">View Specs &amp; Details ↗</button>
+            </div>
+          </div>
         </article>
 
         <!-- 15. Digital Marketing & Performance Campaigns -->
         <article class="project-card project-showcase-card project-card-interactive" data-project-category="creative" data-project-id="digital-marketing">
-          <div class="project-card-meta">
-            <h4 class="project-category-tag">Creative &amp; Digital Services</h4>
-            <div class="project-status-badges">
-              <span class="role-badge role-badge-personal">Personally Developed</span>
-              <span class="project-status-pill">Radius Group Certified</span>
+          <!-- Header Row -->
+          <div class="card-showcase-header">
+            <span class="card-showcase-kicker">15 / AUTHENTIC MEDIA &amp; DEMONSTRATION</span>
+            <div class="media-capsule-switcher card-capsule-switcher" role="tablist">
+              <button type="button" class="capsule-tab-btn active card-tab-btn" data-card-tab="diagram" data-target-card="digital-marketing" role="tab" aria-selected="true">Funnel Strategy</button>
+              <button type="button" class="capsule-tab-btn card-tab-btn" data-card-tab="video" data-target-card="digital-marketing" role="tab" aria-selected="false">Metrics Telemetry</button>
             </div>
           </div>
+
           <h3 class="project-title">Digital Marketing &amp; Meta Ads Campaigns</h3>
           <p class="project-desc">Data-backed advertising campaigns, ad copy testing, audience segmentation, and performance tracking across Facebook, Instagram, and search.</p>
-          <div class="project-visual" aria-label="Targeted growth and ad funnels diagram">
-            <span class="visual-caption">TARGETED GROWTH &amp; AD FUNNELS</span>
-            <div class="flow-diagram"><span>AUDIENCE<br>RESEARCH</span><i></i><span>CREATIVE<br>TESTING</span><i></i><span>CONVERSION<br>FUNNEL</span></div>
-            <div class="visual-readout">PLATFORMS <b>META &amp; GOOGLE</b><span>·</span> METRICS <b>ROAS &amp; CTR</b></div>
+
+          <!-- Media Viewer Container -->
+          <div class="card-media-viewer" id="card-viewer-digital-marketing">
+            <button type="button" class="media-expand-badge card-expand-btn" data-open-project="digital-marketing" title="Expand Full Diagram">
+              <span>Click to Expand ↗</span>
+            </button>
+            <div class="card-tab-pane card-pane-diagram" id="card-pane-diagram-digital-marketing">
+              <div class="project-visual" aria-label="Targeted growth and ad funnels diagram">
+                <span class="visual-caption">TARGETED GROWTH &amp; AD FUNNELS</span>
+                <div class="flow-diagram"><span>AUDIENCE<br>RESEARCH</span><i></i><span>CREATIVE<br>TESTING</span><i></i><span>CONVERSION<br>FUNNEL</span></div>
+                <div class="visual-readout">PLATFORMS <b>META &amp; GOOGLE</b><span>·</span> METRICS <b>ROAS &amp; CTR</b></div>
+              </div>
+            </div>
+            <div class="card-tab-pane card-pane-video" id="card-pane-video-digital-marketing" style="display: none;">
+              <div class="card-interactive-demo-panel">
+                <div class="card-demo-status-pill"><span class="card-demo-pulse-dot"></span><span>META &amp; GOOGLE ADS TELEMETRY</span></div>
+                <div class="card-demo-readout-row">
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Click Rate CTR</span><span class="card-demo-metric-val" style="color: #4ade80;">4.85% High</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Average ROAS</span><span class="card-demo-metric-val">3.8x Return</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Cost / Lead</span><span class="card-demo-metric-val">-35% Optimized</span></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="project-tags"><span>Meta Ads Manager</span><span>Google Search</span><span>Audience Segmentation</span><span>Analytics</span></div>
-          <button type="button" class="project-view-specs-btn" data-open-project="digital-marketing"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
+
+          <!-- Footer & Action Row -->
+          <div class="card-showcase-footer">
+            <div class="media-system-architecture">System Architecture: Audience Research + Creative A/B Testing + Conversion Funnel</div>
+            <div class="media-actions-row">
+              <a href="https://github.com/Imran-khan009" target="_blank" rel="noopener noreferrer" class="media-btn-github" title="View GitHub Repository">
+                <span>↗ View GitHub Repository</span>
+              </a>
+              <button type="button" class="media-btn-close card-specs-btn" data-open-project="digital-marketing">View Specs &amp; Details ↗</button>
+            </div>
+          </div>
         </article>
 
         <!-- 16. E-Commerce Solutions -->
         <article class="project-card project-showcase-card project-card-interactive" data-project-category="creative" data-project-id="ecommerce-projects">
-          <div class="project-card-meta">
-            <h4 class="project-category-tag">Creative &amp; Digital Services</h4>
-            <div class="project-status-badges">
-              <span class="role-badge role-badge-personal">Personally Developed</span>
-              <span class="project-status-pill">Commercial Setup</span>
+          <!-- Header Row -->
+          <div class="card-showcase-header">
+            <span class="card-showcase-kicker">16 / AUTHENTIC MEDIA &amp; DEMONSTRATION</span>
+            <div class="media-capsule-switcher card-capsule-switcher" role="tablist">
+              <button type="button" class="capsule-tab-btn active card-tab-btn" data-card-tab="diagram" data-target-card="ecommerce-projects" role="tab" aria-selected="true">Catalog Flow</button>
+              <button type="button" class="capsule-tab-btn card-tab-btn" data-card-tab="video" data-target-card="ecommerce-projects" role="tab" aria-selected="false">Order Stream</button>
             </div>
           </div>
+
           <h3 class="project-title">E-Commerce Storefronts &amp; Order Flows</h3>
           <p class="project-desc">Accessible digital catalog architectures with frictionless WhatsApp checkout integration and mobile-optimized product display.</p>
-          <div class="project-visual" aria-label="Digital commerce and checkout flows diagram">
-            <span class="visual-caption">DIGITAL COMMERCE &amp; CHECKOUT FLOWS</span>
-            <div class="flow-diagram"><span>CATALOG<br>GRID</span><i></i><span>PRODUCT<br>PAGE</span><i></i><span>DIRECT<br>ORDER</span></div>
-            <div class="visual-readout">ORDER FLOW <b>WHATSAPP / DIRECT</b><span>·</span> INTEGRATION <b>MOBILE FIRST</b></div>
+
+          <!-- Media Viewer Container -->
+          <div class="card-media-viewer" id="card-viewer-ecommerce-projects">
+            <button type="button" class="media-expand-badge card-expand-btn" data-open-project="ecommerce-projects" title="Expand Full Diagram">
+              <span>Click to Expand ↗</span>
+            </button>
+            <div class="card-tab-pane card-pane-diagram" id="card-pane-diagram-ecommerce-projects">
+              <div class="project-visual" aria-label="Digital commerce and checkout flows diagram">
+                <span class="visual-caption">DIGITAL COMMERCE &amp; CHECKOUT FLOWS</span>
+                <div class="flow-diagram"><span>CATALOG<br>GRID</span><i></i><span>PRODUCT<br>PAGE</span><i></i><span>DIRECT<br>ORDER</span></div>
+                <div class="visual-readout">ORDER FLOW <b>WHATSAPP / DIRECT</b><span>·</span> INTEGRATION <b>MOBILE FIRST</b></div>
+              </div>
+            </div>
+            <div class="card-tab-pane card-pane-video" id="card-pane-video-ecommerce-projects" style="display: none;">
+              <div class="card-interactive-demo-panel">
+                <div class="card-demo-status-pill"><span class="card-demo-pulse-dot"></span><span>WHATSAPP ORDER DISPATCH</span></div>
+                <div class="card-demo-readout-row">
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Cart To Order</span><span class="card-demo-metric-val" style="color: #4ade80;">1-Click Instant</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Payload Format</span><span class="card-demo-metric-val">URI Encoded SKU</span></div>
+                  <div class="card-demo-metric"><span class="card-demo-metric-label">Payment Mode</span><span class="card-demo-metric-val">COD / Bank Wire</span></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="project-tags"><span>Product Architecture</span><span>WhatsApp Ordering</span><span>Responsive Store</span></div>
-          <button type="button" class="project-view-specs-btn" data-open-project="ecommerce-projects"><span>View Specs &amp; Details</span><span aria-hidden="true">↗</span></button>
+
+          <!-- Footer & Action Row -->
+          <div class="card-showcase-footer">
+            <div class="media-system-architecture">System Architecture: Product Catalog Grid + WhatsApp Checkout + Mobile-First Flow</div>
+            <div class="media-actions-row">
+              <a href="https://github.com/Imran-khan009" target="_blank" rel="noopener noreferrer" class="media-btn-github" title="View GitHub Repository">
+                <span>↗ View GitHub Repository</span>
+              </a>
+              <button type="button" class="media-btn-close card-specs-btn" data-open-project="ecommerce-projects">View Specs &amp; Details ↗</button>
+            </div>
+          </div>
         </article>
       </div>
 
@@ -1287,25 +1739,54 @@
           <p class="detail-block-text" id="modal-project-role"></p>
         </div>
 
-        <div class="detail-block">
-          <span class="detail-block-title">04 / Authentic Media &amp; Demonstration Slot</span>
-          <div class="detail-media-container" id="modal-media-slot">
-            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.8" class="media-box-icon">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-              <circle cx="8.5" cy="8.5" r="1.5"></circle>
-              <polyline points="21 15 16 10 5 21"></polyline>
-            </svg>
-            <span class="media-placeholder-tag" id="modal-media-filename">assets/projects/smart-irrigation.webp</span>
-            <p class="media-placeholder-info" id="modal-media-info">Authentic project photo / circuit diagram / video walkthrough slot. Recommended size: 800×600px. Upload real hardware photography or demo video.</p>
+        <!-- 04 / Authentic Media & Demonstration Card -->
+        <div class="media-showcase-card" id="modal-media-showcase-card">
+          <!-- Header Row -->
+          <div class="media-showcase-header">
+            <span class="media-showcase-title">04 / AUTHENTIC MEDIA &amp; DEMONSTRATION</span>
+            <div class="media-capsule-switcher" id="modal-capsule-switcher" role="tablist">
+              <button type="button" class="capsule-tab-btn active" id="modal-tab-diagram" data-tab="diagram" role="tab" aria-selected="true">Circuit Diagram</button>
+              <button type="button" class="capsule-tab-btn" id="modal-tab-video" data-tab="video" role="tab" aria-selected="false">Live Video Demo</button>
+            </div>
           </div>
-        </div>
 
-        <div class="detail-actions-row">
-          <a href="https://github.com/Imran-khan009" target="_blank" rel="noopener noreferrer" class="project-view-specs-btn" id="modal-github-link">
-            <span>Explore on GitHub Profile</span>
-            <span aria-hidden="true">↗</span>
-          </a>
-          <button type="button" class="btn-secondary" id="modal-dismiss-btn" style="padding: 7px 18px; font-size: 0.8rem;">Close Details</button>
+          <!-- Media Viewer Container -->
+          <div class="media-viewer-display" id="modal-viewer-display">
+            <a href="assets/water-management-circuit.png" target="_blank" rel="noopener noreferrer" class="media-expand-badge" id="modal-expand-badge" title="Open full diagram in new tab">
+              <span>Click to Expand ↗</span>
+            </a>
+            <div class="media-tab-pane" id="modal-pane-diagram">
+              <img src="assets/water-management-circuit.png" alt="Circuit Schematic" class="media-showcase-img" id="modal-diagram-showcase-img" loading="lazy">
+            </div>
+            <div class="media-tab-pane" id="modal-pane-video" style="display: none;">
+              <div class="media-video-wrap">
+                <video class="media-showcase-video" id="modal-video-player" controls preload="metadata" playsinline poster="assets/water-management-circuit.png">
+                  <source src="assets/water-management-video.mp4" type="video/mp4">
+                  Your browser does not support HTML5 video playback.
+                </video>
+              </div>
+            </div>
+            <div class="media-placeholder-view" id="modal-pane-placeholder" style="display: none;">
+              <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.8" class="media-box-icon">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+              <span class="media-placeholder-tag" id="modal-media-filename">assets/projects/smart-irrigation.webp</span>
+              <p class="media-placeholder-info" id="modal-media-info">Authentic project photo / circuit diagram / video walkthrough slot. Recommended size: 800×600px.</p>
+            </div>
+          </div>
+
+          <!-- Footer & Action Row -->
+          <div class="media-showcase-footer">
+            <div class="media-system-architecture" id="modal-system-architecture">System Architecture: ESP32/Arduino + Ultrasonic Sensor + 5V Relay + Pump</div>
+            <div class="media-actions-row">
+              <a href="https://github.com/Imran-khan009/arduino-ultrasonic-water-control-system" target="_blank" rel="noopener noreferrer" class="media-btn-github" id="modal-github-link">
+                <span>↗ View GitHub Repository</span>
+              </a>
+              <button type="button" class="media-btn-close" id="modal-dismiss-btn">Close</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -16,7 +16,9 @@
   // --- Configuration ---
   const TOTAL_FRAMES = 240;
   const FRAME_DIR = './frames';
-  const LERP_FACTOR = 0.55; // Fluid, responsive 60/120fps tracking without lag or abrupt snapping
+  const isMobileClient = typeof window !== 'undefined' && window.innerWidth <= 768;
+  // Silky-smooth kinetic gliding matching mobile 60/120fps touch momentum
+  const LERP_FACTOR = 0.28;
 
   // --- DOM Elements ---
   const canvas = document.getElementById('animation-canvas');
@@ -65,8 +67,8 @@
 
   const loadQueue = []; // Unique queued frame indices
   const isMobileInitial = typeof window !== 'undefined' && window.innerWidth <= 768;
-  const MAX_CONCURRENT = isMobileInitial ? 6 : 8; // Optimal HTTP multiplexing without connection starvation
-  const MAX_CACHED_FRAMES = isMobileInitial ? 65 : 120; // Bounded memory budget (~230MB - ~420MB uncompressed RGBA)
+  const MAX_CONCURRENT = isMobileInitial ? 8 : 12; // Fast parallel multiplexing
+  const MAX_CACHED_FRAMES = TOTAL_FRAMES; // Keep all 240 frames permanently in memory for 0ms lag-free recall
 
   let activeDownloads = 0;
   let loadedCount = 0;
@@ -91,43 +93,11 @@
     return `${FRAME_DIR}/frame_${padded}.jpg`;
   }
 
-  // Manage memory footprint: evict farthest off-screen frames when cache limit is exceeded
   function evictFarthestFrames() {
-    let readyCount = 0;
-    for (let i = 0; i < TOTAL_FRAMES; i++) {
-      if (frameStatus[i] === STATUS.READY) readyCount++;
-    }
-    if (readyCount <= MAX_CACHED_FRAMES) return;
-
-    const center = Math.round(currentFrame);
-    // Find candidate frames to evict (never evict frame 0 or frames within active window of 18)
-    const candidates = [];
-    for (let i = 1; i < TOTAL_FRAMES; i++) {
-      if (frameStatus[i] === STATUS.READY && images[i]) {
-        const dist = Math.abs(i - center);
-        if (dist > 18) {
-          candidates.push({ idx: i, dist, lastAccess: frameLastAccess[i] });
-        }
-      }
-    }
-
-    // Sort by largest distance first, then oldest access
-    candidates.sort((a, b) => b.dist - a.dist || a.lastAccess - b.lastAccess);
-
-    const toEvict = readyCount - MAX_CACHED_FRAMES;
-    for (let k = 0; k < Math.min(toEvict, candidates.length); k++) {
-      const idx = candidates[k].idx;
-      const drawable = images[idx];
-      if (drawable && typeof drawable.close === 'function') {
-        try { drawable.close(); } catch (_) {}
-      }
-      images[idx] = null;
-      frameStatus[idx] = STATUS.UNREQUESTED;
-      loadedCount = Math.max(0, loadedCount - 1);
-    }
+    // Keep all 240 frames permanently in memory for instant 0ms recall without re-fetching
   }
 
-  // --- 1. Contiguous Direction-Aware Priority Streaming Engine ---
+  // --- 1. Immediate Multi-Pass Keyframe Streaming Engine ---
   function enqueueFrame(index) {
     if (index < 0 || index >= TOTAL_FRAMES) return;
     if (frameStatus[index] === STATUS.UNREQUESTED) {
@@ -137,23 +107,33 @@
   }
 
   // Calculate dynamic priority score (lower score = higher urgent priority)
-  // Guarantees contiguous buffering along scroll direction
+  // Ensures immediate vicinity of scroll target downloads first, backed by full 360-degree stride-4 keyframes
   function calculateFramePriority(idx, target, dir) {
     const diff = idx - target;
-    if (dir >= 0) {
-      // Forward scroll: contiguous lookahead ahead gets highest priority
-      if (diff >= 0 && diff <= 24) return diff;
-      else if (diff < 0 && diff >= -8) return 30 + Math.abs(diff) * 2;
-      else if (diff > 24) return 60 + diff;
-      else return 120 + Math.abs(diff);
-    } else {
-      // Backward scroll: contiguous lookahead backwards gets highest priority
-      const revDiff = target - idx;
-      if (revDiff >= 0 && revDiff <= 24) return revDiff;
-      else if (revDiff < 0 && revDiff >= -8) return 30 + Math.abs(revDiff) * 2;
-      else if (revDiff > 24) return 60 + revDiff;
-      else return 120 + Math.abs(revDiff);
+    const absDiff = Math.abs(diff);
+
+    // Immediate proximity to current scroll target always has absolute highest priority:
+    if (absDiff <= 6) {
+      if ((dir >= 0 && diff >= 0) || (dir < 0 && diff <= 0)) {
+        return absDiff;
+      }
+      return 8 + absDiff;
     }
+
+    if (absDiff <= 16) {
+      return 20 + absDiff;
+    }
+
+    // Prioritize stride-4 keyframes so user gets instant 360° coverage in <300ms:
+    if (idx % 4 === 0) {
+      return 45 + Math.floor(absDiff / 4);
+    }
+    // Then stride-2 keyframes:
+    if (idx % 2 === 0) {
+      return 90 + Math.floor(absDiff / 2);
+    }
+    // Then remaining odd frames:
+    return 150 + absDiff;
   }
 
   function processQueue() {
@@ -195,16 +175,13 @@
         loadedCount++;
 
         updateLoaderProgress();
-        evictFarthestFrames();
 
         if (idx === 0 && lastDrawnFrame === -1) {
           resizeCanvas();
           drawFrame(0);
         }
 
-        // Stale-frame fix: If canvas is currently displaying an approximation,
-        // and this newly downloaded frame is closer to the current scroll target
-        // than what is currently painted, immediately trigger a re-draw.
+        // When a frame arrives that matches or is closer to the current scroll target, re-render immediately
         const currentRound = Math.round(currentFrame);
         const distToCurrent = Math.abs(idx - currentRound);
         const currentPaintedDist = lastDrawnFrame >= 0 ? Math.abs(lastDrawnFrame - currentRound) : 999;
@@ -220,7 +197,7 @@
       processQueue();
     };
 
-    // Fast off-main-thread createImageBitmap decoding (zero UI thread hiccups)
+    // Fast off-main-thread createImageBitmap decoding or native async image
     if (typeof window.createImageBitmap === 'function' && typeof window.fetch === 'function') {
       fetch(url)
         .then(res => {
@@ -265,76 +242,55 @@
   }
 
   function dismissLoader() {
-    if (isLoaderDismissed) return;
     isLoaderDismissed = true;
-    if (loader && !loader.classList.contains('loaded')) {
+    if (loader) {
       loader.classList.add('loaded');
-      setTimeout(() => {
-        if (loader) loader.style.display = 'none';
-      }, 200);
+      loader.style.display = 'none';
     }
     requestRender();
   }
 
-  // Initial Paint: Preload frames 0 to 3 ONLY (network 100% free for initial paint & sub-1.5s LCP)
+  // Multi-pass strided preloading: loads stride-4 keyframes first so all 360 degrees are ready in <300ms
   function preloadInitialFrames() {
-    for (let i = 0; i <= 3; i++) {
+    // 1. Initial paint frame
+    enqueueFrame(0);
+
+    // 2. Pass 1: Stride 4 keyframes (0, 4, 8, 12 ... 236) -> full 360° coverage in ~300ms
+    for (let i = 4; i < TOTAL_FRAMES; i += 4) {
       enqueueFrame(i);
     }
+
+    // 3. Pass 2: Stride 2 intermediate frames (2, 6, 10 ... 238)
+    for (let i = 2; i < TOTAL_FRAMES; i += 4) {
+      enqueueFrame(i);
+    }
+
+    // 4. Pass 3: All remaining odd frames (1, 3, 5, 7 ... 239)
+    for (let i = 1; i < TOTAL_FRAMES; i += 2) {
+      enqueueFrame(i);
+    }
+
     processQueue();
   }
 
-  // Defer frames 4 through 239 until after load event via requestIdleCallback / chunked timers
   let isBackgroundLoadingStarted = false;
   function startDeferredFrameLoading() {
     if (isBackgroundLoadingStarted) return;
     isBackgroundLoadingStarted = true;
-
-    let nextBatchIndex = 4;
-    const BATCH_SIZE = 12;
-
-    function scheduleBatch(deadline) {
-      if (nextBatchIndex >= TOTAL_FRAMES) return;
-
-      while (nextBatchIndex < TOTAL_FRAMES && (!deadline || deadline.timeRemaining() > 1)) {
-        const end = Math.min(TOTAL_FRAMES, nextBatchIndex + BATCH_SIZE);
-        for (let i = nextBatchIndex; i < end; i++) {
-          enqueueFrame(i);
-        }
-        nextBatchIndex = end;
-        processQueue();
-
-        if (nextBatchIndex >= TOTAL_FRAMES) return;
-      }
-
-      if (nextBatchIndex < TOTAL_FRAMES) {
-        if ('requestIdleCallback' in window) {
-          requestIdleCallback(scheduleBatch, { timeout: 800 });
-        } else {
-          setTimeout(() => scheduleBatch(null), 80);
-        }
-      }
-    }
-
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(scheduleBatch, { timeout: 800 });
-    } else {
-      setTimeout(() => scheduleBatch(null), 100);
-    }
+    preloadInitialFrames();
+    processQueue();
   }
 
   // Contiguous direction-aware lookahead buffer when user scrolls
   function ensureFramesAround(target) {
     const center = Math.round(target);
-    const lookahead = 16;
+    const lookahead = 14;
     const lookbehind = 8;
 
     if (scrollDirection >= 0) {
-      // Scrolling forward: buffer ahead contiguously first, then immediately behind
       for (let r = 0; r <= lookahead; r++) enqueueFrame(center + r);
       for (let r = 1; r <= lookbehind; r++) enqueueFrame(center - r);
     } else {
-      // Scrolling backward: buffer behind contiguously first, then immediately ahead
       for (let r = 0; r <= lookahead; r++) enqueueFrame(center - r);
       for (let r = 1; r <= lookbehind; r++) enqueueFrame(center + r);
     }
@@ -525,6 +481,16 @@
   let lastPercentString = '';
   let lastOrbitAngle = -999;
 
+  function updateOrbitAngle(frameIndex) {
+    if (!experienceOrbit) return;
+    const progress = frameIndex / (TOTAL_FRAMES - 1);
+    const angle = progress * 360;
+    if (Math.abs(angle - lastOrbitAngle) >= 0.1) {
+      lastOrbitAngle = angle;
+      experienceOrbit.style.setProperty('--orbit-angle', `${angle.toFixed(2)}deg`);
+    }
+  }
+
   function updateScrollBars(frameIndex) {
     const progress = frameIndex / (TOTAL_FRAMES - 1);
     const progressPercent = `${(progress * 100).toFixed(1)}%`;
@@ -535,12 +501,7 @@
       if (bottomScrubBar) bottomScrubBar.style.width = progressPercent;
     }
 
-    // Cache orbit angle: only mutate DOM when angle changes by at least 0.5 deg
-    const angle = progress * 360;
-    if (experienceOrbit && Math.abs(angle - lastOrbitAngle) >= 0.5) {
-      lastOrbitAngle = angle;
-      experienceOrbit.style.setProperty('--orbit-angle', `${angle.toFixed(1)}deg`);
-    }
+    updateOrbitAngle(frameIndex);
   }
 
   function updateActiveNavLink(activeSection = null) {
@@ -577,6 +538,7 @@
       if (frameToDraw !== lastDrawnFrame || !lastDrawnWasExact) {
         drawFrame(frameToDraw);
       }
+      updateOrbitAngle(currentFrame);
       rafId = requestAnimationFrame(render);
     } else {
       currentFrame = targetFrame;
@@ -584,6 +546,7 @@
       if (frameToDraw !== lastDrawnFrame || !lastDrawnWasExact) {
         drawFrame(frameToDraw);
       }
+      updateOrbitAngle(currentFrame);
       rafId = null; // Idle: 0% CPU consumption
     }
   }
@@ -623,7 +586,7 @@
 
   window.addEventListener('scroll', handleScroll, { passive: true });
 
-  // Desktop Mouse Wheel Listener: Normalized for trackpads & stepped mouse wheels
+  // Desktop Mouse Wheel Listener: Smooth kinetic glide matching mobile touch momentum
   window.addEventListener('wheel', event => {
     if (activeView) return;
     const isMobile = window.innerWidth <= 768;
@@ -631,8 +594,14 @@
       event.preventDefault();
       const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? window.innerHeight : 1;
       const rawDelta = event.deltaY * unit;
-      // Precision normalization: stepped notched mice produce ~100px (~8 frames), trackpads produce fluid continuous ~2-15px
-      const scaledDelta = Math.abs(rawDelta) >= 40 ? (rawDelta / 100) * 8.5 : rawDelta * 0.10;
+      let scaledDelta;
+      if (Math.abs(rawDelta) >= 40) {
+        // Stepped notched mouse wheel: smooth controlled glide
+        scaledDelta = Math.sign(rawDelta) * Math.min(4.8, Math.max(1.2, (Math.abs(rawDelta) / 100) * 2.6));
+      } else {
+        // High-precision trackpad or free-spinning wheel
+        scaledDelta = rawDelta * 0.045;
+      }
       scrubFrames(scaledDelta);
     }
   }, { passive: false });
@@ -758,10 +727,11 @@
       components: ['Arduino Uno / ESP32', 'Ultrasonic HC-SR04 Sensor', '5V Optocoupled Relay Module', 'Water Submersible Pump', 'Embedded C++', 'Threshold Switching Logic'],
       roleDescription: 'Personally designed the circuit wiring schematic, calibrated echo distance thresholds at 20cm, and conducted hardware laboratory testing with student demonstrations.',
       mediaFilename: 'assets/water-management-circuit.png',
-      mediaInfo: 'High-resolution Fritzing circuit schematic and live student hardware demonstration video recorded in the vocational electronics laboratory.',
+      mediaInfo: 'High-resolution schematic wiring diagram and authentic student hardware demonstration video recorded in the vocational electronics laboratory.',
       githubUrl: 'https://github.com/Imran-khan009/arduino-ultrasonic-water-control-system',
       circuitDiagram: 'assets/water-management-circuit.png',
-      diagramCaption: 'System Schematic Architecture (ESP32/Arduino + Ultrasonic Sensor + 5V Relay + Pump)',
+      diagramCaption: 'Circuit Wiring Schematic (Arduino Uno + Ultrasonic Sensor + 5V Relay + Submersible Pump)',
+      systemArchitecture: 'System Architecture: ESP32/Arduino + Ultrasonic Sensor + 5V Relay + Pump',
       videoUrl: 'assets/water-management-video.mp4',
       videoCaption: 'Authentic student laboratory hardware demonstration: Ultrasonic Water Control & Irrigation System'
     },
@@ -776,6 +746,7 @@
       roleDescription: 'Guided vocational student cohort through breadboard circuit assembly, distance calculation timing formula, and soldering compact components onto a lightweight cane structure.',
       mediaFilename: 'assets/projects/smart-blind-stick.webp',
       mediaInfo: 'Student project demonstration photo / prototype walk test video slot. Recommended size: 800×600px. Upload student lab build photography.',
+      systemArchitecture: 'System Architecture: Arduino Nano + HC-SR04 Sensor + Piezo Buzzer + Vibration Motor',
       githubUrl: 'https://github.com/Imran-khan009'
     },
     'rc-robot-car': {
@@ -789,6 +760,7 @@
       roleDescription: 'Personally completed chassis mechanical assembly, wired high-current motor drive circuits, and wrote the wireless transmitter/receiver packet transmission sketch.',
       mediaFilename: 'assets/projects/rc-robot-car.webp',
       mediaInfo: 'Robot car hardware photo / field maneuvering video demo slot. Recommended size: 800×600px.',
+      systemArchitecture: 'System Architecture: Microcontroller + L298N Dual H-Bridge + 2.4GHz RF + 4WD Chassis',
       githubUrl: 'https://github.com/Imran-khan009'
     },
     'home-automation': {
@@ -802,6 +774,7 @@
       roleDescription: 'Supervised students in electrical safety protocols, low-voltage to high-voltage isolation, setting up local Wi-Fi station connectivity, and relay state management.',
       mediaFilename: 'assets/projects/home-automation.webp',
       mediaInfo: 'Classroom automation board photo / relay switching video slot. Recommended size: 800×600px.',
+      systemArchitecture: 'System Architecture: ESP32 Wi-Fi + Optocoupler + 4-Channel Relays + AC Loads',
       githubUrl: 'https://github.com/Imran-khan009'
     },
     'flame-gas-detector': {
@@ -815,6 +788,7 @@
       roleDescription: 'Instructed students on gas sensor preheating cycles, analog PPM threshold calibration, and writing non-blocking interrupt routines for immediate safety triggering.',
       mediaFilename: 'assets/projects/flame-gas-detector.webp',
       mediaInfo: 'Sensor test rig photo / smoke-trigger testing video demo slot. Recommended size: 800×600px.',
+      systemArchitecture: 'System Architecture: MQ-2 Gas / Flame Sensor + Arduino Uno + Active Siren Alarm',
       githubUrl: 'https://github.com/Imran-khan009'
     },
     'radar-system': {
@@ -831,6 +805,7 @@
       githubUrl: 'https://github.com/Imran-khan009/arduino-ultrasonic-radar-system/blob/main/README.md',
       circuitDiagram: 'assets/circuit-diagram.png',
       diagramCaption: 'Fritzing Wiring Schematic (Arduino Uno + HC-SR04 Ultrasonic + SG90 Servo)',
+      systemArchitecture: 'System Architecture: Arduino Uno + HC-SR04 Ultrasonic Sensor + SG90 Servo',
       videoUrl: 'assets/radar-demo-video.mp4',
       videoCaption: 'Authentic student demonstration video: Ultrasonic Radar System built with Arduino & SG90 Servo'
     },
@@ -845,6 +820,7 @@
       roleDescription: 'Mentored student groups through obstacle detection state machines (Look Left, Look Right, Compare Distance, Steer Clear) and motor PWM tuning.',
       mediaFilename: 'assets/projects/obstacle-car.webp',
       mediaInfo: 'Autonomous avoidance arena test photo / rover navigation video slot. Recommended size: 800×600px.',
+      systemArchitecture: 'System Architecture: Arduino Uno + L298N Driver + HC-SR04 Sensor + Pan Servo',
       githubUrl: 'https://github.com/Imran-khan009'
     },
     'modular-arduino-esp32': {
@@ -858,6 +834,7 @@
       roleDescription: 'Authored and delivered hands-on vocational lab worksheets, instructed 500+ students on multimeter circuit diagnostics, serial debugging, and breadboard wiring best practices.',
       mediaFilename: 'assets/projects/modular-electronics.webp',
       mediaInfo: 'Classroom electronics workbench photo / student circuit wiring showcase. Recommended size: 800×600px.',
+      systemArchitecture: 'System Architecture: ESP32/Arduino + I2C OLED Display + DHT11 + PIR Sensor',
       githubUrl: 'https://github.com/Imran-khan009'
     },
     'custom-websites': {
@@ -871,6 +848,7 @@
       roleDescription: 'Personally architected frontend layouts, eliminated render-blocking CSS, wrote responsive layout systems, and verified cross-browser compatibility.',
       mediaFilename: 'assets/projects/custom-websites.webp',
       mediaInfo: 'Full-page responsive screenshot / mobile viewport screen recording slot. Recommended size: 1200×800px.',
+      systemArchitecture: 'System Architecture: HTML5 + CSS3 + ES6+ JavaScript + Responsive Grid Engine',
       githubUrl: 'https://github.com/Imran-khan009'
     },
     'portfolio-website': {
@@ -884,6 +862,7 @@
       roleDescription: 'Personally engineered frame streaming scheduler, tactile mobile scrubbing engine, accessible modal views, and 60fps canvas rendering pipeline.',
       mediaFilename: 'assets/projects/portfolio-screenshot.webp',
       mediaInfo: 'Live portfolio platform desktop & mobile showcase screenshot. Recommended size: 1200×800px.',
+      systemArchitecture: 'System Architecture: Vite + HTML5 Canvas 2D + 240 WebP Stream + CI/CD',
       githubUrl: 'https://github.com/Imran-khan009'
     },
     'verified-web-projects': {
@@ -897,6 +876,7 @@
       roleDescription: 'Engineered clean landing pages for commercial and educational initiatives, providing straightforward contact paths and instant mobile paint times.',
       mediaFilename: 'assets/projects/landing-page-projects.webp',
       mediaInfo: 'Landing page interface screenshot / live web preview slot. Recommended size: 1200×800px.',
+      systemArchitecture: 'System Architecture: Semantic Layout + Accessible DOM + High-Performance Web Core',
       githubUrl: 'https://github.com/Imran-khan009'
     },
     'resume-design': {
@@ -910,6 +890,7 @@
       roleDescription: 'Created standardized corporate CV templates, structured visual section hierarchies, and produced high-resolution print-ready and digital vector exports.',
       mediaFilename: 'assets/projects/cv-resume-design.webp',
       mediaInfo: 'Sample anonymized professional CV layout mockup. Recommended size: 800×1100px.',
+      systemArchitecture: 'System Architecture: Adobe Illustrator + Typography System + ATS Hierarchy + PDF',
       githubUrl: 'https://github.com/Imran-khan009'
     },
     'graphic-design': {
@@ -923,6 +904,7 @@
       roleDescription: 'Designed client brand marks, vector collateral, promotional marketing assets, and social campaign banners with strict color fidelity.',
       mediaFilename: 'assets/projects/graphic-design-brand.webp',
       mediaInfo: 'Brand identity showcase board / logo vector sheet slot. Recommended size: 1000×700px.',
+      systemArchitecture: 'System Architecture: Adobe Photoshop + Illustrator + Brand Identity System',
       githubUrl: 'https://github.com/Imran-khan009'
     },
     'video-editing': {
@@ -936,6 +918,7 @@
       roleDescription: 'Edited hardware experiment demonstrations, student workshop highlights, and social promotional clips with sharp audio pacing and visual clarity.',
       mediaFilename: 'assets/projects/video-editing-samples.webp',
       mediaInfo: 'Video editing timeline screenshot / demo reel thumbnail slot. Recommended size: 1280×720px.',
+      systemArchitecture: 'System Architecture: Timeline Cuts + Multi-Track Audio Sync + Motion Title Pacing',
       githubUrl: 'https://github.com/Imran-khan009'
     },
     'digital-marketing': {
@@ -949,6 +932,7 @@
       roleDescription: 'Formulated conversion campaigns, selected target demographics, designed advertising creative variants, and analyzed campaign CTR and cost per lead.',
       mediaFilename: 'assets/projects/digital-marketing-campaigns.webp',
       mediaInfo: 'Campaign dashboard metrics / ad creative variants slot. Recommended size: 1000×700px.',
+      systemArchitecture: 'System Architecture: Audience Research + Creative A/B Testing + Conversion Funnel',
       githubUrl: 'https://github.com/Imran-khan009'
     },
     'ecommerce-projects': {
@@ -962,6 +946,7 @@
       roleDescription: 'Configured online catalog flows, integrated one-click direct WhatsApp order links with pre-filled item messages, and streamlined checkout for regional buyers.',
       mediaFilename: 'assets/projects/ecommerce-solutions.webp',
       mediaInfo: 'Storefront catalog screenshot / WhatsApp checkout flow demo slot. Recommended size: 1000×700px.',
+      systemArchitecture: 'System Architecture: Product Catalog Grid + WhatsApp Checkout + Mobile-First Flow',
       githubUrl: 'https://github.com/Imran-khan009'
     }
   };
@@ -1005,16 +990,10 @@
     if (modalMediaFilename) modalMediaFilename.textContent = data.mediaFilename;
     if (modalMediaInfo) modalMediaInfo.textContent = data.mediaInfo;
     if (modalGithubLink) {
-      modalGithubLink.href = data.githubUrl;
+      modalGithubLink.href = data.githubUrl || 'https://github.com/Imran-khan009';
       const ghLabel = modalGithubLink.querySelector('span');
       if (ghLabel) {
-        if (data.githubUrl.includes('arduino-ultrasonic-water-control-system')) {
-          ghLabel.textContent = 'View Water Control System Repository on GitHub';
-        } else if (data.githubUrl.includes('arduino-ultrasonic-radar-system')) {
-          ghLabel.textContent = 'View Arduino Radar Repository & Documentation';
-        } else {
-          ghLabel.textContent = 'Explore on GitHub Profile';
-        }
+        ghLabel.textContent = '↗ View GitHub Repository';
       }
     }
 
@@ -1028,82 +1007,79 @@
       });
     }
 
-    // Dynamic Media Presentation: Rich Circuit Diagram & Video Player
-    if (modalMediaSlot) {
-      if (data.circuitDiagram || data.videoUrl) {
-        modalMediaSlot.classList.add('has-media');
-        modalMediaSlot.innerHTML = `
-          <div class="modal-media-tabs">
-            ${data.circuitDiagram ? `<button type="button" class="modal-media-tab-btn active" data-tab="diagram">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-              <span>Circuit Diagram</span>
-            </button>` : ''}
-            ${data.videoUrl ? `<button type="button" class="modal-media-tab-btn ${!data.circuitDiagram ? 'active' : ''}" data-tab="video">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              <span>Live Demonstration Video</span>
-            </button>` : ''}
-          </div>
+    // Update Section 04: Authentic Media & Demonstration Card
+    const modalSystemArch = document.getElementById('modal-system-architecture');
+    if (modalSystemArch) {
+      modalSystemArch.textContent = data.systemArchitecture || 'System Architecture: ESP32/Arduino + Ultrasonic Sensor + 5V Relay + Pump';
+    }
 
-          ${data.circuitDiagram ? `
-            <div class="modal-media-tab-pane" id="tab-pane-diagram">
-              <div class="modal-diagram-img-wrap">
-                <a href="${data.circuitDiagram}" target="_blank" rel="noopener noreferrer" title="Click to view full diagram">
-                  <img src="${data.circuitDiagram}" alt="${data.title} Circuit Diagram" class="modal-diagram-img" loading="lazy">
-                </a>
-              </div>
-              <div class="media-caption-bar">
-                <span>${data.diagramCaption || 'Fritzing Circuit Wiring Schematic'}</span>
-                <a href="${data.circuitDiagram}" target="_blank" rel="noopener noreferrer">Open Full Size ↗</a>
-              </div>
-            </div>
-          ` : ''}
+    const modalExpandBadge = document.getElementById('modal-expand-badge');
+    const modalDiagramImg = document.getElementById('modal-diagram-showcase-img');
+    const modalVideoPlayer = document.getElementById('modal-video-player');
+    const modalPaneDiagram = document.getElementById('modal-pane-diagram');
+    const modalPaneVideo = document.getElementById('modal-pane-video');
+    const modalPanePlaceholder = document.getElementById('modal-pane-placeholder');
+    const modalCapsuleSwitcher = document.getElementById('modal-capsule-switcher');
+    const tabBtnDiagram = document.getElementById('modal-tab-diagram');
+    const tabBtnVideo = document.getElementById('modal-tab-video');
 
-          ${data.videoUrl ? `
-            <div class="modal-media-tab-pane" id="tab-pane-video" style="${data.circuitDiagram ? 'display: none;' : ''}">
-              <div class="modal-video-wrap">
-                <video class="modal-video-player" controls preload="metadata" playsinline poster="${data.circuitDiagram || ''}">
-                  <source src="${data.videoUrl}" type="video/mp4">
-                  Your browser does not support HTML5 video playback.
-                </video>
-              </div>
-              <div class="media-caption-bar">
-                <span>${data.videoCaption || 'Live Project Demonstration'}</span>
-                <a href="${data.githubUrl}" target="_blank" rel="noopener noreferrer">Source Code on GitHub ↗</a>
-              </div>
-            </div>
-          ` : ''}
-        `;
+    if (data.circuitDiagram || data.videoUrl) {
+      if (modalPanePlaceholder) modalPanePlaceholder.style.display = 'none';
+      if (modalCapsuleSwitcher) modalCapsuleSwitcher.style.display = 'inline-flex';
 
-        // Wire tab toggling
-        const tabBtns = modalMediaSlot.querySelectorAll('.modal-media-tab-btn');
-        tabBtns.forEach(btn => {
-          btn.addEventListener('click', () => {
-            tabBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            const targetTab = btn.dataset.tab;
-            const diagramPane = modalMediaSlot.querySelector('#tab-pane-diagram');
-            const videoPane = modalMediaSlot.querySelector('#tab-pane-video');
-            if (diagramPane) diagramPane.style.display = targetTab === 'diagram' ? 'block' : 'none';
-            if (videoPane) {
-              videoPane.style.display = targetTab === 'video' ? 'block' : 'none';
-              const vid = videoPane.querySelector('video');
-              if (vid && targetTab === 'video') vid.play().catch(() => {});
-              else if (vid) vid.pause();
-            }
-          });
-        });
+      if (data.circuitDiagram) {
+        if (modalDiagramImg) {
+          modalDiagramImg.src = data.circuitDiagram;
+          modalDiagramImg.alt = `${data.title} Circuit Schematic`;
+        }
+        if (modalExpandBadge) {
+          modalExpandBadge.href = data.circuitDiagram;
+          modalExpandBadge.style.display = 'inline-flex';
+        }
       } else {
-        modalMediaSlot.classList.remove('has-media');
-        modalMediaSlot.innerHTML = `
-          <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.8" class="media-box-icon">
-            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-            <circle cx="8.5" cy="8.5" r="1.5"></circle>
-            <polyline points="21 15 16 10 5 21"></polyline>
-          </svg>
-          <span class="media-placeholder-tag" id="modal-media-filename">${data.mediaFilename}</span>
-          <p class="media-placeholder-info" id="modal-media-info">${data.mediaInfo}</p>
-        `;
+        if (modalExpandBadge) modalExpandBadge.style.display = 'none';
       }
+
+      if (data.videoUrl && modalVideoPlayer) {
+        const srcEl = modalVideoPlayer.querySelector('source');
+        if (srcEl) srcEl.src = data.videoUrl;
+        modalVideoPlayer.poster = data.circuitDiagram || '';
+        modalVideoPlayer.load();
+      }
+
+      // Configure tab buttons visibility & initial state
+      if (data.circuitDiagram) {
+        if (tabBtnDiagram) {
+          tabBtnDiagram.style.display = 'inline-flex';
+          tabBtnDiagram.classList.add('active');
+          tabBtnDiagram.setAttribute('aria-selected', 'true');
+        }
+        if (tabBtnVideo) {
+          tabBtnVideo.style.display = data.videoUrl ? 'inline-flex' : 'none';
+          tabBtnVideo.classList.remove('active');
+          tabBtnVideo.setAttribute('aria-selected', 'false');
+        }
+        if (modalPaneDiagram) modalPaneDiagram.style.display = 'flex';
+        if (modalPaneVideo) modalPaneVideo.style.display = 'none';
+        if (modalExpandBadge) modalExpandBadge.style.display = 'inline-flex';
+      } else {
+        if (tabBtnDiagram) tabBtnDiagram.style.display = 'none';
+        if (tabBtnVideo) {
+          tabBtnVideo.style.display = 'inline-flex';
+          tabBtnVideo.classList.add('active');
+          tabBtnVideo.setAttribute('aria-selected', 'true');
+        }
+        if (modalPaneDiagram) modalPaneDiagram.style.display = 'none';
+        if (modalPaneVideo) modalPaneVideo.style.display = 'flex';
+        if (modalExpandBadge) modalExpandBadge.style.display = 'none';
+      }
+    } else {
+      // Placeholder state for projects without circuit diagram / video
+      if (modalCapsuleSwitcher) modalCapsuleSwitcher.style.display = 'none';
+      if (modalPaneDiagram) modalPaneDiagram.style.display = 'none';
+      if (modalPaneVideo) modalPaneVideo.style.display = 'none';
+      if (modalExpandBadge) modalExpandBadge.style.display = 'none';
+      if (modalPanePlaceholder) modalPanePlaceholder.style.display = 'flex';
     }
 
     projectDetailModal.classList.add('active');
@@ -1126,6 +1102,68 @@
   if (projectModalClose) projectModalClose.addEventListener('click', closeProjectDetail);
   if (projectModalBackdrop) projectModalBackdrop.addEventListener('click', closeProjectDetail);
   if (projectModalDismiss) projectModalDismiss.addEventListener('click', closeProjectDetail);
+
+  // Wire capsule switcher tab toggling in Modal Section 04 card
+  const modalCapsuleTabs = document.querySelectorAll('#modal-capsule-switcher .capsule-tab-btn');
+  modalCapsuleTabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      modalCapsuleTabs.forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      const target = btn.dataset.tab;
+      const diagramPane = document.getElementById('modal-pane-diagram');
+      const videoPane = document.getElementById('modal-pane-video');
+      const expandBadge = document.getElementById('modal-expand-badge');
+      const videoPlayer = document.getElementById('modal-video-player');
+
+      if (target === 'diagram') {
+        if (diagramPane) diagramPane.style.display = 'flex';
+        if (videoPane) videoPane.style.display = 'none';
+        if (expandBadge) expandBadge.style.display = 'inline-flex';
+        if (videoPlayer) videoPlayer.pause();
+      } else {
+        if (diagramPane) diagramPane.style.display = 'none';
+        if (videoPane) videoPane.style.display = 'flex';
+        if (expandBadge) expandBadge.style.display = 'none';
+        if (videoPlayer) videoPlayer.play().catch(() => {});
+      }
+    });
+  });
+
+  // Wire card-level capsule switcher tab toggling in Work Section
+  document.querySelectorAll('.card-tab-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const card = btn.closest('.project-card');
+      if (!card) return;
+
+      const cardTabs = card.querySelectorAll('.card-tab-btn');
+      cardTabs.forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+
+      const targetTab = btn.dataset.cardTab;
+      const diagramPane = card.querySelector('.card-pane-diagram');
+      const videoPane = card.querySelector('.card-pane-video');
+      const vid = card.querySelector('video');
+
+      if (targetTab === 'diagram') {
+        if (diagramPane) diagramPane.style.display = 'flex';
+        if (videoPane) videoPane.style.display = 'none';
+        if (vid) vid.pause();
+      } else {
+        if (diagramPane) diagramPane.style.display = 'none';
+        if (videoPane) videoPane.style.display = 'flex';
+        if (vid) vid.play().catch(() => {});
+      }
+    });
+  });
 
   // Bind project cards and spec buttons
   document.querySelectorAll('[data-open-project]').forEach(btn => {
@@ -1267,24 +1305,185 @@
     }, 3000);
   }
 
-  // --- 3D Floating Badge Tilt Effect ---
+  // --- 3D Floating Badge Magnetic & Tilt Effect ---
   function initTiltEffects() {
     tiltBadges.forEach(badge => {
       badge.addEventListener('mousemove', (e) => {
-        const isMobile = window.innerWidth <= 768;
-        if (isMobile) return;
+        if (window.innerWidth <= 768) return;
         const rect = badge.getBoundingClientRect();
         const x = e.clientX - rect.left - rect.width / 2;
         const y = e.clientY - rect.top - rect.height / 2;
-        badge.style.transform = `perspective(500px) rotateX(${-y * 0.1}deg) rotateY(${x * 0.1}deg) scale(1.04)`;
+        // Smooth magnetic pull on CSS translate without breaking base orbit orientation
+        badge.style.translate = `${(x * 0.28).toFixed(1)}px ${(y * 0.28).toFixed(1)}px`;
       });
 
       badge.addEventListener('mouseleave', () => {
-        const isMobile = window.innerWidth <= 768;
-        if (isMobile) return;
-        badge.style.transform = '';
+        if (window.innerWidth <= 768) return;
+        badge.style.translate = '0px 0px';
+        setTimeout(() => {
+          if (!badge.matches(':hover')) {
+            badge.style.translate = '';
+          }
+        }, 350);
       });
     });
+  }
+
+  // --- Interactive Profile Image & Hero Section Parallax Tilt ---
+  function initHeroParallax() {
+    const heroSection = document.querySelector('.hero-section');
+    const canvasEl = document.getElementById('animation-canvas');
+    const haloEl = document.querySelector('.halo-portal-container');
+    const orbitEl = document.querySelector('.experience-orbit');
+    if (!heroSection) return;
+
+    let targetX = 0;
+    let targetY = 0;
+    let currentTiltX = 0;
+    let currentTiltY = 0;
+    let isHovering = false;
+    let parallaxActive = false;
+
+    function onMouseMove(e) {
+      if (window.innerWidth <= 768) return;
+      const rect = heroSection.getBoundingClientRect();
+      if (e.clientY < rect.top - 80 || e.clientY > rect.bottom + 80) {
+        isHovering = false;
+        targetX = 0;
+        targetY = 0;
+        return;
+      }
+      isHovering = true;
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      targetX = Math.max(-1, Math.min(1, (e.clientX - centerX) / (rect.width / 2)));
+      targetY = Math.max(-1, Math.min(1, (e.clientY - centerY) / (rect.height / 2)));
+
+      if (!parallaxActive) {
+        parallaxActive = true;
+        requestAnimationFrame(renderParallax);
+      }
+    }
+
+    function onMouseLeave() {
+      isHovering = false;
+      targetX = 0;
+      targetY = 0;
+      if (!parallaxActive) {
+        parallaxActive = true;
+        requestAnimationFrame(renderParallax);
+      }
+    }
+
+    window.addEventListener('mousemove', onMouseMove, { passive: true });
+    document.addEventListener('mouseleave', onMouseLeave);
+
+    function renderParallax() {
+      if (window.innerWidth <= 768) {
+        if (canvasEl) canvasEl.style.transform = '';
+        if (haloEl) haloEl.style.transform = '';
+        if (orbitEl) orbitEl.style.translate = '';
+        parallaxActive = false;
+        return;
+      }
+
+      currentTiltX += (targetX - currentTiltX) * 0.08;
+      currentTiltY += (targetY - currentTiltY) * 0.08;
+
+      // Profile Canvas 3D Perspective Tilt
+      if (canvasEl) {
+        const rotY = (currentTiltX * 4.5).toFixed(2);
+        const rotX = (-currentTiltY * 4.5).toFixed(2);
+        const shiftX = (currentTiltX * 8).toFixed(1);
+        const shiftY = (currentTiltY * 6).toFixed(1);
+        canvasEl.style.transform = `perspective(1000px) rotateY(${rotY}deg) rotateX(${rotX}deg) translate3d(${shiftX}px, ${shiftY}px, 0)`;
+        canvasEl.style.transformOrigin = '60% 50%';
+      }
+
+      // Halo Portal Ring Parallax Depth
+      if (haloEl) {
+        const haloX = (currentTiltX * 14).toFixed(1);
+        const haloY = (currentTiltY * 11).toFixed(1);
+        const haloRotY = (currentTiltX * 6).toFixed(2);
+        const haloRotX = (-currentTiltY * 6).toFixed(2);
+        haloEl.style.transform = `translate(calc(-50% + ${haloX}px), calc(-50% + ${haloY}px)) perspective(800px) rotateY(${haloRotY}deg) rotateX(${haloRotX}deg)`;
+      }
+
+      // Orbit container subtle shift
+      if (orbitEl) {
+        const orbitShiftX = (currentTiltX * 8).toFixed(1);
+        const orbitShiftY = (currentTiltY * 6).toFixed(1);
+        orbitEl.style.translate = `${orbitShiftX}px ${orbitShiftY}px`;
+      }
+
+      const diff = Math.abs(currentTiltX - targetX) + Math.abs(currentTiltY - targetY);
+      if (isHovering || diff > 0.001) {
+        requestAnimationFrame(renderParallax);
+      } else {
+        parallaxActive = false;
+        if (!isHovering) {
+          if (canvasEl) canvasEl.style.transform = '';
+          if (haloEl) haloEl.style.transform = '';
+          if (orbitEl) orbitEl.style.translate = '';
+        }
+      }
+    }
+  }
+
+  // --- Smooth Stats Counter Animation (60 FPS with easeOutExpo) ---
+  function initStatsCounter() {
+    const statNumbers = document.querySelectorAll('.stat-number[data-counter-target]');
+    if (!statNumbers.length) return;
+
+    let hasAnimated = false;
+
+    function runCounters() {
+      if (hasAnimated) return;
+      hasAnimated = true;
+
+      statNumbers.forEach(el => {
+        const target = parseInt(el.getAttribute('data-counter-target'), 10) || 0;
+        const suffix = el.getAttribute('data-counter-suffix') || '';
+        const duration = 1800; // 1.8 seconds
+        const startTime = performance.now();
+
+        function update(now) {
+          const elapsed = now - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          // Ease Out Exponential curve: fast fluid start, gentle landing
+          const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+          const currentVal = Math.round(easeProgress * target);
+          el.textContent = `${currentVal}${suffix}`;
+
+          if (progress < 1) {
+            requestAnimationFrame(update);
+          } else {
+            el.textContent = `${target}${suffix}`;
+          }
+        }
+
+        requestAnimationFrame(update);
+      });
+    }
+
+    if ('IntersectionObserver' in window) {
+      const statsBar = document.querySelector('.stats-glass-bar');
+      if (statsBar) {
+        const observer = new IntersectionObserver((entries, obs) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              runCounters();
+              obs.disconnect();
+            }
+          });
+        }, { threshold: 0.15 });
+        observer.observe(statsBar);
+      } else {
+        runCounters();
+      }
+    } else {
+      runCounters();
+    }
   }
 
   // Resume action
@@ -1360,6 +1559,8 @@
     resizeCanvas();
     preloadInitialFrames();
     initTiltEffects();
+    initHeroParallax();
+    initStatsCounter();
     dismissLoader(); // Instantly dismiss any blocking overlay so LCP paints under 1.5s
   });
 
